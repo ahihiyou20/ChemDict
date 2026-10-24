@@ -10,16 +10,22 @@ useMotionScope(section, (motion, root) => {
 
   // Each lane is a TLC plate developing under the reader's scroll: the solvent front climbs from the
   // origin and the spots rise to their places as it passes. The plates themselves never hide.
-  gsap.utils.toArray<HTMLElement>('.lane', root).forEach((lane, i) => {
-    const body = lane.querySelector<HTMLElement>('.lane-body')!
-    const spots = lane.querySelectorAll('.spot')
-    gsap
+  const lanes = gsap.utils.toArray<HTMLElement>('.lane', root).map((lane) => ({
+    body: lane.querySelector<HTMLElement>('.lane-body')!,
+    spots: [...lane.querySelectorAll<HTMLElement>('.spot')],
+  }))
+  // Parse every spot's transform before the first write: one style pass, not one per spot.
+  lanes.forEach(({ spots }) => spots.forEach((spot) => gsap.getProperty(spot, 'y')))
+  lanes.forEach(({ body, spots }, i) => {
+    const develop = gsap
       .timeline({
         defaults: { ease: 'none' },
         scrollTrigger: { trigger: body, start: 'top 88%', end: `top ${40 - (i % 4) * 4}%`, scrub: 0.6 },
       })
       .fromTo(body.querySelector('.front'), { yPercent: 100 }, { yPercent: 0, duration: 1 }, 0)
-      .fromTo(spots, { y: 34, opacity: 0.18 }, { y: 0, opacity: 1, duration: 0.45, stagger: { each: 0.4 / Math.max(spots.length, 1), from: 'end' } }, 0.1)
+    // A lesson with no terms yet is a blank plate: only its solvent front runs.
+    if (spots.length)
+      develop.fromTo(spots, { y: 34, opacity: 0.18 }, { y: 0, opacity: 1, duration: 0.45, stagger: { each: 0.4 / spots.length, from: 'end' } }, 0.1)
   })
   return stopDecode
 })

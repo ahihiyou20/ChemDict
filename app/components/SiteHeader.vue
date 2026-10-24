@@ -254,6 +254,12 @@ kbd {
   color: var(--ink-secondary);
 }
 
+/* The digits turn over like split-flap leaves: never seen from behind, mirrored. */
+.cell-count,
+.cell-number {
+  backface-visibility: hidden;
+}
+
 .cell-count {
   position: absolute;
   top: 3px;
