@@ -10,3 +10,8 @@ dist
 .env.*
 !.env.example
 __pycache__
+
+# MCP tooling
+.codegraph/
+.playwright-mcp/
+.claude/settings.local.json
