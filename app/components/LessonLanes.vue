@@ -67,7 +67,7 @@ onBeforeUnmount(() => revert?.())
 .plate {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--s4);
+  gap: var(--s8) var(--s6);
   margin: 0;
   padding: 0;
   list-style: none;

@@ -4,7 +4,6 @@ import { fold } from '#shared/utils/lexicon'
 import { searchLexicon, warmLexiconIndex, type MatchField, type SearchHit } from '~/composables/useLexiconSearch'
 
 const { lessons, entries, senseCount, entryOfSense } = useLexicon()
-const route = useRoute()
 const router = useRouter()
 const pendingFocus = useState('pending-search-focus', () => false)
 
@@ -15,6 +14,8 @@ const hovered = ref<string | null>(null)
 const input = ref<HTMLInputElement | null>(null)
 const results = ref<HTMLOListElement | null>(null)
 const instrument = ref<HTMLElement | null>(null)
+const plot = ref<HTMLElement | null>(null)
+const plotWidth = ref(0)
 
 const RESULT_LIMIT = 8
 
@@ -58,17 +59,42 @@ function annotationOf(slot: Slot): { kind: 'name' | 'value' | 'hover'; text: str
   return null
 }
 
+const LABEL_CHAR_PX = 7.4 // 0.75rem mono advance, plus padding slack
+
+/** Keep a peak label inside the plot: centre it when it fits, else hang it off the line's start or end. */
+function alignOf(slot: Slot, text: string): 'start' | 'center' | 'end' {
+  const width = plotWidth.value
+  const position = slot.index / Math.max(senseCount - 1, 1)
+  if (!width) return position < 0.18 ? 'start' : position > 0.82 ? 'end' : 'center'
+  const x = slotCentres.value[slot.index] ?? position * width
+  const half = (text.length * LABEL_CHAR_PX + 12) / 2
+  if (x - half >= 0 && x + half <= width) return 'center'
+  return x < width / 2 ? 'start' : 'end'
+}
+
+const slotCentres = ref<number[]>([])
+
+function measure() {
+  if (!plot.value) return
+  const box = plot.value.getBoundingClientRect()
+  plotWidth.value = box.width
+  slotCentres.value = [...plot.value.querySelectorAll<HTMLElement>('.slot')].map((el) => {
+    const rect = el.getBoundingClientRect()
+    return rect.left - box.left + rect.width / 2
+  })
+}
+
 const view = computed(() =>
   columns.map((column) => ({
     ...column,
     slots: column.slots.map((slot) => {
       const match = ranked.value.get(slot.entry.slug)
-      const position = slot.index / Math.max(senseCount - 1, 1)
+      const annotation = annotationOf(slot)
       return {
         ...slot,
         h: heightOf(slot.entry),
-        annotation: annotationOf(slot),
-        align: position < 0.18 ? 'start' : position > 0.82 ? 'end' : 'center',
+        annotation,
+        align: annotation ? alignOf(slot, annotation.text) : 'center',
         state: hovered.value === slot.sense.id
           ? 'hover'
           : !isQuerying.value
@@ -118,7 +144,7 @@ watch(query, async (value) => {
   clearTimeout(urlTimer)
   urlTimer = setTimeout(() => {
     const q = value.trim()
-    if ((route.query.q ?? '') !== q) router.replace({ query: q ? { q } : {} })
+    if ((new URLSearchParams(window.location.search).get('q') ?? '') !== q) router.replace({ query: q ? { q } : {} })
   }, 300)
 })
 
@@ -174,11 +200,20 @@ function focusSearch() {
 watch(pendingFocus, () => nextTick(focusSearch))
 
 let revertScan: (() => void) | undefined
+let resizeObserver: ResizeObserver | undefined
 
 onMounted(async () => {
-  const initial = route.query.q
-  if (typeof initial === 'string' && initial.trim()) query.value = initial
+  await router.isReady()
+  const initialQuery = router.currentRoute.value.query.q
+  const initial = typeof initialQuery === 'string' ? initialQuery : new URLSearchParams(window.location.search).get('q')
+  if (initial?.trim()) query.value = initial
   focusSearch()
+
+  if (plot.value) {
+    resizeObserver = new ResizeObserver(measure)
+    resizeObserver.observe(plot.value)
+    measure()
+  }
 
   const root = document.documentElement
   if (!root.classList.contains('js-scan') || !instrument.value) return
@@ -188,12 +223,14 @@ onMounted(async () => {
   const scope = instrument.value
   const ctx = gsap.context(() => {
     const inks = gsap.utils.toArray<HTMLElement>('.ink', scope)
+    const scan = scope.querySelector('.scan')
     const sweep = 1.6
     gsap
       .timeline({
         onComplete() {
           root.classList.remove('js-scan')
           gsap.set(inks, { clearProps: 'transform' })
+          gsap.set(scan, { clearProps: 'all' })
         },
       })
       .set('.scan', { autoAlpha: 1 })
@@ -210,6 +247,7 @@ onMounted(async () => {
 })
 
 onBeforeUnmount(() => {
+  resizeObserver?.disconnect()
   clearTimeout(urlTimer)
   revertScan?.()
 })
@@ -233,7 +271,7 @@ onBeforeUnmount(() => {
         spellcheck="false"
         enterkeyhint="search"
         aria-describedby="tra-cuu-trang-thai"
-        placeholder="alkane, đồng phân, phổ khối lượng…"
+        placeholder="alkane, đồng phân…"
         @focus="warmLexiconIndex(entries)"
         @keydown="onInputKey"
       >
@@ -250,7 +288,7 @@ onBeforeUnmount(() => {
       <p class="axis-y label">
         {{ isQuerying ? 'Chiều cao vạch = độ khớp tương đối (%)' : 'Mỗi vạch là một thuật ngữ · chiều cao = số bài có thuật ngữ đó' }}
       </p>
-      <div class="plot">
+      <div ref="plot" class="plot">
         <div class="grid-plane" />
         <div class="columns">
           <div
@@ -258,7 +296,7 @@ onBeforeUnmount(() => {
             :key="column.lesson"
             class="column"
             :class="{ empty: !column.slots.length }"
-            :style="{ flexGrow: Math.max(column.slots.length, 3) }"
+            :style="{ flexGrow: Math.max(column.slots.length, 5) }"
           >
             <div
               v-for="slot in column.slots"
@@ -284,7 +322,7 @@ onBeforeUnmount(() => {
           v-for="column in columns"
           :key="column.lesson"
           class="tick"
-          :style="{ flexGrow: Math.max(column.slots.length, 3) }"
+          :style="{ flexGrow: Math.max(column.slots.length, 5) }"
         >
           <span class="tick-name">B{{ column.lesson }}</span>
           <span class="tick-count">{{ column.slots.length }}</span>
@@ -293,7 +331,10 @@ onBeforeUnmount(() => {
     </div>
 
     <div class="readout">
-      <p id="tra-cuu-trang-thai" class="label status" role="status">{{ statusText }}</p>
+      <p id="tra-cuu-trang-thai" class="label status" :class="{ 'visually-hidden': !statusText }" role="status">
+        {{ statusText }}
+        <a v-if="isQuerying && !hits.length" href="#az-title">Xem danh mục A–Z</a>
+      </p>
       <ol v-if="visibleHits.length" ref="results" class="results" @keydown="onResultsKey">
         <li v-for="hit in visibleHits" :key="hit.entry.slug">
           <NuxtLink :to="`/tu/${hit.entry.slug}`" class="result">
@@ -439,6 +480,7 @@ input::-webkit-search-cancel-button {
 .plot {
   position: relative;
   height: var(--plot-h);
+  overflow-x: clip;
 }
 
 /* Depth tool 3: gridlines sit on a quieter back plane. */
@@ -606,9 +648,6 @@ input::-webkit-search-cancel-button {
   min-height: 72px;
 }
 
-.status:empty {
-  display: none;
-}
 
 .results {
   display: grid;
@@ -710,7 +749,8 @@ input::-webkit-search-cancel-button {
     padding-inline: var(--s3);
   }
 
-  .r-meta .r-ipa {
+  .r-meta .r-ipa,
+  .tick-count {
     display: none;
   }
 }

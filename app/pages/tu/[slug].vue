@@ -380,8 +380,8 @@ onBeforeUnmount(() => revert?.())
 
 @media (max-width: 760px) {
   .sense {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--s3);
+    grid-template-columns: 1.75rem minmax(0, 1fr);
+    gap: var(--s2);
   }
 
   .sense-body,

@@ -51,7 +51,8 @@ export async function searchLexicon(entries: Entry[], query: string): Promise<Se
     term: q,
     properties: ['en', 'vi', 'defs'],
     boost: { en: 3, vi: 3, defs: 1 },
-    tolerance: q.length >= 5 ? 1 : 0,
+    // Typo tolerance only for a single long word; on phrases it lets "chat" match "char…".
+    tolerance: !q.includes(' ') && q.length >= 5 ? 1 : 0,
     limit: entries.length,
   })
 
@@ -60,7 +61,8 @@ export async function searchLexicon(entries: Entry[], query: string): Promise<Se
   for (const hit of result.hits) scores.set(hit.id, hit.score)
 
   // Orama matches whole-word prefixes; "carbon" should still find "Hydrocarbon".
-  const floor = Math.max(...scores.values(), 1) * 0.3
+  // A term containing the query should still outrank a match buried in a definition.
+  const floor = Math.max(...scores.values(), 1) * 0.6
   for (const entry of entries) {
     if (!scores.has(entry.slug) && (normalise(entry.en).includes(q) || normalise(viTerms(entry)).includes(q))) {
       scores.set(entry.slug, floor)

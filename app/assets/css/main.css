@@ -12,7 +12,7 @@
   --hairline-strong: oklch(0.78 0.02 225);
   --highlight: oklch(1 0 0 / 0.65);
   --shadow-ink: oklch(0.24 0.025 250 / 0.22);
-  --grain-opacity: 0.045;
+  --grain-opacity: 0.03;
 
   --font-serif: 'Newsreader Variable', 'Noto Serif', Georgia, serif;
   --font-mono: 'Noto Sans Mono Variable', 'Noto Sans Mono', ui-monospace, monospace;
@@ -51,7 +51,7 @@
     --hairline-strong: oklch(0.42 0.025 235);
     --highlight: oklch(1 0 0 / 0.06);
     --shadow-ink: oklch(0 0 0 / 0.5);
-    --grain-opacity: 0.06;
+    --grain-opacity: 0.05;
   }
 }
 

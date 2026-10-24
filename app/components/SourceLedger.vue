@@ -23,7 +23,8 @@ const rows = computed(() => {
       byKey.set(key, row)
     }
   }
-  return [...byKey.values()].sort((a, b) => b.count - a.count)
+  // Rows without a citation go last so the cited sources lead the ledger.
+  return [...byKey.values()].sort((a, b) => Number(!a.url) - Number(!b.url) || b.count - a.count)
 })
 </script>
 
