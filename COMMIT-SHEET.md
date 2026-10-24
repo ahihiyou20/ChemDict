@@ -178,3 +178,87 @@ Audited by grep across `app/`, `shared/` and the config, then confirmed by eye i
 - Touch targets were grown to ≥ 44px with `::after` hit areas or block padding on crumbs, lesson pills, citation links and ledger links, without changing how they look.
 - All UI motion uses `cubic-bezier(0.22, 1, 0.36, 1)` or `power3.out`. There are no scroll-scrubbed tweens. The scan sweep is linear (`ease: 'none'`) because it stands for a detector moving at constant speed.
 
+
+## 9. Amendment 2: colour, motion and a grander 3D (Vinh, 2026-10-24)
+
+Vinh asked for the site to be more colourful and lively, with many more animations on text and components drawn from animation-heavy Awwwards sites, and for the benzene scene to be far more spectacular and prominent.
+
+**Register:** the build moves from `system` to **`build`**, which adds the Phase 5 DOM/GSAP track and Lenis. The system register's cross-route drift gate stays. The grammar stays **live-surface**.
+
+### Recon (Phase 1.2, constrained)
+
+Awwwards pages cannot be opened from this cloud session: the proxy refuses `awwwards.com`, and WebFetch is redirected into the same sandbox. The shortlist below was built from Awwwards' own *Creative Pass* inspiration index, as returned by web search. Each title names its technique.
+
+| Awwwards inspiration | What ChemDict takes from it |
+|---|---|
+| Scramble text on hover, monospace ([link](https://www.awwwards.com/inspiration/scramble-text-on-hover-monospace)); Scramble text in three dimensions ([link](https://www.awwwards.com/inspiration/scramble-text-three-dimensions)) | **Element-symbol decode.** Headings and mono labels resolve through letters of element symbols, with each glyph slot fixed in width so nothing reflows. |
+| Typing animation, Martian Mono ([link](https://www.awwwards.com/inspiration/typing-animation-martian-mono)) | IPA readouts type out like an instrument. |
+| Magnetic text / gooey button ([link](https://www.awwwards.com/inspiration/magnetic-text-gooey-button-gabriel-veres)); momentum-based hover ([link](https://www.awwwards.com/inspiration/momentum-based-hover-more-nutrition)) | Magnetic suggestion chips, lesson cells and next-entry arrow. Fine pointers only. |
+| Scroll animations, elements and outlined font ([link](https://www.awwwards.com/inspiration/scroll-animations-elements-and-outlined-font)) | Outlined A–Z initials that fill as their group enters. |
+| Page transition, Overwatch ([link](https://www.awwwards.com/inspiration/page-transition-overwatch)); GUS about-page transition ([link](https://www.awwwards.com/inspiration/gus-animated-about-page-transition)) | A **chromatography-band wipe** between routes: four flame-coloured bands sweep up and away. |
+| Bright Biotech, SOTD, scrolling story ([link](https://www.awwwards.com/inspiration/mission-scrolling-story-bright-biotech)) | The molecule answers scroll and disperses as the hero leaves. |
+| Interactive Mendeleev's table ([link](https://www.awwwards.com/inspiration/interactive-mendeleevs-table)) | The lesson matrix cells react: drop-in, counting numbers, tilt and flame fill on hover. Used once, as navigation. |
+
+### Palette: flame-test lesson hues
+
+Every lesson gets the colour of a flame test. The colour identifies that lesson everywhere: matrix cells, spectrum lines, lanes, entry tags, index dots, the marquee and the route wipe. Flame hues are used for fills, marks and lines, and never for body text. Text on a flame fill is always `--on-flame`, a dark ink, with ≥ 4.5:1 checked in Phase 7.
+
+| Lesson | Flame test | Light | Dark |
+|---|---|---|---|
+| Bài 10 | Na, sodium: yellow-orange | `oklch(0.82 0.15 78)` | `oklch(0.82 0.15 78)` |
+| Bài 11 | Cu, copper: blue-green | `oklch(0.76 0.12 180)` | `oklch(0.78 0.12 180)` |
+| Bài 12 | K, potassium: lilac | `oklch(0.74 0.12 318)` | `oklch(0.76 0.12 318)` |
+| Bài 13 | Li, lithium: crimson | `oklch(0.68 0.19 22)` | `oklch(0.72 0.17 22)` |
+
+The phenolphthalein pink stays the brand accent. A **universal-indicator strip** (pH 1–14, discrete swatches, never a gradient) doubles as the scroll-progress bar.
+
+### Motion inventory
+
+Each surface uses a different mechanism, so no fade-up repeats down the page.
+
+| Surface | Mechanism |
+|---|---|
+| Opening (the single wow peak, ≈ 2.4s) | Gas condenses into benzene in 3D, the spectrum scan sweeps, the hero title flips in character by character, and a flame bar wipes under "Hóa học". |
+| Header | Lesson cells drop in and their counts tick up (first load only). On hover a cell tilts, fills with its flame colour and is magnetic. |
+| Section titles | Element-symbol decode on entry, once. |
+| Marquee (the one allowed) | EN · VI term pairs with flame separators. Its speed follows scroll velocity and it pauses on hover. Decorative and `aria-hidden`; it duplicates the A–Z index. |
+| A–Z index | Outlined initials fill via clip-path, items cascade diagonally, and on hover an item shifts, shows a flame dot and decodes its VI term. |
+| Lesson lanes | Solvent-front wipe, then spots develop up to their positions, scrubbed with `ease: 'none'`. |
+| Source ledger | Rows clip in from the left and counts tick up. |
+| Entry page | Headword characters rise, the IPA types out, definitions use a line mask, and the plate reveals with clip-path plus a scrubbed parallax (`ease: 'none'`). The next-entry plate gets a flame wipe on hover. |
+| Route change | Chromatography-band wipe, ≤ 0.6s in total. |
+| Scroll | Lenis (`autoRaf: false`, driven by the GSAP ticker, `lagSmoothing(0)`, `lenis.on('scroll', ScrollTrigger.update)`) and the indicator progress strip. |
+
+These replace the earlier "No Lenis" decision. Native features keep working:
+- Ctrl+F and anchors work (`anchors: true`).
+- `/` focus scrolls through `lenis.scrollTo`.
+- Scrollable overlays carry `data-lenis-prevent`.
+
+**Reduced motion:** no Lenis, no decode, a static marquee, no route wipe, no typing, and final numbers shown at once. The 3D is a still benzene.
+
+**No JS:** all text is visible and the marquee is a static row.
+
+### The grander 3D
+
+- **Stage:** a full-bleed hero, with the canvas spanning the whole hero.
+- **Molecule size and position:**
+  - Desktop: about 75% of the hero height, sitting right of the title.
+  - Mobile: behind the title, masked before the body copy.
+- **Four molecules from Bài 10** cycle about every 7s, each captioned and linked to its entry: CH₄ (*Alkane*), C₂H₄ (*Alkene*), C₂H₂ (*Alkyne*) and C₆H₆ (*Aromatic compound*). Morphs stagger per point, so a molecule dissolves and re-forms.
+- **Intro:** the points start as a scattered gas and condense into benzene.
+- **Colour:**
+  - Carbon σ density is ink and hydrogen is copper-teal.
+  - π electrons carry a **ring-current shimmer**, accent ↔ sodium yellow, that travels around the ring.
+  - The dark theme blends additively, so dense regions glow.
+- **Motion and interaction:**
+  - A fine pointer repels nearby electrons.
+  - As the hero scrolls away the cloud disperses, scrubbed with `ease: 'none'`.
+- **Budget:**
+  - Points: up to 60k on WebGPU and 24k on WebGL2, all in the worker.
+  - The tier rules are unchanged: still on reduced motion, software GPU or a slow device.
+  - The cloud is still hidden during a lookup.
+
+**Anti-reference check:**
+- It is still a point-density cloud: no ball-and-stick, and no navy-to-purple gradient behind it.
+- The glow appears only in the dark theme, over the committed ground.
+- The molecules are dictionary entries, not wallpaper.
