@@ -141,6 +141,9 @@ onBeforeUnmount(() => revert?.())
 }
 
 .crumbs {
+  position: relative;
+  /* Above the headword's line masks, so the crumb's grown hit area is not covered. */
+  z-index: 1;
   display: flex;
   flex-wrap: wrap;
   gap: var(--s2);
@@ -233,12 +236,13 @@ onBeforeUnmount(() => revert?.())
   transition: border-color var(--t-press) var(--ease-out), color var(--t-press) var(--ease-out);
 }
 
-/* Grow the pill's hit area to 44px without changing its drawn size. */
+/* Grow small hit areas to at least 44px tall without changing their drawn size. */
 .lesson-tag::after,
-.crumbs a::after {
+.crumbs a::after,
+.citation a::after {
   content: '';
   position: absolute;
-  inset: -12px -6px;
+  inset: -14px -6px;
 }
 
 .crumbs a {
@@ -331,6 +335,7 @@ onBeforeUnmount(() => revert?.())
 }
 
 .citation a {
+  position: relative;
   color: var(--accent);
 }
 

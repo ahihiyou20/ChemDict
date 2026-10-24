@@ -198,6 +198,41 @@ for (const scheme of ['light', 'dark']) {
   await context.close()
 }
 
+// 6. Touch targets at 390px: every control's hit area reaches 44px, counting grown ::after areas.
+{
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true })
+  for (const path of ['/', '/tu/molecular-formula', '/bai/13']) {
+    const page = await context.newPage()
+    await page.goto(base + path, { waitUntil: 'networkidle' })
+    await page.waitForTimeout(400)
+    const small = await page.evaluate(async () => {
+      const out = []
+      for (const el of document.querySelectorAll('main a, main button, main input, header a, header button')) {
+        const style = getComputedStyle(el)
+        // Links inside running prose are exempt (WCAG 2.5.8 inline exception).
+        if (style.display === 'inline' && el.closest('p:not(.citation):not(.crumbs), li, td, dd')) continue
+        let r = el.getBoundingClientRect()
+        if (!r.width || !r.height || style.visibility === 'hidden') continue
+        if (r.height >= 44 || (r.width >= 44 && r.height >= 44)) continue
+        el.scrollIntoView({ block: 'center' })
+        await new Promise((done) => requestAnimationFrame(done))
+        r = el.getBoundingClientRect()
+        const cx = r.left + r.width / 2
+        const cy = r.top + r.height / 2
+        const reach = (y) => {
+          const hit = document.elementFromPoint(cx, y)
+          return hit === el || el.contains(hit)
+        }
+        if (!(reach(cy - 21.5) && reach(cy + 21.5))) out.push(`${el.textContent.trim().slice(0, 24)} ${Math.round(r.width)}×${Math.round(r.height)}`)
+      }
+      return out
+    })
+    check(`Touch targets >= 44px at 390: ${path}`, small.length === 0, small)
+    await page.close()
+  }
+  await context.close()
+}
+
 await browser.close()
 let failed = 0
 for (const r of results) {

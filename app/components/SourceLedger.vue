@@ -118,10 +118,11 @@ tfoot td {
   font-weight: 600;
 }
 
+/* A 44px tall hit area without loosening the table rhythm. */
 a {
   display: inline-block;
-  padding-block: 10px;
-  margin-block: -10px;
+  padding-block: 13px;
+  margin-block: -13px;
 }
 
 @media (max-width: 640px) {

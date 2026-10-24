@@ -95,7 +95,7 @@ useSeoMeta({
 .crumbs a::after {
   content: '';
   position: absolute;
-  inset: -12px -6px;
+  inset: -14px -6px;
 }
 
 .lesson-title {
