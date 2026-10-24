@@ -110,3 +110,12 @@ All 18 anti-slop rules PASS. The table is in `COMMIT-SHEET.md` §8.
 3. **The favicon used a relative URL,** so it returned 404 on every nested route.
 4. **Touch targets under 44px:** crumbs, citation links and ledger links.
 5. **The 404 page had no footer** (cross-route drift).
+
+## Dependency audit
+
+`npm audit` reports high-severity advisories in local tooling only:
+
+- `node-forge`, reached through `listhen` and `nitropack`. It is the Nuxt dev server's HTTPS certificate helper.
+- `compression`, reached through `serve`. It is the local preview server.
+
+Neither is part of the deployed site, which is static HTML, CSS and JS: a search of `.output/public` finds no trace of them. The suggested `npm audit fix --force` downgrades `serve` to a breaking major, so it was not applied.
