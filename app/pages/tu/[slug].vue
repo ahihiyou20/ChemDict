@@ -76,11 +76,13 @@ useMotionScope(article, ({ gsap, ScrollTrigger, SplitText, finePointer }, root) 
     if (figure.getBoundingClientRect().top > window.innerHeight) {
       gsap.from(figure, { y: 36, rotation: -1.2, duration: 1.1, ease: 'power3.out', scrollTrigger: { trigger: figure, start: 'top 92%', once: true } })
     }
-    gsap.fromTo(
-      figure.querySelector('img'),
-      { yPercent: -3, scale: 1.07 },
-      { yPercent: 3, scale: 1.07, ease: 'none', scrollTrigger: { trigger: figure, start: 'top bottom', end: 'bottom top', scrub: true } },
-    )
+    const image = figure.querySelector('img')
+    if (image)
+      gsap.fromTo(
+        image,
+        { yPercent: -3, scale: 1.07 },
+        { yPercent: 3, scale: 1.07, ease: 'none', scrollTrigger: { trigger: figure, start: 'top bottom', end: 'bottom top', scrub: true } },
+      )
   })
 
   // Next entry: the plate floods with the next lesson's flame and the arrow follows the pointer.
@@ -159,6 +161,13 @@ useMotionScope(article, ({ gsap, ScrollTrigger, SplitText, finePointer }, root) 
               >
             </div>
           </figure>
+          <LabDiagram
+            v-else-if="sense.illustration?.kind === 'diagram'"
+            :name="sense.illustration.name"
+            :en="sense.en"
+            :vi="sense.vi"
+            :pos="sense.pos"
+          />
           <div v-else-if="sense.illustration?.kind === 'text'" class="example">
             <p class="label">Minh họa</p>
             <p class="example-text"><ChemText :text="sense.illustration.text" /></p>
