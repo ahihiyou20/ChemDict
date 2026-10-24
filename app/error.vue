@@ -14,6 +14,7 @@ useSeoMeta({ title: props.error.statusCode === 404 ? 'Không tìm thấy' : 'Đ�
       <p class="lede">{{ error.statusMessage || 'Hãy quay lại trang tra cứu và thử lại.' }}</p>
       <button type="button" class="back" @click="clearError({ redirect: '/' })">Về trang tra cứu</button>
     </main>
+    <SiteFooter />
   </div>
 </template>
 

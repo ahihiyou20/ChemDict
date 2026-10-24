@@ -5,6 +5,7 @@ import { instancedBufferAttribute, mix, sin, smoothstep, time, uniform, uv, vec3
  * Procedural electron-density cloud of benzene (C6H6): σ density around the ring atoms and
  * bonds in ink, the delocalised π system as two rings above and below the plane in the accent.
  * Rendered as instanced point sprites on a transparent canvas; one canvas per page.
+ * DOM-free, so it runs in a worker on an OffscreenCanvas as well as on the main thread.
  */
 
 const C_RADIUS = 1.39 // Å, C–C ring
@@ -78,16 +79,6 @@ function buildCloud(scale: number): Cloud {
   return { positions: new Float32Array(points), meta: new Float32Array(meta), count: points.length / 3 }
 }
 
-/** Resolve any CSS colour (oklch included) to sRGB through a 1px canvas. */
-function cssColor(value: string, target: THREE.Color) {
-  const ctx = document.createElement('canvas').getContext('2d', { willReadFrequently: true })
-  if (!ctx) return target
-  ctx.fillStyle = value
-  ctx.fillRect(0, 0, 1, 1)
-  const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data
-  return target.setRGB(r! / 255, g! / 255, b! / 255, THREE.SRGBColorSpace)
-}
-
 /**
  * True when the GPU is emulated on the CPU (SwiftShader, llvmpipe, WARP, fallback adapters),
  * where an animated cloud would cost the whole page its frame rate.
@@ -106,6 +97,9 @@ function isSoftwareRenderer(backend: unknown): boolean {
   return Boolean(info?.isFallbackAdapter) || software.test(`${info?.description ?? ''} ${info?.device ?? ''}`)
 }
 
+/** sRGB components in 0–1. */
+export type RGB = [number, number, number]
+
 export interface BenzeneScene {
   isWebGPU: boolean
   /** CPU-emulated GPU: draw one still frame instead of animating. */
@@ -114,13 +108,31 @@ export interface BenzeneScene {
   resize: (width: number, height: number) => void
   setPointer: (x: number, y: number) => void
   setReveal: (value: number) => void
-  syncColors: () => void
+  setColors: (ink: RGB, accent: RGB) => void
   dispose: () => void
 }
 
+export interface BenzeneOptions {
+  still: boolean
+  devicePixelRatio: number
+  onLost: () => void
+}
+
+/** Messages between the page and the scene worker. */
+export type BenzeneToWorker =
+  | { type: 'init'; canvas: OffscreenCanvas; options: Omit<BenzeneOptions, 'onLost'> }
+  | { type: 'resize'; width: number; height: number }
+  | { type: 'colors'; ink: RGB; accent: RGB }
+  | { type: 'frame'; delta: number; reveal: number; pointer: [number, number] }
+export type BenzeneFromWorker =
+  | { type: 'ready'; isWebGPU: boolean; isSoftware: boolean }
+  | { type: 'drawn' }
+  | { type: 'failed'; reason: string }
+  | { type: 'lost' }
+
 export async function createBenzeneScene(
-  canvas: HTMLCanvasElement,
-  options: { still: boolean; onLost: () => void },
+  canvas: HTMLCanvasElement | OffscreenCanvas,
+  options: BenzeneOptions,
 ): Promise<BenzeneScene> {
   const renderer = new THREE.WebGPURenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' })
   // A lost GPU device leaves a dead canvas; hand control back so the hero can drop it.
@@ -130,14 +142,14 @@ export async function createBenzeneScene(
 
   const isWebGPU = Boolean((renderer.backend as { isWebGPUBackend?: boolean }).isWebGPUBackend)
   const isSoftware = isSoftwareRenderer(renderer.backend)
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, isSoftware ? 1 : isWebGPU ? 2 : 1.5))
+  renderer.setPixelRatio(Math.min(options.devicePixelRatio, isSoftware ? 1 : isWebGPU ? 2 : 1.5))
   renderer.setClearColor(0x000000, 0)
 
   const scene = new THREE.Scene()
   const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 50)
   camera.position.set(0, 0, DISTANCE)
 
-  // Graceful degradation: the WebGL2 fallback draws about half the points.
+  // Graceful degradation: the WebGL2 fallback draws 70% of the points.
   const cloud = buildCloud(isWebGPU ? 1 : 0.7)
   const position = instancedBufferAttribute<'vec3'>(new THREE.InstancedBufferAttribute(cloud.positions, 3))
   const meta = instancedBufferAttribute<'vec2'>(new THREE.InstancedBufferAttribute(cloud.meta, 2))
@@ -170,12 +182,6 @@ export async function createBenzeneScene(
   scene.add(tilt)
 
   const pointer = { x: 0, y: 0 }
-  const syncColors = () => {
-    const styles = getComputedStyle(document.documentElement)
-    cssColor(styles.getPropertyValue('--ink').trim(), ink.value as THREE.Color)
-    cssColor(styles.getPropertyValue('--accent').trim(), accent.value as THREE.Color)
-  }
-  syncColors()
 
   return {
     isWebGPU,
@@ -203,7 +209,10 @@ export async function createBenzeneScene(
     setReveal(value) {
       reveal.value = value
     },
-    syncColors,
+    setColors(inkRGB, accentRGB) {
+      ;(ink.value as THREE.Color).setRGB(...inkRGB, THREE.SRGBColorSpace)
+      ;(accent.value as THREE.Color).setRGB(...accentRGB, THREE.SRGBColorSpace)
+    },
     dispose() {
       material.dispose()
       renderer.dispose()

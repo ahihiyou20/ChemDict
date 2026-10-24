@@ -44,6 +44,8 @@ export default defineNuxtConfig({
   vite: {
     // three.js (~890 KB raw, ~240 KB gzip) is its own chunk, fetched on idle by the home hero only.
     build: { chunkSizeWarningLimit: 1000 },
+    // The benzene scene worker is an ES module worker.
+    worker: { format: 'es' },
   },
   typescript: { strict: true },
 })

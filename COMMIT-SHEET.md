@@ -2,6 +2,8 @@
 
 Committed before any UI code. Register: **`system`** (a multi-route reference app: home instrument, entry pages, lesson pages, with a shared token set and a full-text index). The `system` register runs Phases 1, 2, 4, 6 and 7. One element is borrowed from Phase 5: a single GSAP timeline for the wow peak, plus a ScrollTrigger reveal.
 
+Vinh reviewed the register on 2026-10-24 and kept `system`, then asked for a tasteful 3D scene on the opening view (not needed during lookups). That request is recorded as an amendment in §7, which borrows the Phase 5.3 WebGPU/TSL recipe and the applicable Phase 3 controls.
+
 ## 0. Content contract
 
 - **Single source:** Google Sheet *"[Hóa ESL 11A10 + 11E2] Bảng từ vựng"*. Tabs read: Bài 10 (15 terms), Bài 11 (15), Bài 12 (0, empty tab), Bài 13 (13). That is 43 senses, which merge into 40 headwords because *Organic compound* and *Molecular formula* appear in more than one lesson.
@@ -11,10 +13,11 @@ Committed before any UI code. Register: **`system`** (a multi-route reference ap
 
 ## 1. Recon notes (Phase 1)
 
-- Context7, Awwwards and Playwright MCP servers are **not attached to this session**. The Constrain and Triangulate steps were done against installed type definitions instead:
+- Context7 and the Awwwards MCP are **not reachable from this cloud session** (context7.com and docs.google.com return 403 through the network proxy). The Constrain and Triangulate steps were done against installed type definitions and library source instead. Playwright runs as a library through `scripts/shoot.mjs` and `scripts/motionqa.mjs`, the same engine the Playwright MCP drives.
   - `@orama/orama@3.1.18`: `create({ schema })`, `insertMultiple`, `search(db, { term, properties, boost, tolerance, limit })`. The English tokenizer's splitter `/[^A-Za-zàèéìòóù0-9_'-]+/` drops Vietnamese diacritics, so every indexed field is **pre-folded** (NFD, strip marks, đ→d). Searching without diacritics is therefore a feature.
   - `gsap@3.15.0`: `SplitText.create({ type, mask: 'lines', autoSplit, onSplit })`, `gsap.matchMedia()`, `ScrollTrigger`. All plugins ship in the free package.
   - `nuxt@4.6.2`: `app/` + `shared/` layout, `nuxt generate` for static prerender.
+  - `three@0.186.1`: `WebGPURenderer` from `three/webgpu` with `await renderer.init()`, `backend.isWebGPUBackend`, `renderer.onDeviceLost`; `PointsNodeMaterial` on a `Sprite` with `count` (instanced point sprites); `instancedBufferAttribute<'vec3'>`, `uniform`, `mix`, `smoothstep`, `time` from `three/tsl`.
 - Font coverage was audited with fontTools against the actual glyphs the data needs: Vietnamese, IPA (ɔ ɒ ɜ ʊ ʃ ʒ ˈ ˌ ː θ) and subscript ₂. No candidate serif (Newsreader, Literata, Gentium subset, Source Serif 4, Fraunces, Spectral) covers the IPA set. **Noto Sans Mono** covers both Vietnamese and IPA fully, so IPA is set in the mono family as an instrument readout. Subscript digits are rendered as `<sub>` so no glyph falls back.
 
 ## 2. Grammar: **live-surface**
@@ -72,7 +75,7 @@ All text and accent pairs are verified at **≥ 4.5:1** in Phase 7, which comput
 
 ### Spacing
 
-4px base: `--s1` 4px up to `--s12` 96px. Section padding is `clamp(56px, 9vw, 128px)` on top and `clamp(40px, 6vw, 88px)` on the bottom, so there is always more space above a heading than below it.
+4px base: `--s1` 4px up to `--s24` 96px. Section padding is `clamp(56px, 9vw, 128px)` on top and `clamp(40px, 6vw, 88px)` on the bottom, so there is always more space above a heading than below it.
 
 ### 5 depth tools
 
@@ -80,7 +83,7 @@ All text and accent pairs are verified at **≥ 4.5:1** in Phase 7, which comput
 2. **1px edge highlight:** the search plate and lesson cells get an inset top highlight `inset 0 1px 0 oklch(1 0 0 / .6)`.
 3. **Scale and blur distance plane:** the spectrum gridlines sit on a back plane at lower contrast, and peaks sit in front.
 4. **Structural overlap:** on desktop the illustration plate hangs past the sense column into the margin, and the lesson matrix overlaps the hero top edge.
-5. **Film grain:** a static SVG noise layer on the ground at 4% opacity. It is never animated.
+5. **Film grain:** a static SVG noise layer on the ground at 3% opacity (5% in dark). It is never animated.
 
 ### Motion budget
 
@@ -88,6 +91,7 @@ All text and accent pairs are verified at **≥ 4.5:1** in Phase 7, which comput
 - Choreographed: an opening scan of 1.6s (one timeline, once), a headword line mask of 0.9s with a 0.06 stagger, and a lane solvent-front wipe of 0.9s (once).
 - **No Lenis:** this is a reference tool. Ctrl+F, anchor jumps and the `/` focus need native, instant scroll, so the single-ticker contract is moot. GSAP's own ticker is the only rAF loop.
 - Reduced motion: no scan, no mask and no wipe. Peaks update instantly. The layout and the comb stay intact.
+- **Transitions over 300ms, with reasons:** the 3D cloud's canvas settles in over 600ms (opacity + scale 0.96 → 1) and its caption fades over 600ms. Both are part of the choreographed opening, not a UI state change; dimming the cloud for a lookup takes 250ms.
 
 ## 5. Named anti-references (banned in this build)
 
@@ -100,4 +104,74 @@ All text and accent pairs are verified at **≥ 4.5:1** in Phase 7, which comput
 - `shared/types/lexicon.ts`, `shared/utils/lexicon.ts` (fold, slug, merge senses into entries, IPA and subscript formatting) and `shared/data/lexicon.json`. There are no Vue or Nitro imports in `shared/`.
 - `app/` holds pages `index.vue`, `tu/[slug].vue` and `bai/[n].vue`, the components, and `composables/useLexiconSearch.ts`, where Orama is built lazily on the client.
 - `nuxt generate` builds fully prerendered static HTML. Every entry and lesson route is listed explicitly for prerender. JS is off-critical-path: without JS all content and links render, and only the live search needs JS (a `<noscript>` note points to the A–Z index).
-- `NUXT_APP_BASE_URL` is supported so the site can deploy to GitHub Pages under `/ChemDict/`.
+- Deploy: Nitro preset pinned to `static`, so every host serves the same `.output/public`. `vercel.json` (build, output, cache and security headers) and `public/_headers` (the same headers for Cloudflare Pages). `.nvmrc` pins Node 22.
+
+## 7. Amendment: the opening 3D scene (requested by Vinh)
+
+**What:** a procedural electron-density cloud of **benzene, C₆H₆**: σ density around the six carbons, six hydrogens and their bonds in ink, and the delocalised π system as two rings above and below the plane in the phenolphthalein accent. It is drawn as about 9,500 instanced point sprites (about 6,700 on the WebGL2 fallback), from a seeded PRNG so every visit draws the same molecule. It turns slowly (0.12 rad/s), the π rings breathe along the ring normal, and a fine pointer tilts it slightly.
+
+**Why benzene:** it is a real entry in the source sheet (*Aromatic compound*, Bài 10). The caption names it as a model, "Đám mây electron π của benzene, C₆H₆ (mô phỏng)", and links to that entry, so the decoration is also a way into the dictionary.
+
+**Placement:**
+- Desktop: right column of the hero, beside the title, with its caption.
+- ≤ 860px: an absolute backdrop behind the display title at 55% opacity, masked out before the lede, so it never pushes the search down or sits behind body copy.
+- During a lookup: fades out in 250ms and stops rendering. The instrument owns the screen.
+- No JS, or no WebGPU/WebGL2: the figure is removed and the hero stays typographic.
+
+**Anti-reference check:**
+- #1 bans a glowing ball-and-stick over a navy-to-purple gradient. This is a dot-density cloud on the paper ground, with no glow, bloom or gradient, in the two committed hues.
+- #3 bans hexagonal benzene patterns as wallpaper. This is one captioned molecule that links to its entry, not a repeated motif.
+
+**Feeling curve:** the cloud fades in during the opening moment, at the same time as the scan, and stays ambient. The scan remains the single wow peak.
+
+**Engineering contract (Phase 5.3):**
+- `three/webgpu` + `three/tsl` only, with `await renderer.init()` before any render.
+- Exactly one canvas on the page; geometry, material and renderer are disposed on unmount.
+- Loaded with `requestIdleCallback` (timeout 1.5s), so three.js (~240 KB gzip, its own chunk, never preloaded) never competes with hydration or the first keystroke.
+- GSAP's ticker is the only render loop. An IntersectionObserver pauses it off-screen.
+- Pixel ratio: ≤ 2 on WebGPU, ≤ 1.5 on WebGL2, 1 on software GPUs.
+- `onDeviceLost` removes the figure instead of leaving a dead canvas.
+
+**Performance tiers (Phase 3 "quality tier", automatic, no HUD):**
+- `animated`: the default.
+- `still`: one art-directed frame, drawn when:
+  - `prefers-reduced-motion: reduce` is set;
+  - the GPU is CPU-emulated (SwiftShader, llvmpipe, WARP, fallback adapters);
+  - the median frame time of the first ten steady frames exceeds 22ms.
+- `unavailable`: the figure is removed.
+
+The tier is exposed as `data-tier` for QA.
+
+**Other Phase 3 items for this register:**
+- An auto/light/dark theme toggle, persisted per reader and applied before first paint.
+- No sound and no preloader. The content is prerendered HTML and the scene has no layout dependency, so CLS is unaffected.
+
+## 8. Phase 6 audit: 18 anti-slop rules
+
+Audited by grep across `app/`, `shared/` and the config, then confirmed by eye in the sweep screenshots.
+
+| # | Rule | Result |
+|---|------|--------|
+| 1 | NO_ACCENT_BORDER_CALLOUT | PASS. No `border-left` or `border-right` wider than 1px. |
+| 2 | NO_GRADIENT_TEXT | PASS. No `background-clip: text`. |
+| 3 | NO_DEFAULT_GLASSMORPHISM | PASS. No `backdrop-filter`. |
+| 4 | NO_HERO_METRIC_STRIP | PASS. The only counts are the lesson cells, which are navigation. |
+| 5 | NO_IDENTICAL_CARD_GRIDS | PASS. There are no card grids: the page uses a spectrum, a letter-grouped index, TLC lanes and a table. |
+| 6 | NO_EYEBROW_SPAM | PASS. Section heads have no kickers or pill badges. |
+| 7 | NO_FAKE_SECTION_NUMBERS | PASS. The only numbers are real dictionary sense numbers and lesson numbers. |
+| 8 | NO_REFLEX_SANS | PASS. Newsreader and Noto Sans Mono. |
+| 9 | NO_AI_PURPLE_GRADIENT | PASS. Gradients appear only as hairline gridlines and the mobile cloud's alpha mask, with no hue 250–290 ramps. |
+| 10 | NO_CREAM_BEIGE_REFLEX | PASS. Ground is H 215 (cool paper), outside H 40–100. |
+| 11 | NO_MONOTONE_FADE_UP | PASS. Reveals vary: a scan sweep, a line mask, a clip-path solvent front and a canvas settle. |
+| 12 | NO_TRANSITION_ALL | PASS. Transitions only list color, background-color, border-color, transform and opacity. |
+| 13 | NO_RAW_SCROLL_LISTENER | PASS. No scroll listeners; reveals use ScrollTrigger and the cloud uses IntersectionObserver. |
+| 14 | NO_SCALE_ZERO_ENTRANCE | PASS. Fixed during the audit: spectrum lines start at `scaleY(0.04)` (baseline noise) and the canvas starts at `scale(0.96)`. |
+| 15 | NO_EMPTY_BENTO_CELLS | PASS. No bento grid. The spectrum is real data: one line per sense. |
+| 16 | NO_CLICHE_AI_COPY | PASS. None of the banned words, and no em-dash filler. |
+| 17 | SINGLE_MARQUEE_CEILING | PASS. No marquee. |
+| 18 | NO_REFLEX_SERIF_PAIRING | PASS. No italic serif accents inside headlines. |
+
+**Numeric floor fixes made during the audit:**
+- Touch targets were grown to ≥ 44px with `::after` hit areas or block padding on crumbs, lesson pills, citation links and ledger links, without changing how they look.
+- All UI motion uses `cubic-bezier(0.22, 1, 0.36, 1)` or `power3.out`. There are no scroll-scrubbed tweens. The scan sweep is linear (`ease: 'none'`) because it stands for a detector moving at constant speed.
+

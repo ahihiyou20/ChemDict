@@ -15,7 +15,10 @@ const check = (name, pass, detail) => results.push({ name, pass, detail })
   page.on('console', (m) => m.type() === 'error' && errors.push(m.text()))
   page.on('pageerror', (e) => errors.push(String(e)))
   await page.addInitScript(() => {
-    window.__vitals = { lcp: 0, cls: 0 }
+    window.__vitals = { lcp: 0, cls: 0, tbt: 0 }
+    new PerformanceObserver((list) => {
+      for (const e of list.getEntries()) window.__vitals.tbt += Math.max(0, e.duration - 50)
+    }).observe({ type: 'longtask', buffered: true })
     new PerformanceObserver((list) => {
       for (const e of list.getEntries()) window.__vitals.lcp = e.startTime
     }).observe({ type: 'largest-contentful-paint', buffered: true })
@@ -66,7 +69,7 @@ const check = (name, pass, detail) => results.push({ name, pass, detail })
       }).observe({ type: 'largest-contentful-paint', buffered: true })
       setTimeout(() => resolve(window.__vitals.lcp), 500)
     })
-    return { lcp, cls: window.__vitals.cls }
+    return { lcp, cls: window.__vitals.cls, tbt: window.__vitals.tbt }
   })
   check('DPR-2 scroll avgFps >= 55', motion.avgFps >= 55, motion)
   check('No horizontal overflow (1440)', !motion.horizOverflow, motion.horizOverflow)
@@ -74,6 +77,7 @@ const check = (name, pass, detail) => results.push({ name, pass, detail })
   check('FCP < 1500ms', fcp > 0 && fcp < 1500, Math.round(fcp))
   check('LCP < 2500ms', vitals.lcp > 0 && vitals.lcp < 2500, Math.round(vitals.lcp))
   check('CLS < 0.1', vitals.cls < 0.1, vitals.cls.toFixed(4))
+  check('TBT < 200ms (long tasks during load and scroll)', vitals.tbt < 200, Math.round(vitals.tbt))
 
   // Typing drives the spectrum: frame budget while peaks move.
   await page.evaluate(() => window.scrollTo(0, 0))
@@ -128,6 +132,9 @@ for (const scheme of ['light', 'dark']) {
     const css = getComputedStyle(document.documentElement)
     const v = (name) => css.getPropertyValue(name).trim()
     const out = {}
+    const input = document.querySelector('#tra-cuu-o')
+    const plate = getComputedStyle(input.closest('.plate') ?? input).backgroundColor
+    out['search placeholder on plate'] = Math.round(ratio(getComputedStyle(input, '::placeholder').color, plate === 'rgba(0, 0, 0, 0)' ? v('--ground') : plate) * 100) / 100
     for (const ground of ['--ground', '--ground-elevated']) {
       for (const text of ['--ink', '--ink-secondary', '--accent']) {
         out[`${text} on ${ground}`] = Math.round(ratio(v(text), v(ground)) * 100) / 100
@@ -136,6 +143,23 @@ for (const scheme of ['light', 'dark']) {
     return out
   })
   for (const [pair, value] of Object.entries(pairs)) check(`Contrast ${scheme}: ${pair} >= 4.5`, value >= 4.5, value)
+  if (scheme === 'light') {
+    // Cross-route drift (system register): every route resolves the same tokens and chrome.
+    const signature = () =>
+      page.evaluate(() => {
+        const css = getComputedStyle(document.documentElement)
+        const tokens = ['--ground', '--ink', '--ink-secondary', '--accent', '--hairline', '--font-serif', '--font-mono'].map((t) => css.getPropertyValue(t).trim())
+        const h = document.querySelector('header')
+        return JSON.stringify({ tokens, header: h?.getBoundingClientRect().height, footer: Boolean(document.querySelector('footer')), body: getComputedStyle(document.body).fontFamily })
+      })
+    const home = await signature()
+    const drift = []
+    for (const path of ['/tu/aromatic-compound', '/bai/11', '/khong-co-trang-nay']) {
+      await page.goto(base + path, { waitUntil: 'networkidle' })
+      if ((await signature()) !== home) drift.push(path)
+    }
+    check('No cross-route token or chrome drift (/, entry, lesson, 404)', drift.length === 0, drift)
+  }
   await page.close()
 }
 

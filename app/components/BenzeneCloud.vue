@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { BenzeneScene } from '~/lib/benzene-scene'
+import type { BenzeneHandle } from '~/lib/benzene-client'
 
 /** loading → animated, or still (reduced motion, software GPU, slow device), or unavailable. */
 type Tier = 'loading' | 'animated' | 'still' | 'unavailable'
@@ -7,9 +7,10 @@ type Tier = 'loading' | 'animated' | 'still' | 'unavailable'
 const searchActive = useState('search-active', () => false)
 const figure = ref<HTMLElement | null>(null)
 const canvas = ref<HTMLCanvasElement | null>(null)
+// A canvas handed to a worker cannot be used again, so a failed worker gets a fresh one.
+const canvasKey = ref(0)
 const tier = ref<Tier>('loading')
 
-let scene: BenzeneScene | undefined
 let teardown: (() => void) | undefined
 let disposed = false
 
@@ -24,24 +25,39 @@ onMounted(() => {
   else setTimeout(start, 600)
 })
 
+async function connect(reducedMotion: boolean): Promise<BenzeneHandle | undefined> {
+  const client = await import('~/lib/benzene-client')
+  const options = { still: reducedMotion, devicePixelRatio: window.devicePixelRatio }
+  const onLost = () => {
+    tier.value = 'unavailable'
+    teardown?.()
+  }
+  if (!canvas.value || disposed) return
+  if (client.canDrawOffThread(canvas.value)) {
+    try {
+      // three.js is parsed and drawn in a worker, so it never blocks typing on the main thread.
+      return await client.startInWorker(canvas.value, options, onLost)
+    } catch (error) {
+      if (!(error instanceof client.OffThreadFailed)) throw error
+      canvasKey.value++
+      await nextTick()
+      if (!canvas.value || disposed) return
+    }
+  }
+  return client.startOnMainThread(canvas.value, { ...options, onLost })
+}
+
 async function mount() {
   if (!canvas.value || !figure.value) return
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
-  const [{ createBenzeneScene }, { gsap }] = await Promise.all([import('~/lib/benzene-scene'), import('gsap')])
-  if (disposed) return
-  scene = await createBenzeneScene(canvas.value, {
-    still: reducedMotion,
-    onLost: () => {
-      tier.value = 'unavailable'
-      teardown?.()
-    },
-  })
+  const [active, { gsap }, { ScrollTrigger }] = await Promise.all([connect(reducedMotion), import('gsap'), import('gsap/ScrollTrigger')])
+  gsap.registerPlugin(ScrollTrigger)
+  if (!active) return
   if (disposed) {
-    scene.dispose()
+    active.dispose()
     return
   }
   const host = figure.value
-  const active = scene
 
   const fade = { value: 0 }
   let frozen = reducedMotion || active.isSoftware
@@ -49,7 +65,7 @@ async function mount() {
 
   const fit = () => {
     active.resize(host.clientWidth, host.clientHeight)
-    if (frozen) active.render(0)
+    if (frozen) active.frame(0)
   }
   const resizeObserver = new ResizeObserver(fit)
   resizeObserver.observe(host)
@@ -57,24 +73,22 @@ async function mount() {
   // Performance tier: a device that cannot hold ~45fps with the cloud turning keeps its current
   // frame as a still, so the dictionary itself never pays for the decoration.
   const samples: number[] = []
+  const median = (values: number[]) => [...values].sort((a, b) => a - b)[Math.floor(values.length / 2)] ?? 0
   const freeze = () => {
     frozen = true
     pause()
     gsap.killTweensOf(fade)
     active.setReveal(1)
-    active.render(0)
+    active.frame(0)
     tier.value = 'still'
   }
   // One render loop: GSAP's ticker, which also drives every other animation on the page.
   const tick = (_time: number, deltaMs: number) => {
-    active.render(Math.min(deltaMs, 50) / 1000)
+    active.frame(Math.min(deltaMs, 50) / 1000)
     if (samples.length === 12) return
     samples.push(deltaMs)
-    if (samples.length === 12) {
-      // Skip the first two frames (shader compile), then judge the median.
-      const steady = samples.slice(2).sort((a, b) => a - b)
-      if (steady[Math.floor(steady.length / 2)]! > 22) freeze()
-    }
+    // Skip the first two frames (shader compile), then judge the page's and the worker's pace.
+    if (samples.length === 12 && Math.max(median(samples.slice(2)), median(active.drawTimes.slice(2))) > 22) freeze()
   }
   const play = () => {
     if (running || frozen) return
@@ -87,7 +101,19 @@ async function mount() {
   }
 
   let onScreen = true
-  const sync = () => (onScreen && !searchActive.value ? play() : pause())
+  let scrolling = false
+  const sync = () => (onScreen && !scrolling && !searchActive.value ? play() : pause())
+  // Hold the cloud still while the reader scrolls: the page's frames go to the scroll.
+  const onScrollStart = () => {
+    scrolling = true
+    sync()
+  }
+  const onScrollEnd = () => {
+    scrolling = false
+    sync()
+  }
+  ScrollTrigger.addEventListener('scrollStart', onScrollStart)
+  ScrollTrigger.addEventListener('scrollEnd', onScrollEnd)
   const visibility = new IntersectionObserver(([entry]) => {
     onScreen = Boolean(entry?.isIntersecting)
     sync()
@@ -107,7 +133,7 @@ async function mount() {
   // Re-read the palette when the theme changes, whether pinned or from the system.
   const onTheme = () => {
     active.syncColors()
-    if (frozen) active.render(0)
+    if (frozen) active.frame(0)
   }
   const themeObserver = new MutationObserver(onTheme)
   themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
@@ -129,6 +155,8 @@ async function mount() {
     pause()
     gsap.killTweensOf(fade)
     stopSearchWatch()
+    ScrollTrigger.removeEventListener('scrollStart', onScrollStart)
+    ScrollTrigger.removeEventListener('scrollEnd', onScrollEnd)
     visibility.disconnect()
     resizeObserver.disconnect()
     themeObserver.disconnect()
@@ -151,7 +179,7 @@ onBeforeUnmount(() => {
     :class="{ 'is-ready': tier === 'animated' || tier === 'still', 'is-dimmed': searchActive, 'is-unavailable': tier === 'unavailable' }"
   >
     <div ref="figure" class="stage" aria-hidden="true">
-      <canvas ref="canvas" />
+      <canvas :key="canvasKey" ref="canvas" />
     </div>
     <figcaption class="label">
       Đám mây electron π của benzene, C<sub>6</sub>H<sub>6</sub> (mô phỏng) ·
