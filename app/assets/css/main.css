@@ -293,6 +293,89 @@ sub {
   mix-blend-mode: normal;
 }
 
+/* Scene change between pages (plugins/scene-change.client.ts): the new page is already underneath and a
+   solvent front, the four lesson flames, wipes the old one away from the top down. The front starts a
+   quarter of the way down, so a headword is on screen in the transition's first frame. The two clips keep
+   a constant 14px gap and the group's background shows through it. Off under reduced motion. */
+html.rx-route::view-transition-group(root) {
+  /* auteur-allow: NO_AI_PURPLE_GRADIENT -- hard-edged lesson flame segments, not a blended gradient. */
+  background: linear-gradient(
+    to right,
+    var(--flame-10) 0 24.5%,
+    var(--ground) 24.5% 25.5%,
+    var(--flame-11) 25.5% 49.5%,
+    var(--ground) 49.5% 50.5%,
+    var(--flame-12) 50.5% 74.5%,
+    var(--ground) 74.5% 75.5%,
+    var(--flame-13) 75.5%
+  );
+}
+
+html.rx-route::view-transition-old(root) {
+  animation: rx-wipe-old 440ms var(--ease-out) both;
+}
+
+html.rx-route::view-transition-new(root) {
+  animation: rx-wipe-new 440ms var(--ease-out) both;
+}
+
+@keyframes rx-wipe-old {
+  from {
+    clip-path: inset(calc(24% + 14px) 0 0 0);
+  }
+  to {
+    clip-path: inset(calc(100% + 14px) 0 0 0);
+  }
+}
+
+@keyframes rx-wipe-new {
+  from {
+    clip-path: inset(0 0 76% 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* The sweep: the same front runs down over a page that is already fully shown (see scene-change.client.ts). */
+.rx-sweep {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 95;
+  height: 10px;
+  pointer-events: none;
+  /* auteur-allow: NO_AI_PURPLE_GRADIENT -- hard-edged lesson flame segments, not a blended gradient. */
+  background: linear-gradient(
+    to right,
+    var(--flame-10) 0 24.5%,
+    transparent 24.5% 25.5%,
+    var(--flame-11) 25.5% 49.5%,
+    transparent 49.5% 50.5%,
+    var(--flame-12) 50.5% 74.5%,
+    transparent 74.5% 75.5%,
+    var(--flame-13) 75.5%
+  );
+  animation: rx-sweep 560ms var(--ease-out) forwards;
+}
+
+/* The wetted paper behind the front, faint enough that text under it keeps its contrast. */
+.rx-sweep::before {
+  content: '';
+  position: absolute;
+  inset: auto 0 100%;
+  height: 22vh;
+  background: linear-gradient(to bottom, transparent, color-mix(in oklch, var(--accent) 9%, transparent));
+}
+
+@keyframes rx-sweep {
+  from {
+    transform: translateY(-10px);
+  }
+  to {
+    transform: translateY(calc(100vh + 22vh));
+  }
+}
+
 /* Intro pre-hide: an element marked data-pre waits for its entrance, but only when JS runs and motion is
    allowed. The motion layer removes the attribute as it takes over; if it never arrives, the failsafe shows it. */
 @media (prefers-reduced-motion: no-preference) {

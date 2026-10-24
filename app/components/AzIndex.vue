@@ -17,9 +17,10 @@ useMotionScope(section, (motion, root) => {
   const { gsap, finePointer } = motion
   const stopDecode = decodeOnEnter(motion, root.querySelector<HTMLElement>('.section-title')!)
 
-  // Each letter group: its outlined initial fills with flame from the baseline, then its terms
-  // cascade in. CSS transitions play it from one class per group, so arming the index reads no
-  // styles and the cascade runs on the compositor; an IntersectionObserver spots the groups.
+  // Each letter group crystallises: its outlined initial fills with flame from the baseline, then a
+  // front runs down its list and the terms come out of solution behind it. CSS transitions play it
+  // from one class per group (one clip per list, not one animation per term, which cost frames on
+  // slow GPUs), so arming the index reads no styles; an IntersectionObserver spots the groups.
   let observer: IntersectionObserver | undefined
   const arm = (quick: boolean) => {
     observer?.disconnect()
@@ -78,8 +79,8 @@ watch(lang, () => nextTick(() => rearm?.()))
             <span class="fill">{{ group.letter }}</span>
           </p>
           <ul>
-            <li v-for="(entry, i) in group.entries" :key="entry.slug">
-              <NuxtLink :to="`/tu/${entry.slug}`" class="item" :data-lesson="entry.lessons[0]" :style="{ '--i': i }">
+            <li v-for="entry in group.entries" :key="entry.slug">
+              <NuxtLink :to="`/tu/${entry.slug}`" class="item" :data-lesson="entry.lessons[0]">
                 <i class="dot" aria-hidden="true" />
                 <span class="primary" :lang="lang">{{ entry[lang] }}</span>
                 <span class="secondary" :lang="other">{{ entry[other] }}</span>
@@ -227,13 +228,13 @@ ul {
   clip-path: inset(100% 0% 0% 0%);
 }
 
-.armed .letter .item {
-  opacity: 0;
-  translate: 0 22px;
+.armed .letter ul {
+  clip-path: inset(0 -24px 100% -24px);
+  translate: 0 14px;
 }
 
-.armed.quick .letter .item {
-  translate: 0 10px;
+.armed.quick .letter ul {
+  translate: 0 6px;
 }
 
 .armed .letter.in .fill {
@@ -241,20 +242,22 @@ ul {
   transition: clip-path 0.9s cubic-bezier(0.65, 0, 0.35, 1);
 }
 
-.armed .letter.in .item {
-  opacity: 1;
+/* The list's front runs a little behind its initial, ending past the box so nothing stays clipped. */
+.armed .letter.in ul {
+  clip-path: inset(-12px -24px -12px -24px);
   translate: none;
-  transition: opacity 0.65s var(--ease-out), translate 0.65s var(--ease-out);
-  transition-delay: calc(var(--i) * 55ms);
+  transition:
+    clip-path 0.8s cubic-bezier(0.65, 0, 0.35, 1) 0.2s,
+    translate 0.8s var(--ease-out) 0.2s;
 }
 
 .armed.quick .letter.in .fill {
   transition-duration: 0.45s;
 }
 
-.armed.quick .letter.in .item {
-  transition-duration: 0.35s;
-  transition-delay: calc(var(--i) * 20ms);
+.armed.quick .letter.in ul {
+  transition-duration: 0.4s;
+  transition-delay: 0s;
 }
 
 .item:hover .dot,

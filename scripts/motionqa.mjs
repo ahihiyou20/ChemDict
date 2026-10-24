@@ -125,32 +125,62 @@ const check = (name, pass, detail) => results.push({ name, pass, detail })
   await page.goto(base + '/tu/aromatic-compound', { waitUntil: 'load' })
   const direct = await shown()
   check('Entry answer visible at load (headword and definition)', direct.headword && direct.definition, direct)
-  await page.goto(base + '/', { waitUntil: 'networkidle' })
-  await page.click('#tra-cuu-o')
-  await page.keyboard.type('alkane', { delay: 30 })
-  await page.waitForSelector('.result')
-  // Timed inside the page, from the Enter keydown to the first frame that shows the answer.
-  await page.evaluate(() => {
-    addEventListener(
-      'keydown',
-      (event) => {
-        if (event.key !== 'Enter') return
-        const started = performance.now()
-        const look = () => {
-          const h1 = document.querySelector('h1.headword')
-          const def = document.querySelector('.def-text')
-          if (location.pathname.startsWith('/tu/') && h1 && def && getComputedStyle(h1).opacity === '1' && getComputedStyle(def).opacity === '1') window.__answered = performance.now() - started
-          else requestAnimationFrame(look)
-        }
-        requestAnimationFrame(look)
-      },
-      { capture: true, once: true },
-    )
-  })
-  await page.keyboard.press('Enter')
-  const elapsed = await page.waitForFunction(() => window.__answered, null, { timeout: 5000 }).then((h) => h.jsonValue()).catch(() => Infinity)
+  // Timed inside the page, from the Enter keydown to the first frame that shows the answer uncovered:
+  // in the DOM, at full opacity, and above the scene change's wipe while one runs.
+  // scene: 'auto' (what a reader gets) or 'wipe' (the view transition forced, whatever the GPU).
+  const timeLookup = async (scene) => {
+    const lookup = await browser.newPage({ viewport: { width: 1440, height: 900 } })
+    if (scene === 'wipe') await lookup.addInitScript(() => sessionStorage.setItem('chemdict-scene', 'wipe'))
+    await lookup.goto(base + '/', { waitUntil: 'networkidle' })
+    await lookup.click('#tra-cuu-o')
+    await lookup.keyboard.type('alkane', { delay: 30 })
+    await lookup.waitForSelector('.result')
+    await lookup.evaluate(() => {
+      // Bottom edge of the wipe's uncovered band, from the pseudo-element's computed inset().
+      const uncoveredTo = () => {
+        const running = document.getAnimations().some((a) => a.effect?.pseudoElement === '::view-transition-new(root)')
+        if (!running) return Infinity
+        const clip = getComputedStyle(document.documentElement, '::view-transition-new(root)').clipPath
+        const args = clip.slice(clip.indexOf('(') + 1, -1).match(/calc\([^)]*\)|[^\s]+/g) ?? []
+        const probe = document.createElement('div')
+        probe.style.cssText = `position:fixed;top:0;height:${args[2] ?? '0px'};visibility:hidden`
+        document.body.append(probe)
+        const inset = probe.getBoundingClientRect().height
+        probe.remove()
+        return innerHeight - inset
+      }
+      addEventListener(
+        'keydown',
+        (event) => {
+          if (event.key !== 'Enter') return
+          const started = performance.now()
+          const look = () => {
+            const h1 = document.querySelector('h1.headword')
+            const def = document.querySelector('.def-text')
+            const ready = location.pathname.startsWith('/tu/') && h1 && def && getComputedStyle(h1).opacity === '1' && getComputedStyle(def).opacity === '1'
+            if (ready && def.getBoundingClientRect().bottom <= uncoveredTo()) window.__answered = performance.now() - started
+            else requestAnimationFrame(look)
+          }
+          requestAnimationFrame(look)
+        },
+        { capture: true, once: true },
+      )
+    })
+    await lookup.waitForTimeout(600)
+    const mode = await lookup.evaluate(() => sessionStorage.getItem('chemdict-scene'))
+    await lookup.keyboard.press('Enter')
+    const elapsed = await lookup.waitForFunction(() => window.__answered, null, { timeout: 5000 }).then((h) => h.jsonValue()).catch(() => Infinity)
+    await lookup.close()
+    return { ms: Math.round(elapsed), mode }
+  }
+  const { ms: elapsed, mode } = await timeLookup('auto')
+  const { ms: forcedWipe } = await timeLookup('wipe')
+  await page.goto(base + '/tu/aromatic-compound', { waitUntil: 'load' })
   const after = await shown()
-  check('Enter → entry answer on screen < 150ms', elapsed < 150 && after.headword && after.definition, { elapsed: Math.round(elapsed), ...after })
+  // The wipe holds the screen for two captures; where those are slow (a software GPU here) the reader
+  // gets the sweep instead. forcedWipe records what the wipe would have cost on this machine.
+  check('Enter → entry answer uncovered < 150ms, scene change included', elapsed < 150 && after.headword && after.definition, { elapsed, mode, forcedWipe })
+  await page.goto(base + '/', { waitUntil: 'networkidle' })
   const chrome = await page.evaluate(() => ({ lenis: document.documentElement.classList.contains('lenis') }))
   check('Smooth scroll (Lenis) active with motion allowed', chrome.lenis, chrome)
   await page.goto(base + '/', { waitUntil: 'networkidle' })
