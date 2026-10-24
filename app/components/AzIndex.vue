@@ -1,15 +1,62 @@
 <script setup lang="ts">
 import type { SortLanguage } from '#shared/types/lexicon'
 import { groupByInitial } from '#shared/utils/lexicon'
+import { decodeOnEnter, magnetic } from '~/lib/motion-kit'
 
 const { entries } = useLexicon()
 const lang = ref<SortLanguage>('en')
 const groups = computed(() => groupByInitial(entries, lang.value))
 const other = computed<SortLanguage>(() => (lang.value === 'en' ? 'vi' : 'en'))
+// Initials take the four lesson flames in turn down the index.
+const flameOf = (index: number) => 10 + (index % 4)
+
+const section = ref<HTMLElement | null>(null)
+let rearm: (() => void) | undefined
+
+useMotionScope(section, (motion, root) => {
+  const { gsap, finePointer } = motion
+  const stopDecode = decodeOnEnter(motion, root.querySelector<HTMLElement>('.section-title')!)
+
+  // Each letter group: its outlined initial fills with flame from the baseline, then its terms
+  // cascade in. CSS transitions play it from one class per group, so arming the index reads no
+  // styles and the cascade runs on the compositor; an IntersectionObserver spots the groups.
+  let observer: IntersectionObserver | undefined
+  const arm = (quick: boolean) => {
+    observer?.disconnect()
+    root.classList.add('armed')
+    root.classList.toggle('quick', quick)
+    const seen = new IntersectionObserver(
+      (records) => {
+        for (const record of records) {
+          if (!record.isIntersecting) continue
+          record.target.classList.add('in')
+          seen.unobserve(record.target)
+        }
+      },
+      { rootMargin: '0px 0px -8% 0px' },
+    )
+    root.querySelectorAll('.letter').forEach((group) => seen.observe(group))
+    observer = seen
+  }
+  arm(false)
+  rearm = () => arm(true)
+
+  const pulls = finePointer ? [...root.querySelectorAll<HTMLElement>('.sorter button')].map((button) => magnetic(gsap, button, 0.25)) : []
+  return () => {
+    rearm = undefined
+    stopDecode()
+    observer?.disconnect()
+    root.classList.remove('armed', 'quick')
+    pulls.forEach((cleanup) => cleanup())
+  }
+})
+
+// Re-sorting rebuilds the groups; play the new order in quickly.
+watch(lang, () => nextTick(() => rearm?.()))
 </script>
 
 <template>
-  <section class="az" aria-labelledby="az-title">
+  <section ref="section" class="az" aria-labelledby="az-title">
     <div class="wrap section">
       <div class="section-head az-head">
         <h2 id="az-title" class="section-title">Mọi mục từ</h2>
@@ -20,11 +67,20 @@ const other = computed<SortLanguage>(() => (lang.value === 'en' ? 'vi' : 'en'))
       </div>
 
       <div class="letters">
-        <section v-for="group in groups" :key="`${lang}-${group.letter}`" class="letter" :aria-label="`Vần ${group.letter}`">
-          <p class="letter-mark" aria-hidden="true">{{ group.letter }}</p>
+        <section
+          v-for="(group, g) in groups"
+          :key="`${lang}-${group.letter}`"
+          class="letter"
+          :aria-label="`Vần ${group.letter}`"
+        >
+          <p class="letter-mark" aria-hidden="true" :data-lesson="flameOf(g)">
+            <span class="outline">{{ group.letter }}</span>
+            <span class="fill">{{ group.letter }}</span>
+          </p>
           <ul>
-            <li v-for="entry in group.entries" :key="entry.slug">
-              <NuxtLink :to="`/tu/${entry.slug}`" class="item">
+            <li v-for="(entry, i) in group.entries" :key="entry.slug">
+              <NuxtLink :to="`/tu/${entry.slug}`" class="item" :data-lesson="entry.lessons[0]" :style="{ '--i': i }">
+                <i class="dot" aria-hidden="true" />
                 <span class="primary" :lang="lang">{{ entry[lang] }}</span>
                 <span class="secondary" :lang="other">{{ entry[other] }}</span>
               </NuxtLink>
@@ -93,19 +149,31 @@ const other = computed<SortLanguage>(() => (lang.value === 'en' ? 'vi' : 'en'))
 
 .letter {
   display: grid;
-  grid-template-columns: 2.5rem minmax(0, 1fr);
+  grid-template-columns: 3rem minmax(0, 1fr);
   gap: var(--s3);
   padding: var(--s3) 0 var(--s4);
   border-top: 1px solid var(--hairline-strong);
   break-inside: avoid;
 }
 
+/* Outlined initial with a solid copy on top; script wipes the solid copy up from the baseline. */
 .letter-mark {
-  font-size: 2rem;
-  font-weight: 500;
-  line-height: 1;
-  color: var(--accent);
+  position: relative;
+  font-size: 2.75rem;
+  font-weight: 600;
+  line-height: 0.9;
   font-variation-settings: 'opsz' 72;
+}
+
+.letter-mark .outline {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--flame-mark);
+}
+
+.letter-mark .fill {
+  position: absolute;
+  inset: 0;
+  color: var(--flame-mark);
 }
 
 ul {
@@ -115,6 +183,7 @@ ul {
 }
 
 .item {
+  position: relative;
   display: grid;
   padding: 6px 0;
   text-decoration: none;
@@ -122,16 +191,82 @@ ul {
   align-content: center;
 }
 
+/* Hover: the term steps aside for its lesson's flame dot. */
+.dot {
+  position: absolute;
+  left: 0;
+  top: calc(6px + 0.65em);
+  width: 8px;
+  height: 8px;
+  margin-top: -4px;
+  border-radius: 50%;
+  background: var(--flame-mark);
+  transform: scale(0);
+  transition: transform var(--t-peak) var(--ease-out);
+}
+
+.primary,
+.secondary {
+  transition: transform var(--t-peak) var(--ease-out), color var(--t-press) var(--ease-out);
+}
+
 .primary {
   font-size: 1.125rem;
   line-height: 1.3;
-  transition: color var(--t-press) var(--ease-out);
 }
 
 .secondary {
   font-size: 0.9375rem;
   line-height: 1.35;
   color: var(--ink-secondary);
+  transition-delay: 30ms;
+}
+
+/* Entrance, armed by script so readers without it see the index as is. */
+.armed .letter .fill {
+  clip-path: inset(100% 0% 0% 0%);
+}
+
+.armed .letter .item {
+  opacity: 0;
+  translate: 0 22px;
+}
+
+.armed.quick .letter .item {
+  translate: 0 10px;
+}
+
+.armed .letter.in .fill {
+  clip-path: inset(0% 0% 0% 0%);
+  transition: clip-path 0.9s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.armed .letter.in .item {
+  opacity: 1;
+  translate: none;
+  transition: opacity 0.65s var(--ease-out), translate 0.65s var(--ease-out);
+  transition-delay: calc(var(--i) * 55ms);
+}
+
+.armed.quick .letter.in .fill {
+  transition-duration: 0.45s;
+}
+
+.armed.quick .letter.in .item {
+  transition-duration: 0.35s;
+  transition-delay: calc(var(--i) * 20ms);
+}
+
+.item:hover .dot,
+.item:focus-visible .dot {
+  transform: none;
+}
+
+.item:hover .primary,
+.item:hover .secondary,
+.item:focus-visible .primary,
+.item:focus-visible .secondary {
+  transform: translateX(16px);
 }
 
 .item:hover .primary {

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { hostOf } from '#shared/utils/lexicon'
+import { countUp, decodeOnEnter } from '~/lib/motion-kit'
 
 const { lessons, senseCount } = useLexicon()
 
@@ -27,10 +28,34 @@ const rows = computed(() => {
   // Rows without a citation go last so the cited sources lead the ledger.
   return [...byKey.values()].sort((a, b) => Number(!a.url) - Number(!b.url) || b.count - a.count)
 })
+
+const section = ref<HTMLElement | null>(null)
+
+useMotionScope(section, (motion, root) => {
+  const { gsap, ScrollTrigger } = motion
+  const stopDecode = decodeOnEnter(motion, root.querySelector<HTMLElement>('.section-title')!)
+  // Rows are entered into the ledger one by one (CSS transitions, so no style reads), and their counts tally up.
+  const counts = gsap.utils.toArray<HTMLElement>('.count', root).map((cell) => countUp(gsap, cell, { paused: true }))
+  root.classList.add('armed')
+  const trigger = ScrollTrigger.create({
+    trigger: root.querySelector('table'),
+    start: 'top 85%',
+    once: true,
+    onEnter: () => {
+      root.classList.add('in')
+      counts.forEach((count, i) => count.delay(0.2 + i * 0.09).restart(true))
+    },
+  })
+  return () => {
+    stopDecode()
+    trigger.kill()
+    root.classList.remove('armed', 'in')
+  }
+})
 </script>
 
 <template>
-  <section class="ledger-section" aria-labelledby="source-title">
+  <section ref="section" class="ledger-section" aria-labelledby="source-title">
     <div class="wrap section">
       <div class="section-head">
         <h2 id="source-title" class="section-title">Một số nguồn tham khảo</h2>
@@ -48,20 +73,20 @@ const rows = computed(() => {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="row in rows" :key="`${row.label}|${row.url}`">
+            <tr v-for="(row, r) in rows" :key="`${row.label}|${row.url}`" :style="{ '--r': r }">
               <td>{{ row.label }}</td>
               <td class="mono">
                 <a v-if="row.url" :href="row.url" target="_blank" rel="noopener noreferrer">{{ hostOf(row.url) }}<span class="visually-hidden"> (mở thẻ mới)</span></a>
                 <span v-else class="muted" aria-label="không có liên kết">—</span>
               </td>
               <td class="mono">{{ row.lessons.map((n) => `B${n}`).join(', ') }}</td>
-              <td class="mono num">{{ row.count }}</td>
+              <td class="mono num count">{{ row.count }}</td>
             </tr>
           </tbody>
           <tfoot>
-            <tr>
+            <tr :style="{ '--r': rows.length }">
               <td colspan="3">Tổng</td>
-              <td class="mono num">{{ senseCount }}</td>
+              <td class="mono num count">{{ senseCount }}</td>
             </tr>
           </tfoot>
         </table>
@@ -104,6 +129,7 @@ td {
 .num {
   text-align: right;
   padding-right: 0;
+  font-variant-numeric: tabular-nums;
 }
 
 .muted {
@@ -113,6 +139,31 @@ td {
 tfoot td {
   border-bottom: 0;
   font-weight: 600;
+}
+
+/* Entrance, armed by script: each row's cells slide in one after another. */
+.armed td {
+  opacity: 0;
+  translate: -18px 0;
+}
+
+.armed.in td {
+  opacity: 1;
+  translate: none;
+  transition: opacity 0.55s var(--ease-out), translate 0.55s var(--ease-out);
+  transition-delay: calc(var(--r) * 90ms + var(--c, 0) * 50ms);
+}
+
+td:nth-child(2) {
+  --c: 1;
+}
+
+td:nth-child(3) {
+  --c: 2;
+}
+
+td:nth-child(4) {
+  --c: 3;
 }
 
 /* A 44px tall hit area without loosening the table rhythm. */

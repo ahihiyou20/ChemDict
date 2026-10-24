@@ -17,6 +17,19 @@
   --plate: oklch(0.99 0.003 215);
   --plate-caption: oklch(0.42 0.03 235);
 
+  /* Flame-test lesson hues (COMMIT-SHEET §9): fills carry --on-flame text; marks are lines and dots on the ground. */
+  --flame-10: oklch(0.82 0.15 78);
+  --flame-11: oklch(0.76 0.12 180);
+  --flame-12: oklch(0.74 0.12 318);
+  --flame-13: oklch(0.68 0.19 22);
+  --flame-10-mark: oklch(0.6 0.13 65);
+  --flame-11-mark: oklch(0.57 0.095 188);
+  --flame-12-mark: oklch(0.56 0.14 320);
+  --flame-13-mark: oklch(0.56 0.19 25);
+  --on-flame: oklch(0.2 0.03 250);
+  --flame: var(--accent);
+  --flame-mark: var(--accent);
+
   --font-serif: 'Newsreader Variable', 'Noto Serif', Georgia, serif;
   --font-mono: 'Noto Sans Mono Variable', 'Noto Sans Mono', ui-monospace, monospace;
 
@@ -58,6 +71,13 @@
     --grain-opacity: 0.05;
     --plate: oklch(0.96 0.004 215);
     --plate-caption: oklch(0.38 0.03 235);
+    --flame-11: oklch(0.78 0.12 180);
+    --flame-12: oklch(0.76 0.12 318);
+    --flame-13: oklch(0.72 0.17 22);
+    --flame-10-mark: var(--flame-10);
+    --flame-11-mark: var(--flame-11);
+    --flame-12-mark: var(--flame-12);
+    --flame-13-mark: var(--flame-13);
   }
 }
 
@@ -76,10 +96,38 @@
   --grain-opacity: 0.05;
   --plate: oklch(0.96 0.004 215);
   --plate-caption: oklch(0.38 0.03 235);
+  --flame-11: oklch(0.78 0.12 180);
+  --flame-12: oklch(0.76 0.12 318);
+  --flame-13: oklch(0.72 0.17 22);
+  --flame-10-mark: var(--flame-10);
+  --flame-11-mark: var(--flame-11);
+  --flame-12-mark: var(--flame-12);
+  --flame-13-mark: var(--flame-13);
 }
 
 :root[data-theme='light'] {
   color-scheme: light;
+}
+
+/* Any element tagged with a lesson inherits that lesson's flame. */
+[data-lesson='10'] {
+  --flame: var(--flame-10);
+  --flame-mark: var(--flame-10-mark);
+}
+
+[data-lesson='11'] {
+  --flame: var(--flame-11);
+  --flame-mark: var(--flame-11-mark);
+}
+
+[data-lesson='12'] {
+  --flame: var(--flame-12);
+  --flame-mark: var(--flame-12-mark);
+}
+
+[data-lesson='13'] {
+  --flame: var(--flame-13);
+  --flame-mark: var(--flame-13-mark);
 }
 
 *,
@@ -236,6 +284,28 @@ sub {
 
 .skip-link:focus-visible {
   transform: none;
+}
+
+/* Theme switches reveal through a circle from the toggle (ThemeToggle.vue); the default cross-fade is off. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Intro pre-hide: an element marked data-pre waits for its entrance, but only when JS runs and motion is
+   allowed. The motion layer removes the attribute as it takes over; if it never arrives, the failsafe shows it. */
+@media (prefers-reduced-motion: no-preference) {
+  html.js [data-pre] {
+    opacity: 0;
+    animation: pre-failsafe 0.4s var(--ease-out) 1.8s forwards;
+  }
+}
+
+@keyframes pre-failsafe {
+  to {
+    opacity: 1;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

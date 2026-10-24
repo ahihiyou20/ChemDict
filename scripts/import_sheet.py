@@ -3,7 +3,9 @@
 Usage:
     python3 scripts/import_sheet.py path/to/bang-tu-vung.xlsx
 
-Download the sheet with File > Download > Microsoft Excel (.xlsx). Every tab named
+Source: the Google Sheet "[Hóa ESL 11A10 + 11E2] Bảng từ vựng"
+(https://docs.google.com/spreadsheets/d/169QZcTti2lvf3sVGuyJwoYf9G-zxpr0iE-0e7PzYy8Q/edit).
+Download it with File > Download > Microsoft Excel (.xlsx). Every tab named
 "Bài N" is read; the header row is the one whose column C reads "Thuật ngữ tiếng Anh".
 Outputs shared/data/lexicon.json and WebP illustrations in public/hinh/.
 """
@@ -21,8 +23,6 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parent.parent
 OUT_JSON = ROOT / "shared" / "data" / "lexicon.json"
 OUT_IMG = ROOT / "public" / "hinh"
-SHEET_TITLE = "[Hóa ESL 11A10 + 11E2] Bảng từ vựng"
-SHEET_URL = "https://docs.google.com/spreadsheets/d/169QZcTti2lvf3sVGuyJwoYf9G-zxpr0iE-0e7PzYy8Q/edit"
 EMU_PER_PT = 12700
 MAX_IMG_WIDTH = 1200
 
@@ -147,7 +147,8 @@ def main(xlsx_path):
 
     lessons.sort(key=lambda l: l["number"])
     OUT_JSON.write_text(
-        json.dumps({"sheet": {"title": SHEET_TITLE, "url": SHEET_URL}, "lessons": lessons}, ensure_ascii=False, indent=2) + "\n",
+        # The sheet's name and URL stay out of the site's bundle: the site never names its source sheet.
+        json.dumps({"lessons": lessons}, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
     print(f"Wrote {OUT_JSON.relative_to(ROOT)}")

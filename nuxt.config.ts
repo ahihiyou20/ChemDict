@@ -11,6 +11,7 @@ export default defineNuxtConfig({
   css: [
     '@fontsource-variable/newsreader/opsz.css',
     '@fontsource-variable/noto-sans-mono/wght.css',
+    'lenis/dist/lenis.css',
     '~/assets/css/main.css',
   ],
   app: {

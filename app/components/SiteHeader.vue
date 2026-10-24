@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { magnetic, tilt } from '~/lib/motion-kit'
+
 const { lessons } = useLexicon()
 const route = useRoute()
 const pendingFocus = useState('pending-search-focus', () => false)
@@ -10,14 +12,66 @@ function jumpToSearch() {
   pendingFocus.value = true
   if (!isHome.value) navigateTo('/')
 }
+
+const header = ref<HTMLElement | null>(null)
+// The brand's five spectral lines, in the four lesson flames and the accent.
+const bars = [
+  { x: 2, top: 13, lesson: 10 },
+  { x: 8, top: 3, lesson: 11 },
+  { x: 14, top: 17, lesson: 12 },
+  { x: 20, top: 8, lesson: 13 },
+  { x: 26, top: 19, lesson: null },
+]
+
+useMotionScope(header, ({ gsap, finePointer }, root) => {
+  const lines = root.querySelectorAll<SVGElement>('.brand-mark line')
+  // The lines ring like an emission spectrum: once on arrival, again whenever the brand is hovered.
+  const ring = () =>
+    gsap.fromTo(
+      lines,
+      { scaleY: 1 },
+      { keyframes: { scaleY: [1, 0.25, 1.15, 1], easeEach: 'sine.inOut' }, duration: 0.8, stagger: 0.06, overwrite: true },
+    )
+  gsap.set(lines, { transformOrigin: '50% 100%' })
+  ring()
+  const brand = root.querySelector<HTMLElement>('.brand')!
+  brand.addEventListener('pointerenter', ring)
+
+  // The lesson tiles turn over once, like a departure board settling.
+  const cells = gsap.utils.toArray<HTMLElement>('.cell', root)
+  gsap.fromTo(cells, { rotationX: 0 }, {
+    rotationX: 360,
+    duration: 1.1,
+    ease: 'power3.inOut',
+    stagger: 0.08,
+    delay: 0.25,
+    onComplete: () => gsap.set(cells, { rotationX: 0 }),
+  })
+
+  const cleanups = finePointer
+    ? cells.flatMap((cell) => [magnetic(gsap, cell, 0.22), tilt(gsap, cell, 16)])
+    : []
+  return () => {
+    brand.removeEventListener('pointerenter', ring)
+    cleanups.forEach((cleanup) => cleanup())
+  }
+})
 </script>
 
 <template>
-  <header class="site-header">
+  <header ref="header" class="site-header">
     <div class="wrap bar">
       <NuxtLink to="/" class="brand" aria-label="ChemDict, về trang tra cứu">
         <svg class="brand-mark" viewBox="0 0 28 24" aria-hidden="true">
-          <path d="M2 23V13M8 23V3M14 23V17M20 23V8M26 23V19" />
+          <line
+            v-for="bar in bars"
+            :key="bar.x"
+            :x1="bar.x"
+            :x2="bar.x"
+            :y1="23"
+            :y2="bar.top"
+            :data-lesson="bar.lesson ?? undefined"
+          />
         </svg>
         <span class="brand-name">ChemDict</span>
         <span class="brand-sub">Từ điển Hóa học</span>
@@ -35,8 +89,10 @@ function jumpToSearch() {
                 :to="`/bai/${lesson.number}`"
                 class="cell"
                 :class="{ current: currentLesson === lesson.number, empty: !lesson.senses.length }"
+                :data-lesson="lesson.number"
                 :aria-label="`${lesson.title}: ${lesson.senses.length} thuật ngữ`"
               >
+                <span class="cell-fill" aria-hidden="true" />
                 <span class="cell-count" aria-hidden="true">{{ lesson.senses.length }}</span>
                 <span class="cell-number" aria-hidden="true">{{ lesson.number }}</span>
                 <span class="cell-name" aria-hidden="true">Bài</span>
@@ -78,10 +134,14 @@ function jumpToSearch() {
   width: 28px;
   height: 24px;
   flex: none;
+  overflow: visible;
   fill: none;
-  stroke: var(--accent);
   stroke-width: 2.4;
   stroke-linecap: round;
+}
+
+.brand-mark line {
+  stroke: var(--flame-mark);
 }
 
 .brand-name {
@@ -142,29 +202,48 @@ kbd {
   list-style: none;
 }
 
-/* The one place the element-cell form appears: functional lesson navigation. */
+/* The one place the element-cell form appears: functional lesson navigation. Each tile burns in its lesson's flame. */
 .cell {
   position: relative;
   display: grid;
   place-items: center;
   width: 48px;
   height: 52px;
+  overflow: hidden;
   border: 1px solid var(--hairline-strong);
   border-radius: 3px;
   background: var(--ground-elevated);
-  box-shadow: inset 0 1px 0 var(--highlight);
+  box-shadow: inset 0 1px 0 var(--highlight), inset 0 -3px 0 var(--flame-mark);
   text-decoration: none;
-  transition: border-color var(--t-press) var(--ease-out), color var(--t-press) var(--ease-out), transform var(--t-press) var(--ease-out);
+  transition: border-color var(--t-press) var(--ease-out), color var(--t-peak) var(--ease-out);
 }
 
-.cell:hover {
-  border-color: var(--accent);
-  transform: translateY(-2px);
+.cell-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--flame);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform var(--t-peak) var(--ease-out);
 }
 
+.cell > span:not(.cell-fill) {
+  transition: color var(--t-peak) var(--ease-out);
+}
+
+.cell:hover,
 .cell.current {
-  border-color: var(--accent);
-  color: var(--accent);
+  border-color: var(--flame-mark);
+}
+
+.cell:hover .cell-fill,
+.cell.current .cell-fill {
+  transform: none;
+}
+
+.cell:hover > span:not(.cell-fill),
+.cell.current > span:not(.cell-fill) {
+  color: var(--on-flame);
 }
 
 .cell.empty .cell-number {
@@ -181,6 +260,8 @@ kbd {
 }
 
 .cell-number {
+  /* Positioned, so it paints above the flame fill. */
+  position: relative;
   font-size: 1.375rem;
   font-weight: 600;
   line-height: 1;

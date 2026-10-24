@@ -12,7 +12,33 @@ onMounted(() => {
   if (pinned === 'light' || pinned === 'dark') theme.value = pinned
 })
 
-function cycle() {
+function cycle(event: MouseEvent) {
+  const root = document.documentElement
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (reduced || typeof document.startViewTransition !== 'function') {
+    apply()
+    return
+  }
+  // The new theme floods out from the button in a circle, like a drop of indicator spreading.
+  const button = (event.currentTarget as HTMLElement).getBoundingClientRect()
+  const x = event.clientX || button.left + button.width / 2
+  const y = event.clientY || button.top + button.height / 2
+  const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y))
+  const transition = document.startViewTransition(() => {
+    apply()
+    return nextTick()
+  })
+  transition.ready
+    .then(() =>
+      root.animate(
+        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
+        { duration: 650, easing: 'cubic-bezier(0.22, 1, 0.36, 1)', pseudoElement: '::view-transition-new(root)' },
+      ),
+    )
+    .catch(() => {})
+}
+
+function apply() {
   theme.value = nextTheme[theme.value]
   const root = document.documentElement
   if (theme.value === 'auto') delete root.dataset.theme

@@ -29,6 +29,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 
 <template>
   <a class="skip-link" href="#noi-dung">Bỏ qua, tới nội dung chính</a>
+  <ScrollIndicator />
   <SiteHeader />
   <main id="noi-dung">
     <NuxtPage />

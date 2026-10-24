@@ -2,6 +2,7 @@
 import type { Entry, Sense } from '#shared/types/lexicon'
 import { fold } from '#shared/utils/lexicon'
 import { searchLexicon, warmLexiconIndex, type MatchField, type SearchHit } from '~/composables/useLexiconSearch'
+import { magnetic } from '~/lib/motion-kit'
 
 const { lessons, entries, senseCount, entryOfSense } = useLexicon()
 const router = useRouter()
@@ -219,14 +220,18 @@ function onResultsKey(event: KeyboardEvent) {
 function focusSearch() {
   if (!pendingFocus.value || !input.value) return
   pendingFocus.value = false
-  instrument.value?.scrollIntoView({ block: 'start' })
+  // Focus first, so typing never waits on the scroll.
   input.value.focus({ preventScroll: true })
+  const lenis = currentMotion()?.lenis
+  if (lenis && instrument.value) lenis.scrollTo(instrument.value, { offset: -24, duration: 0.6 })
+  else instrument.value?.scrollIntoView({ block: 'start' })
 }
 
 watch(pendingFocus, () => nextTick(focusSearch))
 
 let revertScan: (() => void) | undefined
 let resizeObserver: ResizeObserver | undefined
+let releaseChips: (() => void) | undefined
 
 onMounted(async () => {
   await router.isReady()
@@ -247,18 +252,26 @@ onMounted(async () => {
   }
 
   // The one wow peak: a single scan sweeps the axis and the comb rises behind it.
-  const { gsap } = await import('gsap')
+  const { gsap, finePointer } = await loadMotion()
   const scope = instrument.value
+  if (!scope) return
+  if (finePointer) {
+    const pulls = [...scope.querySelectorAll<HTMLElement>('.suggest button')].map((chip) => magnetic(gsap, chip, 0.3))
+    releaseChips = () => pulls.forEach((release) => release())
+  }
   const ctx = gsap.context(() => {
     const inks = gsap.utils.toArray<HTMLElement>('.ink', scope)
     const scan = scope.querySelector('.scan')
     const sweep = 1.6
+    // Parse every ink's transform before the first write: one style pass, not one per ink.
+    inks.forEach((ink) => gsap.getProperty(ink, 'scaleY'))
     gsap
       .timeline({
         onComplete() {
           scanState.value = 'done'
-          gsap.set(inks, { clearProps: 'transform' })
-          gsap.set(scan, { clearProps: 'all' })
+          // Hand the comb back to its CSS heights without clearProps' per-element style reads.
+          inks.forEach((ink) => ink.style.removeProperty('transform'))
+          scan?.removeAttribute('style')
         },
       })
       .set('.scan', { autoAlpha: 1 })
@@ -278,6 +291,7 @@ onBeforeUnmount(() => {
   resizeObserver?.disconnect()
   clearTimeout(urlTimer)
   revertScan?.()
+  releaseChips?.()
 })
 </script>
 
@@ -307,6 +321,7 @@ onBeforeUnmount(() => {
         <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" /></svg>
       </button>
       <kbd v-else class="kbd" aria-hidden="true">/</kbd>
+      <span class="plate-flame" aria-hidden="true"><i data-lesson="10" /><i data-lesson="11" /><i data-lesson="12" /><i data-lesson="13" /></span>
     </form>
     <div class="spectrum" aria-hidden="true">
       <div ref="plot" class="plot">
@@ -317,6 +332,7 @@ onBeforeUnmount(() => {
             :key="column.lesson"
             class="column"
             :class="{ empty: !column.slots.length }"
+            :data-lesson="column.lesson"
             :style="{ flexGrow: Math.max(column.slots.length, 5) }"
           >
             <div
@@ -343,9 +359,10 @@ onBeforeUnmount(() => {
           v-for="column in columns"
           :key="column.lesson"
           class="tick"
+          :data-lesson="column.lesson"
           :style="{ flexGrow: Math.max(column.slots.length, 5) }"
         >
-          <span class="tick-name">B{{ column.lesson }}</span>
+          <span class="tick-name"><i class="tick-dot" />B{{ column.lesson }}</span>
           <span class="tick-count">{{ column.slots.length }}</span>
         </div>
       </div>
@@ -366,6 +383,9 @@ onBeforeUnmount(() => {
             <span class="r-vi" lang="vi">{{ hit.entry.vi }}</span>
             <span class="r-meta">
               <span v-if="hit.entry.senses[0]!.ipa" class="r-ipa" lang="en">{{ hit.entry.senses[0]!.ipa }}</span>
+              <span class="r-lessons" aria-hidden="true">
+                <i v-for="n in hit.entry.lessons" :key="n" :data-lesson="n" />
+              </span>
             </span>
           </NuxtLink>
         </li>
@@ -407,6 +427,43 @@ onBeforeUnmount(() => {
 
 .plate:focus-within {
   border-color: var(--accent);
+}
+
+/* Focus burns the four lesson flames along the plate's lower edge. */
+.plate-flame {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: -1px;
+  display: flex;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.plate-flame i {
+  flex: 1;
+  background: var(--flame-mark);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--t-peak) var(--ease-out);
+}
+
+.plate-flame i:nth-child(2) {
+  transition-delay: 40ms;
+}
+
+.plate-flame i:nth-child(3) {
+  transition-delay: 80ms;
+}
+
+.plate-flame i:nth-child(4) {
+  transition-delay: 120ms;
+}
+
+.plate:focus-within .plate-flame i {
+  transform: none;
 }
 
 .plate-icon {
@@ -550,7 +607,7 @@ html:not(.js) .kbd {
   width: 2px;
   height: 100%;
   margin-left: -1px;
-  color: var(--ink-secondary);
+  color: var(--flame-mark);
   transform-origin: bottom;
   transform: scaleY(var(--h));
   transition: transform var(--t-peak) var(--ease-out), color var(--t-press) var(--ease-out);
@@ -578,7 +635,6 @@ html:not(.js) .kbd {
   }
 }
 
-.is-hit .line,
 .is-peak .line {
   color: var(--accent);
 }
@@ -667,6 +723,19 @@ html:not(.js) .kbd {
   font-size: 0.75rem;
 }
 
+.tick-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tick-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--flame-mark);
+}
+
 .tick-count {
   color: var(--ink-secondary);
 }
@@ -730,6 +799,18 @@ html:not(.js) .kbd {
   flex-wrap: wrap;
   align-items: center;
   gap: var(--s2);
+}
+
+.r-lessons {
+  display: flex;
+  gap: 4px;
+}
+
+.r-lessons i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--flame-mark);
 }
 
 .suggest button {

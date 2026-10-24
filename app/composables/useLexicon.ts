@@ -11,7 +11,6 @@ const senseCount = data.lessons.reduce((total, lesson) => total + lesson.senses.
 
 export function useLexicon() {
   return {
-    sheet: data.sheet,
     lessons: data.lessons,
     entries,
     sortedEn,

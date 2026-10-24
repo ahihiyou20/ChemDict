@@ -29,7 +29,6 @@ export interface Lesson {
 }
 
 export interface LexiconData {
-  sheet: { title: string; url: string }
   lessons: Lesson[]
 }
 
