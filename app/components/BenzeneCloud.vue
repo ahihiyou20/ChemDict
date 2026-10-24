@@ -218,7 +218,7 @@ figcaption a {
 }
 
 .cloud.is-unavailable,
-:global(html:not(.js)) .cloud {
+html:not(.js) .cloud {
   display: none;
 }
 

@@ -21,7 +21,7 @@ export default defineNuxtConfig({
         { name: 'theme-color', content: '#f4f8f9', media: '(prefers-color-scheme: light)' },
         { name: 'theme-color', content: '#10161c', media: '(prefers-color-scheme: dark)' },
       ],
-      link: [{ rel: 'icon', type: 'image/svg+xml', href: 'favicon.svg' }],
+      link: [{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
       script: [
         {
           // Before first paint: mark JS as available and apply a theme the reader pinned earlier.
@@ -33,10 +33,17 @@ export default defineNuxtConfig({
     },
   },
   nitro: {
+    // Plain static output in .output/public on every host, so Vercel and Cloudflare Pages
+    // serve the same prerendered files instead of switching to their own Nitro presets.
+    preset: 'static',
     prerender: {
       crawlLinks: true,
       routes: ['/', ...lessonRoutes, ...entryRoutes],
     },
+  },
+  vite: {
+    // three.js (~890 KB raw, ~240 KB gzip) is its own chunk, fetched on idle by the home hero only.
+    build: { chunkSizeWarningLimit: 1000 },
   },
   typescript: { strict: true },
 })

@@ -492,8 +492,8 @@ input::-webkit-search-cancel-button {
 }
 
 /* Without JS the suggestions and the "/" shortcut cannot work, so they stay out of the way. */
-:global(html:not(.js)) .suggest,
-:global(html:not(.js)) .kbd {
+html:not(.js) .suggest,
+html:not(.js) .kbd {
   display: none;
 }
 
@@ -583,7 +583,7 @@ input::-webkit-search-cancel-button {
 
 /* Lines wait at baseline noise for the scan; if the app never boots, the failsafe raises them. */
 @media (prefers-reduced-motion: no-preference) {
-  :global(html.js) .instrument[data-scan='armed'] .ink {
+  html.js .instrument[data-scan='armed'] .ink {
     transform: scaleY(0.04);
     animation: scan-failsafe 0.3s var(--ease-out) 4s forwards;
   }

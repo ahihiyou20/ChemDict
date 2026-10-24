@@ -24,6 +24,13 @@ const check = (name, pass, detail) => results.push({ name, pass, detail })
     }).observe({ type: 'layout-shift', buffered: true })
   })
   await page.goto(base + '/', { waitUntil: 'networkidle' })
+  // Entrance motion must only ever touch its own elements: the page frame stays untransformed.
+  const frame = await page.evaluate(() => ({
+    html: getComputedStyle(document.documentElement).transform,
+    body: getComputedStyle(document.body).transform,
+    h1Height: Math.round(document.querySelector('h1').getBoundingClientRect().height),
+  }))
+  check('Page frame untransformed during the opening scan', frame.html === 'none' && frame.body === 'none' && frame.h1Height > 40, frame)
   await page.waitForTimeout(2500)
   // The 3D cloud loads on idle; record which tier this device landed on.
   await page.waitForFunction(() => document.querySelector('.cloud')?.dataset.tier !== 'loading', null, { timeout: 8000 }).catch(() => {})
@@ -65,25 +72,7 @@ const check = (name, pass, detail) => results.push({ name, pass, detail })
   check('No horizontal overflow (1440)', !motion.horizOverflow, motion.horizOverflow)
   const fcp = await page.evaluate(() => performance.getEntriesByName('first-contentful-paint')[0]?.startTime ?? 0)
   check('FCP < 1500ms', fcp > 0 && fcp < 1500, Math.round(fcp))
-  if (vitals.lcp > 0) check('LCP < 2500ms', vitals.lcp < 2500, Math.round(vitals.lcp))
-  else {
-    // Headless Chromium emits no LCP entry for this page while motion is allowed; measure the
-    // same build with reduced motion, where the LCP element (the hero h1) paints identically.
-    const rm = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2, reducedMotion: 'reduce' })
-    await rm.goto(base + '/', { waitUntil: 'networkidle' })
-    const lcp = await rm.evaluate(
-      () =>
-        new Promise((resolve) => {
-          new PerformanceObserver((list) => {
-            const e = list.getEntries().at(-1)
-            resolve({ ms: Math.round(e.startTime), element: e.element?.className })
-          }).observe({ type: 'largest-contentful-paint', buffered: true })
-          setTimeout(() => resolve({ ms: 0 }), 1500)
-        }),
-    )
-    check('LCP < 2500ms (reduced-motion run)', lcp.ms > 0 && lcp.ms < 2500, lcp)
-    await rm.close()
-  }
+  check('LCP < 2500ms', vitals.lcp > 0 && vitals.lcp < 2500, Math.round(vitals.lcp))
   check('CLS < 0.1', vitals.cls < 0.1, vitals.cls.toFixed(4))
 
   // Typing drives the spectrum: frame budget while peaks move.
@@ -190,6 +179,23 @@ for (const scheme of ['light', 'dark']) {
   check('Reduced motion: 3D cloud drawn as a still', state.cloud === 'still', state.cloud)
   check('Reduced motion: spectrum lines at full height', state.inkTransform === 'none' || state.inkTransform === 'matrix(1, 0, 0, 1, 0, 0)', state.inkTransform)
   await page.close()
+}
+
+// 5. No-JS floor: every page still renders its copy and links.
+{
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } })
+  for (const path of ['/', '/tu/aromatic-compound', '/bai/11']) {
+    const page = await context.newPage()
+    await page.goto(base + path, { waitUntil: 'load' })
+    const state = await page.evaluate(() => ({
+      htmlDisplay: getComputedStyle(document.documentElement).display,
+      h1Height: Math.round(document.querySelector('h1')?.getBoundingClientRect().height ?? 0),
+      visibleLinks: [...document.querySelectorAll('main a')].filter((a) => a.getBoundingClientRect().height > 0).length,
+    }))
+    check(`No JS: ${path} readable`, state.htmlDisplay !== 'none' && state.h1Height > 20 && state.visibleLinks > 0, state)
+    await page.close()
+  }
+  await context.close()
 }
 
 await browser.close()
