@@ -70,7 +70,7 @@ async function boot(): Promise<Motion> {
   return ready
 }
 
-/** Run `setup` inside a gsap.context scoped to `scope` once motion is ready; everything it made is reverted on unmount. */
+/** Run `setup` inside a gsap.context scoped to `scope` once motion is ready; everything it made is killed on unmount. */
 export function useMotionScope(
   scope: Ref<HTMLElement | null>,
   setup: (motion: Motion, root: HTMLElement) => void | (() => void),
@@ -96,7 +96,9 @@ export function useMotionScope(
     }, root)
     revert = () => {
       cleanup?.()
-      ctx.revert()
+      // Kill, not revert: the scope's DOM is about to be discarded, so restoring split text and
+      // inline styles would only spend layout work while the next page (a lookup) is mounting.
+      ctx.kill()
     }
   })
 

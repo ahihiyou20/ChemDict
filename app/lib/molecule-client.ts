@@ -18,6 +18,9 @@ export interface StageHandle {
 /** The worker could not draw (no OffscreenCanvas WebGL/WebGPU); the canvas it took is spent. */
 export class OffThreadFailed extends Error {}
 
+/** A lookup started before the scene was ready, so the scene was dropped; its canvas is spent. */
+export class StageAborted extends Error {}
+
 /** Resolve any CSS colour (oklch included) to sRGB through a 1px canvas. */
 function cssColor(ctx: CanvasRenderingContext2D, value: string): RGB {
   ctx.clearRect(0, 0, 1, 1)
@@ -49,7 +52,7 @@ export function canDrawOffThread(canvas: HTMLCanvasElement) {
 }
 
 /** Parse and run three.js in a module worker, paced by the page's ticker. */
-export function startInWorker(canvas: HTMLCanvasElement, options: Omit<SceneOptions, 'onLost'>, onLost: () => void) {
+export function startInWorker(canvas: HTMLCanvasElement, options: Omit<SceneOptions, 'onLost'>, onLost: () => void, signal?: AbortSignal) {
   const worker = new Worker(new URL('./molecule-worker.ts', import.meta.url), { type: 'module' })
   const offscreen = canvas.transferControlToOffscreen()
   const send = (message: SceneToWorker, transfer: Transferable[] = []) => worker.postMessage(message, transfer)
@@ -73,6 +76,11 @@ export function startInWorker(canvas: HTMLCanvasElement, options: Omit<SceneOpti
       worker.terminate()
       reject(new OffThreadFailed(reason))
     }
+    // Terminating the worker stops its parse and shader compile at once, freeing the CPU it shares.
+    signal?.addEventListener('abort', () => {
+      worker.terminate()
+      reject(new StageAborted())
+    })
     worker.onerror = (event) => {
       event.preventDefault()
       fail(event.message)

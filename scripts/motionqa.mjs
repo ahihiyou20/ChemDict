@@ -107,6 +107,58 @@ const check = (name, pass, detail) => results.push({ name, pass, detail })
   await page.close()
 }
 
+// 1b. Motion never holds a lookup: an entry's answer is on screen the moment its page is.
+{
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
+  const shown = () =>
+    page.evaluate(() => {
+      const visible = (el) => {
+        if (!el) return false
+        for (let n = el; n && n !== document.body; n = n.parentElement) {
+          const style = getComputedStyle(n)
+          if (style.opacity === '0' || style.visibility === 'hidden') return false
+        }
+        return ![...el.querySelectorAll('*')].some((child) => getComputedStyle(child).opacity === '0')
+      }
+      return { path: location.pathname, headword: visible(document.querySelector('h1.headword')), definition: visible(document.querySelector('.def-text')) }
+    })
+  await page.goto(base + '/tu/aromatic-compound', { waitUntil: 'load' })
+  const direct = await shown()
+  check('Entry answer visible at load (headword and definition)', direct.headword && direct.definition, direct)
+  await page.goto(base + '/', { waitUntil: 'networkidle' })
+  await page.click('#tra-cuu-o')
+  await page.keyboard.type('alkane', { delay: 30 })
+  await page.waitForSelector('.result')
+  // Timed inside the page, from the Enter keydown to the first frame that shows the answer.
+  await page.evaluate(() => {
+    addEventListener(
+      'keydown',
+      (event) => {
+        if (event.key !== 'Enter') return
+        const started = performance.now()
+        const look = () => {
+          const h1 = document.querySelector('h1.headword')
+          const def = document.querySelector('.def-text')
+          if (location.pathname.startsWith('/tu/') && h1 && def && getComputedStyle(h1).opacity === '1' && getComputedStyle(def).opacity === '1') window.__answered = performance.now() - started
+          else requestAnimationFrame(look)
+        }
+        requestAnimationFrame(look)
+      },
+      { capture: true, once: true },
+    )
+  })
+  await page.keyboard.press('Enter')
+  const elapsed = await page.waitForFunction(() => window.__answered, null, { timeout: 5000 }).then((h) => h.jsonValue()).catch(() => Infinity)
+  const after = await shown()
+  check('Enter → entry answer on screen < 150ms', elapsed < 150 && after.headword && after.definition, { elapsed: Math.round(elapsed), ...after })
+  const chrome = await page.evaluate(() => ({ lenis: document.documentElement.classList.contains('lenis') }))
+  check('Smooth scroll (Lenis) active with motion allowed', chrome.lenis, chrome)
+  await page.goto(base + '/', { waitUntil: 'networkidle' })
+  const marquees = await page.evaluate(() => [...document.querySelectorAll('.marquee')].map((el) => el.getAttribute('aria-hidden')))
+  check('Exactly one marquee, hidden from assistive tech', marquees.length === 1 && marquees[0] === 'true', marquees)
+  await page.close()
+}
+
 // 2. Contrast of the committed token pairs, light and dark, resolved by the browser itself.
 for (const scheme of ['light', 'dark']) {
   const page = await browser.newPage({ colorScheme: scheme })
@@ -140,9 +192,20 @@ for (const scheme of ['light', 'dark']) {
         out[`${text} on ${ground}`] = Math.round(ratio(v(text), v(ground)) * 100) / 100
       }
     }
+    // Lesson flames: text on a flame fill reads as body text; flame marks (lines, dots, outlined
+    // initials) are graphics and large display glyphs, so they need 3:1 against either ground.
+    for (const n of [10, 11, 12, 13]) {
+      out[`--on-flame on --flame-${n}`] = Math.round(ratio(v('--on-flame'), v(`--flame-${n}`)) * 100) / 100
+      for (const ground of ['--ground', '--ground-elevated']) {
+        out[`--flame-${n}-mark on ${ground}`] = Math.round(ratio(v(`--flame-${n}-mark`), v(ground)) * 100) / 100
+      }
+    }
     return out
   })
-  for (const [pair, value] of Object.entries(pairs)) check(`Contrast ${scheme}: ${pair} >= 4.5`, value >= 4.5, value)
+  for (const [pair, value] of Object.entries(pairs)) {
+    const floor = pair.includes('-mark on') ? 3 : 4.5
+    check(`Contrast ${scheme}: ${pair} >= ${floor}`, value >= floor, value)
+  }
   if (scheme === 'light') {
     // Cross-route drift (system register): every route resolves the same tokens and chrome.
     const signature = () =>
@@ -201,6 +264,7 @@ for (const scheme of ['light', 'dark']) {
   }))
   check('Reduced motion: scan never armed', !state.armed, state)
   check('Reduced motion: 3D cloud drawn as a still', state.cloud === 'still', state.cloud)
+  check('Reduced motion: no smooth-scroll hijack', !(await page.evaluate(() => document.documentElement.classList.contains('lenis'))), null)
   check('Reduced motion: spectrum lines at full height', state.inkTransform === 'none' || state.inkTransform === 'matrix(1, 0, 0, 1, 0, 0)', state.inkTransform)
   await page.close()
 }

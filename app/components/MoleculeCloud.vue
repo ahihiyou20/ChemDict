@@ -25,21 +25,60 @@ const showing = ref(BENZENE)
 const caption = computed(() => captions[showing.value]!)
 
 let teardown: (() => void) | undefined
+let stopWaiting: (() => void) | undefined
 let disposed = false
 
 onMounted(() => {
-  const start = () =>
-    mount().catch(() => {
-      // No WebGPU and no WebGL2: the hero simply stays typographic.
-      tier.value = 'unavailable'
-    })
-  // Load three.js only once the page is idle, so it never competes with hydration or the first keystroke.
-  if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 1500 })
-  else setTimeout(start, 600)
+  // The scene waits for a quiet moment: the page idle, no lookup under way and no key pressed for
+  // a while. A reader who came to look something up types first, so the scene (and the GPU time
+  // its first frame takes) never lands under their lookup. A lookup that starts while the scene is
+  // still being built drops it (the worker is terminated); it is rebuilt once the field is clear.
+  const QUIET_MS = 1200
+  let lastKey = performance.now()
+  const onKey = () => void (lastKey = performance.now())
+  window.addEventListener('keydown', onKey, { capture: true, passive: true })
+  const whenQuiet = (run: () => void) => {
+    const wait = QUIET_MS - (performance.now() - lastKey)
+    if (wait > 0) setTimeout(() => whenQuiet(run), wait)
+    else if ('requestIdleCallback' in window) requestIdleCallback(run, { timeout: 1500 })
+    else setTimeout(run, 0)
+  }
+  let building: AbortController | undefined
+  const begin = () => {
+    if (disposed || building || searchActive.value || tier.value !== 'loading') return
+    if (performance.now() - lastKey < QUIET_MS) return whenQuiet(begin)
+    const controller = new AbortController()
+    building = controller
+    mount(controller.signal)
+      .then(() => {
+        if (tier.value !== 'loading') window.removeEventListener('keydown', onKey, { capture: true })
+      })
+      .catch(() => {
+        // No WebGPU and no WebGL2: the hero simply stays typographic.
+        if (!controller.signal.aborted) tier.value = 'unavailable'
+      })
+      .finally(() => {
+        if (building === controller) building = undefined
+      })
+  }
+  const stopSearch = watch(searchActive, (active) => {
+    if (tier.value !== 'loading') return
+    if (active && building) {
+      building.abort()
+      building = undefined
+      canvasKey.value++
+    } else if (!active) whenQuiet(begin)
+  })
+  stopWaiting = () => {
+    stopSearch()
+    window.removeEventListener('keydown', onKey, { capture: true })
+  }
+  whenQuiet(begin)
 })
 
-async function connect(still: boolean): Promise<StageHandle | undefined> {
+async function connect(still: boolean, signal: AbortSignal): Promise<StageHandle | undefined> {
   const client = await import('~/lib/molecule-client')
+  if (signal.aborted) return
   const options = { still, devicePixelRatio: window.devicePixelRatio }
   const onLost = () => {
     tier.value = 'unavailable'
@@ -49,12 +88,12 @@ async function connect(still: boolean): Promise<StageHandle | undefined> {
   if (client.canDrawOffThread(canvas.value)) {
     try {
       // three.js is parsed and drawn in a worker, so it never blocks typing on the main thread.
-      return await client.startInWorker(canvas.value, options, onLost)
+      return await client.startInWorker(canvas.value, options, onLost, signal)
     } catch (error) {
       if (!(error instanceof client.OffThreadFailed)) throw error
       canvasKey.value++
       await nextTick()
-      if (!canvas.value || disposed) return
+      if (!canvas.value || disposed || signal.aborted) return
     }
   }
   return client.startOnMainThread(canvas.value, { ...options, onLost })
@@ -68,12 +107,12 @@ function layoutOf(host: HTMLElement): StageLayout {
   return { width, height, focus: wide ? [0.4, 0.08] : [0.3, 0.32], size: wide ? 0.78 : 0.6 }
 }
 
-async function mount() {
+async function mount(signal: AbortSignal) {
   if (!canvas.value || !stage.value) return
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
-  const [active, motion] = await Promise.all([connect(reducedMotion), loadMotion()])
+  const [active, motion] = await Promise.all([connect(reducedMotion, signal), loadMotion()])
   if (!active) return
-  if (disposed) {
+  if (disposed || signal.aborted) {
     active.dispose()
     return
   }
@@ -102,7 +141,19 @@ async function mount() {
     morph: state.morph,
     disperse: state.disperse,
   })
-  const drawStill = () => active.frame(snapshot(0))
+  // A still is drawn at most once a frame, and not at all while a lookup hides the stage: on a
+  // software GPU each draw holds the compositor for hundreds of milliseconds.
+  let stillQueued = false
+  let stillOwed = false
+  const drawStill = () => {
+    if (searchActive.value) return void (stillOwed = true)
+    if (stillQueued) return
+    stillQueued = true
+    requestAnimationFrame(() => {
+      stillQueued = false
+      if (!disposed) active.frame(snapshot(0))
+    })
+  }
 
   const fit = () => {
     active.resize(layoutOf(host))
@@ -174,6 +225,10 @@ async function mount() {
     state.pointerOn = false
     if (value) setTimeout(sync, 260)
     else sync()
+    if (!value && stillOwed) {
+      stillOwed = false
+      drawStill()
+    }
   })
 
   // As the hero scrolls away the cloud scatters, scrubbed straight to the scroll position.
@@ -238,6 +293,7 @@ async function mount() {
 
 onBeforeUnmount(() => {
   disposed = true
+  stopWaiting?.()
   teardown?.()
 })
 </script>
@@ -303,6 +359,12 @@ canvas {
 .is-ready.is-dimmed canvas {
   opacity: 0;
   transition-duration: 250ms;
+}
+
+/* Once faded, the stage leaves the compositor entirely, so a lookup never pays to keep it. */
+.is-dimmed .stage {
+  visibility: hidden;
+  transition: visibility 0s linear 250ms;
 }
 
 figcaption {

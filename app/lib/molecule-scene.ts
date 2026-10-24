@@ -100,7 +100,9 @@ export type SceneFromWorker =
   | { type: 'lost' }
 
 export async function createMoleculeScene(canvas: HTMLCanvasElement | OffscreenCanvas, options: SceneOptions): Promise<MoleculeScene> {
-  const renderer = new THREE.WebGPURenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' })
+  // No MSAA: every point is a soft sprite whose edge the shader already feathers, and resolving a
+  // full-bleed multisampled canvas is the costliest part of a frame on modest GPUs.
+  const renderer = new THREE.WebGPURenderer({ canvas, antialias: false, alpha: true, powerPreference: 'high-performance' })
   // A lost GPU device leaves a dead canvas; hand control back so the hero can drop it.
   renderer.onDeviceLost = () => options.onLost()
   // Mandatory: wait for device negotiation before any render or capability check.
@@ -108,14 +110,15 @@ export async function createMoleculeScene(canvas: HTMLCanvasElement | OffscreenC
 
   const isWebGPU = Boolean((renderer.backend as { isWebGPUBackend?: boolean }).isWebGPUBackend)
   const isSoftware = isSoftwareRenderer(renderer.backend)
-  renderer.setPixelRatio(Math.min(options.devicePixelRatio, isSoftware ? 1 : isWebGPU ? 2 : 1.5))
+  // A CPU-emulated GPU draws its single still at reduced resolution: the soft cloud hides it.
+  renderer.setPixelRatio(isSoftware ? 0.75 : Math.min(options.devicePixelRatio, isWebGPU ? 2 : 1.5))
   renderer.setClearColor(0x000000, 0)
 
   const scene = new THREE.Scene()
   const camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 80)
 
-  // Graceful degradation: the WebGL2 fallback and software GPUs draw 40% of the WebGPU budget.
-  const total = isWebGPU && !isSoftware ? 60000 : 24000
+  // Graceful degradation: the WebGL2 fallback draws 40% of the WebGPU budget, a software GPU 15%.
+  const total = isSoftware ? 9000 : isWebGPU ? 60000 : 24000
   const clouds: PointCloud[] = buildClouds(total)
   const start = options.still || isSoftware ? BENZENE : 0
 
@@ -206,6 +209,9 @@ export async function createMoleculeScene(canvas: HTMLCanvasElement | OffscreenC
   spin.add(sprites)
   stage.add(spin)
   scene.add(stage)
+  // Compile before the first frame, in parallel where the driver allows it, so the GPU process
+  // never stalls the page's own frames (or a lookup) on one long synchronous compile.
+  await renderer.compileAsync(scene, camera).catch(() => {})
 
   const raycaster = new THREE.Raycaster()
   const ndc = new THREE.Vector2()

@@ -38,7 +38,8 @@ const maxLessons = Math.max(...entries.map((entry) => entry.lessons.length))
 const idlePeak = entries.reduce((best, entry) => (entry.lessons.length > best.lessons.length ? entry : best))
 const isQuerying = computed(() => searched.value.length > 0)
 const searchActive = useState('search-active', () => false)
-watch(isQuerying, (value) => (searchActive.value = value))
+// Immediate, so a stale flag from an earlier visit never keeps the hero dimmed.
+watch(isQuerying, (value) => (searchActive.value = value), { immediate: true })
 const ranked = computed(() => new Map(hits.value.map((hit, rank) => [hit.entry.slug, { hit, rank }])))
 
 function heightOf(entry: Entry): number {
@@ -174,6 +175,9 @@ watch(query, async (value) => {
     if ((new URLSearchParams(window.location.search).get('q') ?? '') !== q) router.replace({ query: q ? { q } : {} })
   }, 300)
 })
+
+// The deferred ?q= sync must never replace the route under a lookup that is already on its way.
+onBeforeRouteLeave(() => clearTimeout(urlTimer))
 
 function open(entry: Entry) {
   navigateTo(`/tu/${entry.slug}`)
