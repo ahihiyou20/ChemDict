@@ -127,8 +127,11 @@ All text and accent pairs are verified at **≥ 4.5:1** in Phase 7, which comput
 **Engineering contract (Phase 5.3):**
 - `three/webgpu` + `three/tsl` only, with `await renderer.init()` before any render.
 - Exactly one canvas on the page; geometry, material and renderer are disposed on unmount.
-- Loaded with `requestIdleCallback` (timeout 1.5s), so three.js (~240 KB gzip, its own chunk, never preloaded) never competes with hydration or the first keystroke.
-- GSAP's ticker is the only render loop. An IntersectionObserver pauses it off-screen.
+- Loaded with `requestIdleCallback` (timeout 1.5s) and never preloaded.
+- **Off the main thread.** three.js (~240 KB gzip) is parsed and drawn in a module worker on an `OffscreenCanvas`. Evaluating it on the main thread was a ~490ms long task. The scene module is DOM-free: theme colours are resolved on the page and posted to the worker.
+- **Main-thread fallback.** Where a worker cannot draw, a fresh canvas takes over and the same module runs on the main thread.
+- GSAP's ticker is still the only render loop. It posts one frame message per tick, with backpressure, so a slow worker merges frames instead of queueing them.
+- The loop pauses when the figure is off-screen (IntersectionObserver) and while the reader scrolls (ScrollTrigger `scrollStart` / `scrollEnd`).
 - Pixel ratio: ≤ 2 on WebGPU, ≤ 1.5 on WebGL2, 1 on software GPUs.
 - `onDeviceLost` removes the figure instead of leaving a dead canvas.
 
@@ -137,7 +140,7 @@ All text and accent pairs are verified at **≥ 4.5:1** in Phase 7, which comput
 - `still`: one art-directed frame, drawn when:
   - `prefers-reduced-motion: reduce` is set;
   - the GPU is CPU-emulated (SwiftShader, llvmpipe, WARP, fallback adapters);
-  - the median frame time of the first ten steady frames exceeds 22ms.
+  - the median frame time of the first ten steady frames, on the page or in the worker, exceeds 22ms.
 - `unavailable`: the figure is removed.
 
 The tier is exposed as `data-tier` for QA.
