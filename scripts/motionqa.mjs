@@ -1,5 +1,6 @@
 // Phase 7 gates on the production build: DPR-2 frame budget, Web Vitals, token contrast,
-// keyboard focus order, reduced motion. Usage: node scripts/motionqa.mjs [baseUrl]
+// keyboard focus order, reduced motion, and the home page's train keeping clear of text.
+// Usage: node scripts/motionqa.mjs [baseUrl]
 import { createRequire } from 'node:module'
 
 const { chromium } = createRequire(import.meta.url)('playwright')
@@ -349,6 +350,72 @@ for (const scheme of ['light', 'dark']) {
     await page.close()
   }
   await context.close()
+}
+
+// 7. The separation train and the instruments around it never cover a word: at the foot of the page,
+// with every pipe full, no piece of glass, liquid, recorder paper or bubble intersects a line of text.
+for (const [width, height] of [
+  [1440, 900],
+  [390, 844],
+]) {
+  const page = await browser.newPage({ viewport: { width, height } })
+  await page.goto(base + '/', { waitUntil: 'networkidle' })
+  await page.waitForTimeout(1200)
+  for (let i = 0; i < 60; i++) {
+    await page.mouse.wheel(0, 240)
+    await page.waitForTimeout(30)
+  }
+  await page.waitForTimeout(3000)
+  const report = await page.evaluate(() => {
+    const home = document.querySelector('.home')
+    const train = home.querySelector('.train')
+    const wide = train.classList.contains('wide')
+    // Liquids sit inside glass a few px wider than themselves.
+    const pad = wide ? 3 : 2
+    const pieces = []
+    const add = (el, inflate = 0) => {
+      const r = el.getBoundingClientRect()
+      if (!r.width && !r.height) return
+      pieces.push({ what: el.className.baseVal ?? el.className, l: r.left - inflate, r: r.right + inflate, t: r.top - inflate, b: r.bottom + inflate })
+    }
+    train.querySelectorAll('.liquid').forEach((el) => add(el, pad))
+    train.querySelectorAll('.column, .burette-liquid, .flask-liquid, .recorder, .boil i').forEach((el) => add(el, 2))
+    home.querySelectorAll('.coolant').forEach((el) => add(el))
+    const text = []
+    const walker = document.createTreeWalker(home, NodeFilter.SHOW_TEXT)
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      if (!node.textContent.trim() || node.parentElement.closest('.train, [aria-hidden="true"] .run ~ .run')) continue
+      const range = document.createRange()
+      range.selectNodeContents(node)
+      for (const r of range.getClientRects()) if (r.width && r.height) text.push({ text: node.textContent.trim().slice(0, 24), l: r.left, r: r.right, t: r.top, b: r.bottom })
+    }
+    const hits = []
+    for (const p of pieces)
+      for (const t of text)
+        if (p.l < t.r - 0.5 && p.r > t.l + 0.5 && p.t < t.b - 0.5 && p.b > t.t + 0.5) hits.push(`${p.what} × "${t.text}"`)
+    return { pieces: pieces.length, words: text.length, hits: [...new Set(hits)].slice(0, 8), endpoint: train.classList.contains('endpoint') }
+  })
+  check(`Train never covers text at ${width}`, report.pieces > 10 && report.hits.length === 0, report)
+  check(`Titration reaches its endpoint at the foot of the page at ${width}`, report.endpoint, null)
+  await page.close()
+}
+
+// 8. Reduced motion: the train is drawn finished, with nothing left moving.
+{
+  const page = await browser.newPage({ reducedMotion: 'reduce', viewport: { width: 1440, height: 900 } })
+  await page.goto(base + '/', { waitUntil: 'networkidle' })
+  await page.waitForTimeout(1500)
+  const state = await page.evaluate(() => {
+    const train = document.querySelector('.train')
+    const scales = [...train.querySelectorAll('.liquid')].map((el) => new DOMMatrix(getComputedStyle(el).transform))
+    return {
+      full: scales.every((m) => Math.abs(m.a - 1) < 0.01 && Math.abs(m.d - 1) < 0.01),
+      endpoint: train.classList.contains('endpoint'),
+      running: document.getAnimations().filter((a) => a.playState === 'running' && a.effect?.target?.closest?.('.train, .lab')).length,
+    }
+  })
+  check('Reduced motion: train drawn finished and still', state.full && state.endpoint && state.running === 0, state)
+  await page.close()
 }
 
 await browser.close()

@@ -61,16 +61,26 @@ useMotionScope(
   layer,
   ({ gsap, ScrollTrigger, reduced }, root) => {
     const home = root.parentElement!
-    type Point = { el: HTMLElement; x: (v: number) => void; y: (v: number) => void }
-    const point = (el: HTMLElement): Point => ({ el, x: gsap.quickSetter(el, 'x', 'px') as (v: number) => void, y: gsap.quickSetter(el, 'y', 'px') as (v: number) => void })
-    let setters: { scale: (value: number) => void; pipe: Pipe }[] = []
-    let bands: HTMLElement[] = []
-    let mixture: HTMLElement | null = null
-    let wet: HTMLElement | null = null
+    type Setter = (v: number) => void
+    const setter = (el: Element, property: string, unit?: string) => gsap.quickSetter(el, property, unit) as Setter
+    type Point = { el: HTMLElement; x: Setter; y: Setter }
+    const point = (el: HTMLElement): Point => ({ el, x: setter(el, 'x', 'px'), y: setter(el, 'y', 'px') })
+    // Every per-frame write goes through a quick setter (no tween per frame), and visibility is
+    // written only when it changes.
+    const shown = new WeakMap<HTMLElement, string>()
+    const visible = (el: HTMLElement, value: string) => {
+      if (shown.get(el) === value) return
+      shown.set(el, value)
+      el.style.opacity = value
+    }
+    let setters: { scale: Setter; pipe: Pipe }[] = []
+    let bands: { y: Setter; scale: Setter; opacity: Setter }[] = []
+    let mixture: Setter | null = null
+    let wet: Setter | null = null
     let front: Point | null = null
     let bubbles: Point[] = []
-    let charge: HTMLElement | null = null
-    let recorder: { frame: (v: number) => void; paper: (v: number) => void; pen: Point } | null = null
+    let charge: Setter | null = null
+    let recorder: { frame: Setter; paper: Setter; pen: Point } | null = null
     let released = 0
     let scroll = 0
 
@@ -79,19 +89,27 @@ useMotionScope(
       if (!l) return
       setters = l.pipes.map((pipe) => {
         const el = root.querySelector<HTMLElement>(`[data-pipe="${pipe.id}"]`)!
-        return { pipe, scale: gsap.quickSetter(el, vertical(pipe) ? 'scaleY' : 'scaleX') as (v: number) => void }
+        return { pipe, scale: setter(el, vertical(pipe) ? 'scaleY' : 'scaleX') }
       })
-      bands = [...root.querySelectorAll<HTMLElement>('.column .band')]
-      mixture = root.querySelector('.column .mixture')
-      wet = root.querySelector('.column .wet')
-      charge = root.querySelector('.burette-liquid')
+      bands = [...root.querySelectorAll<HTMLElement>('.column .band')].map((band) => ({
+        y: setter(band, 'y', 'px'),
+        scale: setter(band, 'scaleY'),
+        opacity: setter(band, 'opacity'),
+      }))
+      const setterOf = (selector: string, property: string) => {
+        const el = root.querySelector(selector)
+        return el ? setter(el, property) : null
+      }
+      mixture = setterOf('.column .mixture', 'opacity')
+      wet = setterOf('.column .wet', 'scaleY')
+      charge = setterOf('.burette-liquid', 'scaleY')
       front = point(root.querySelector<HTMLElement>('.front')!)
       bubbles = [...root.querySelectorAll<HTMLElement>('.bubble')].map(point)
       const frame = root.querySelector<HTMLElement>('.recorder')
       recorder = frame
         ? {
-            frame: gsap.quickSetter(frame, 'y', 'px') as (v: number) => void,
-            paper: gsap.quickSetter(frame.firstElementChild!, 'y', 'px') as (v: number) => void,
+            frame: setter(frame, 'y', 'px'),
+            paper: setter(frame.firstElementChild!, 'y', 'px'),
             pen: point(root.querySelector<HTMLElement>('.pen')!),
           }
         : null
@@ -126,16 +144,18 @@ useMotionScope(
       const c = l.column
       const h = c.bottom - c.top - 4
       const p = progress(s, c.s0, c.s1)
-      wet && gsap.set(wet, { scaleY: p })
-      mixture && gsap.set(mixture, { opacity: s > c.s0 ? Math.max(0, 1 - p * 4) : 0 })
+      wet?.(p)
+      mixture?.(s > c.s0 ? Math.max(0, 1 - p * 4) : 0)
       bands.forEach((band, i) => {
         const q = progress(s, l.bands[i]!.s0, l.bands[i]!.s1)
         const spread = 10 + q * h * 0.12
-        gsap.set(band, { y: h * 0.02 + q * h * 0.98, scaleY: spread / BAND, opacity: q >= 1 ? 0 : Math.min(1, p * 6) })
+        band.y(h * 0.02 + q * h * 0.98)
+        band.scale(spread / BAND)
+        band.opacity(q >= 1 ? 0 : Math.min(1, p * 6))
       })
 
       // The burette charges from the line, then gives one drop per row.
-      if (charge) gsap.set(charge, { scaleY: Math.max(0, progress(s, l.burette.s0, l.burette.s1) * 0.94 - released * 0.09) })
+      charge?.(Math.max(0, progress(s, l.burette.s0, l.burette.s1) * 0.94 - released * 0.09))
 
       // The recorder: the paper is uncovered down to the front line and the pen rides the signal there.
       const r = l.recorder
@@ -144,7 +164,7 @@ useMotionScope(
         recorder.frame(shown - r.height)
         recorder.paper(r.height - shown)
         const writing = shown > 0 && shown < r.height
-        recorder.pen.el.style.opacity = writing ? '1' : '0'
+        visible(recorder.pen.el, writing ? '1' : '0')
         if (writing) {
           recorder.pen.x(r.left + r.base + r.signal[Math.round(shown)]!)
           recorder.pen.y(r.top + shown)
@@ -154,14 +174,14 @@ useMotionScope(
       // The front: a drop of indicator riding the leading edge, bubbles trailing behind it.
       const lead = along(l, s, 0)
       const moving = lead && s < (l.pipes.filter((pp) => pp.main).at(-1)?.s1 ?? 0)
-      front.el.style.opacity = moving ? '1' : '0'
+      visible(front.el, moving ? '1' : '0')
       if (lead) {
         front.x(lead[0])
         front.y(lead[1])
       }
       bubbles.forEach((bubble, i) => {
         const at = moving ? along(l, s, 14 + i * 17) : null
-        bubble.el.style.opacity = at ? String(0.85 - i * 0.2) : '0'
+        visible(bubble.el, at ? String(0.85 - i * 0.2) : '0')
         if (at) {
           bubble.x(at[0] + (i % 2 ? 1.5 : -1.5))
           bubble.y(at[1])

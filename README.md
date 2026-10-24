@@ -4,12 +4,14 @@ ChemDict là trang từ điển tra thuật ngữ hóa học bằng tiếng Anh 
 
 - phiên âm và từ loại;
 - định nghĩa song ngữ;
-- hình minh họa, nếu bảng có;
+- hình minh họa, nếu bảng có, hoặc sơ đồ dụng cụ động do trang tự vẽ (chưng cất, chiết, lọc, sắc kí cột…);
 - nguồn tham khảo của từng nghĩa.
 
-Nguồn duy nhất là Google Sheet *"[Hóa ESL 11A10 + 11E2] Bảng từ vựng"* (các thẻ Bài 10–13). Dữ liệu được ghi cứng trong `shared/data/lexicon.json`, không dùng cơ sở dữ liệu.
+Nguồn duy nhất là Google Sheet *"[Hóa ESL 11A10 + 11E2] Bảng từ vựng"*, thẻ "Bảng tổng hợp" (88 nghĩa, Bài 10–13). Dữ liệu được ghi cứng trong `shared/data/lexicon.json`, không dùng cơ sở dữ liệu.
 
 Công nghệ: Nuxt 4 xuất trang tĩnh, Orama tìm kiếm ngay trên trình duyệt, GSAP (ScrollTrigger, SplitText) và Lenis cho chuyển động và cuộn mượt, và Three.js (WebGPU/TSL, tự lùi về WebGL2) cho đám mây electron ở màn mở đầu, biến hình qua benzene, methane, ethylene và acetylene. Chuyển động không bao giờ làm chậm việc tra từ: nội dung mục từ hiện ngay, cảnh 3D chỉ dựng khi người đọc không gõ.
+
+Bên dưới màn mở đầu, cả trang chủ là một dàn dụng cụ tách chất chạy theo thao tác cuộn: marquee là ống sinh hàn, chất lỏng chảy dọc lề trái xuống một cột sắc kí tách thành bốn màu của bốn bài, mỗi phân đoạn chảy vào dải bài học của nó trong khi máy ghi ở lề phải vẽ đỉnh tương ứng, rồi buret nhỏ từng giọt chuẩn độ bảng nguồn tới điểm tương đương màu hồng. Mọi mục phản ứng ở cùng một vạch (62% chiều cao màn hình), không chi tiết nào đè lên chữ, và chuyển trang có hiệu ứng mặt dung môi quét qua. Hình học nằm ở `app/lib/train.ts`, phần vẽ ở `app/components/ReactionTrain.vue`.
 
 ## Chạy và build
 
@@ -46,7 +48,7 @@ Cách khác, nếu tạo project mới bằng Git của Cloudflare:
 
 Nếu nhánh chính của repo chưa có code, hãy chọn nhánh `claude/project-thread-8o54e3` làm nhánh production, hoặc gộp nhánh đó vào `main` trước.
 
-## Cập nhật từ vựng (ví dụ thêm từ ở thẻ "Bài 13")
+## Cập nhật từ vựng (khi thẻ "Bảng tổng hợp" có thêm từ)
 
 1. Mở Google Sheet, chọn **Tệp → Tải xuống → Microsoft Excel (.xlsx)**.
 2. Chạy lệnh nhập. Lệnh này cần Python 3 với `openpyxl` và `Pillow`:
@@ -56,7 +58,7 @@ Nếu nhánh chính của repo chưa có code, hãy chọn nhánh `claude/projec
    python3 scripts/import_sheet.py ~/Downloads/bang-tu-vung.xlsx
    ```
 
-   Script ghi lại `shared/data/lexicon.json` và các ảnh minh họa WebP trong `public/hinh/`. Nó đọc mọi thẻ "Bài N" và giữ nguyên văn thuật ngữ, phiên âm, định nghĩa và nguồn.
+   Script ghi lại `shared/data/lexicon.json` và các ảnh minh họa WebP trong `public/hinh/`. Nó đọc thẻ "Bảng tổng hợp" (mỗi bài mở đầu bằng dòng "Bài N: tên bài") và giữ nguyên văn thuật ngữ, phiên âm, định nghĩa và nguồn; các thẻ "Bài N" chỉ dùng để sửa từ loại.
 3. Chạy `npm run build` để kiểm tra, rồi commit và push. Các trang `/tu/...` và `/bai/...` mới được tạo tự động.
 
 ## Kiểm tra chất lượng
@@ -65,7 +67,7 @@ Hai script kiểm tra dùng Playwright và chạy trên bản production:
 
 ```sh
 npm run build && npx serve .output/public -l 4173
-node scripts/motionqa.mjs http://localhost:4173   # 70 tiêu chí: fps ở DPR 2, Web Vitals, tốc độ tra từ, tương phản, bàn phím, không JS, vùng chạm
+node scripts/motionqa.mjs http://localhost:4173   # 75 tiêu chí: fps ở DPR 2, Web Vitals, tốc độ tra từ, tương phản, bàn phím, không JS, vùng chạm, dàn dụng cụ không đè chữ
 node scripts/shoot.mjs http://localhost:4173      # chụp 390 / 768 / 1440; thêm SCHEMES=light,dark, REDUCED=1 hoặc NOJS=1
 ```
 

@@ -6,11 +6,11 @@ To reproduce:
 
 ```sh
 npm run build && npx serve .output/public -l 4173
-node scripts/motionqa.mjs http://localhost:4173    # 70 numeric gates, exits non-zero on any FAIL
+node scripts/motionqa.mjs http://localhost:4173    # 75 numeric gates, exits non-zero on any FAIL
 node scripts/shoot.mjs http://localhost:4173       # 390 / 768 / 1440 sweep; env SCHEMES=light,dark, REDUCED=1, NOJS=1
 ```
 
-**Result: 70 / 70 gates PASS** (re-run after the colour and motion round, Amendment 2). The visual sweep is clean:
+**Result: 75 / 75 gates PASS** (re-run after the separation-train round, Amendment 3). The visual sweep is clean:
 
 - 36 light and dark screenshots across 6 routes and 3 viewports, plus the reduced-motion and no-JS runs.
 - 0 horizontal overflow, 0 console errors and 0 failed requests.
@@ -58,7 +58,7 @@ node scripts/shoot.mjs http://localhost:4173       # 390 / 768 / 1440 sweep; env
 
 | Gate | Result | Measured |
 |------|--------|----------|
-| Full-page smooth scroll, avgFps ≥ 55 | PASS | 60 fps, 2 dropped frames out of 148 |
+| Full-page smooth scroll, avgFps ≥ 55 | PASS | 59–60 fps, 2–3 dropped frames out of 148 (56 fps in one of four runs). Without the train the same scroll drops 1–2; the rest fall where the ledger tallies its counts. |
 | Idle hero frame rate | PASS | 61 fps |
 | At most one canvas | PASS | 1 |
 | Page frame untransformed during the opening scan | PASS | `html` / `body` transform `none` |
@@ -69,7 +69,7 @@ node scripts/shoot.mjs http://localhost:4173       # 390 / 768 / 1440 sweep; env
 | Gate | Result | Evidence |
 |---|---|---|
 | Entry answer visible at load | PASS | `/tu/aromatic-compound`: headword and definition at opacity 1 with nothing hidden above them |
-| Enter → answer on screen < 150ms | PASS | 84 ms in the gate, typing straight after load. The pre-round build measured 57–69 ms the same way; with the hero settled the two builds measure 79–81 ms and 66 ms. |
+| Enter → answer on screen < 150ms, scene change included | PASS | 87–96 ms with the scene change this machine gets (the sweep). The gate times until the definition is at full opacity and below the edge the scene change has uncovered. A forced view-transition wipe measures 288–312 ms here, because each capture of a 1440×900 page costs about 90 ms on a software GPU; that is why such machines, and any session whose capture is measured slower than 50 ms, get the sweep. |
 
 Found and fixed while building this gate:
 
@@ -77,14 +77,29 @@ Found and fixed while building this gate:
 - **Enter could do nothing** when pressed within 300ms of the last keystroke: the deferred `?q=` sync replaced the route under the pending navigation. This predates the round. The search now clears that timer when the route is left.
 - **GSAP `clearProps` on transforms** re-parsed every element through `getComputedStyle`, costing whole frames mid-scroll (TBT 810ms). The cascades now run on CSS transitions.
 
+## 7.3c The separation train (Amendment 3)
+
+| Gate | Result | Measured |
+|---|---|---|
+| No glass, liquid, recorder paper, bubble or coolant box intersects a text box, at the foot of the page with every pipe full | PASS | 1440: 40 pieces against 513 text boxes, 0 hits. 390: 17 pieces against 498, 0 hits. |
+| The titration reaches its endpoint at the foot of the page | PASS | 1440 and 390 |
+| Reduced motion: the train drawn finished, nothing running | PASS | every liquid at scale 1, endpoint on, 0 running animations in the train or the apparatus plates |
+
+Found and fixed while building it:
+
+- **Liquids never showed.** A CSS `scale(0)` start left GSAP's quick setter writing `scaleY` onto a 0 `scaleX`. Each pipe now starts at its own axis's 0.
+- **Rows near the foot never reached the front line,** so the endpoint never came. Windows past the last reachable scroll are squeezed into the scroll that is left, in order.
+- **A landing drop re-rendered the whole glass,** and the endpoint was a class on `<html>` that restyled the whole document. The flask and the endpoint are now written to the DOM, and the endpoint touches the footer alone. The train's per-frame writes use quick setters (no tween per frame) and write visibility only when it changes.
+- **The apparatus tints turned blue.** Mixing a flame with the plate in oklch swings the hue through the plate's faint blue; the plates mix in oklab.
+
 ## Core Web Vitals (production build, motion allowed)
 
 | Metric | Target | Measured | Result |
 |--------|--------|----------|--------|
-| FCP | < 1.5s | 212 ms | PASS |
-| LCP | < 2.5s | 392 ms (hero title) | PASS |
-| CLS | < 0.1 | 0.0064 | PASS |
-| TBT | < 200ms | 76 ms | PASS |
+| FCP | < 1.5s | 220–240 ms | PASS |
+| LCP | < 2.5s | 480–548 ms (hero title) | PASS |
+| CLS | < 0.1 | 0.0064–0.0078 | PASS |
+| TBT | < 200ms | 154–169 ms (load and scroll) | PASS |
 
 Bundle facts:
 
@@ -98,7 +113,7 @@ Bundle facts:
 |------|--------|----------|
 | Reduced motion: no scan, lines at full height | PASS | `data-scan` never armed; `.ink` transform `none` |
 | Reduced motion: 3D frozen on an art-directed still | PASS | tier `still` |
-| No JS: every page type readable | PASS | `/` 94 links, `/tu/aromatic-compound` 6, `/bai/11` 18; h1 visible |
+| No JS: every page type readable | PASS | `/` 215 links, `/tu/aromatic-compound` 5, `/bai/11` 54; h1 visible |
 | No-JS fallbacks | PASS | The search notes that it needs JS and points to the A–Z index; the 3D figure is removed |
 
 ## Numeric craft floor
