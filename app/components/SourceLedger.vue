@@ -11,22 +11,53 @@ interface Row {
   lessons: number[]
 }
 
-const rows = computed(() => {
-  const byKey = new Map<string, Row>()
+interface Site {
+  labels: Map<string, number>
+  urls: Set<string>
+  host: string | null
+  count: number
+  lessons: number[]
+}
+
+/**
+ * One row per site. Its name is the label the sheet uses most for that site; when every label
+ * is a page title ("Valence (chemistry) - Wikipedia"), the words they share name the site.
+ */
+function siteName(site: Site): string {
+  const named = [...site.labels].filter(([label]) => label !== site.host)
+  if (!named.length) return site.host ?? 'Internet'
+  named.sort((a, b) => b[1] - a[1] || a[0].length - b[0].length)
+  if (named[0]![1] > 1 || named.length === 1) return named[0]![0]
+  const words = named.map(([label]) => label.split(/\s+[-–]\s+/))
+  const shared = words[0]!.find((part) => words.every((parts) => parts.includes(part)))
+  return shared ?? named[0]![0]
+}
+
+const rows = computed<Row[]>(() => {
+  const bySite = new Map<string, Site>()
   for (const lesson of lessons) {
     for (const sense of lesson.senses) {
       // Senses without a citation are credited to the open web, as Vinh asked.
+      const host = sense.source?.url ? hostOf(sense.source.url) : null
+      const key = host ?? 'Internet'
+      const site = bySite.get(key) ?? { labels: new Map(), urls: new Set(), host, count: 0, lessons: [] }
       const label = sense.source?.label ?? 'Internet'
-      const url = sense.source?.url ?? null
-      const key = `${label}|${url}`
-      const row = byKey.get(key) ?? { label, url, count: 0, lessons: [] }
-      row.count++
-      if (!row.lessons.includes(lesson.number)) row.lessons.push(lesson.number)
-      byKey.set(key, row)
+      site.labels.set(label, (site.labels.get(label) ?? 0) + 1)
+      if (sense.source?.url) site.urls.add(sense.source.url)
+      site.count++
+      if (!site.lessons.includes(lesson.number)) site.lessons.push(lesson.number)
+      bySite.set(key, site)
     }
   }
-  // Rows without a citation go last so the cited sources lead the ledger.
-  return [...byKey.values()].sort((a, b) => Number(!a.url) - Number(!b.url) || b.count - a.count)
+  return [...bySite.values()]
+    .map((site) => ({
+      label: siteName(site),
+      // One page for the whole site links there; otherwise the site's home.
+      url: site.urls.size === 1 ? [...site.urls][0]! : site.host ? `https://${site.host}/` : null,
+      count: site.count,
+      lessons: site.lessons,
+    }))
+    .sort((a, b) => Number(!a.url) - Number(!b.url) || b.count - a.count)
 })
 
 const section = ref<HTMLElement | null>(null)
@@ -69,23 +100,30 @@ useMotionScope(section, (motion, root) => {
               <th scope="col">Nguồn</th>
               <th scope="col">Liên kết</th>
               <th scope="col">Bài</th>
+              <th scope="col" class="abundance"><span class="visually-hidden">Tỉ lệ</span></th>
               <th scope="col" class="num">Số thuật ngữ</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(row, r) in rows" :key="`${row.label}|${row.url}`" :style="{ '--r': r }">
+            <tr v-for="(row, r) in rows" :key="row.label" :style="{ '--r': r }" :data-lessons="row.lessons.join(' ')">
               <td>{{ row.label }}</td>
               <td class="mono">
                 <a v-if="row.url" :href="row.url" target="_blank" rel="noopener noreferrer">{{ hostOf(row.url) }}<span class="visually-hidden"> (mở thẻ mới)</span></a>
                 <span v-else class="muted" aria-label="không có liên kết">—</span>
               </td>
-              <td class="mono">{{ row.lessons.map((n) => `B${n}`).join(', ') }}</td>
+              <td class="mono tags">
+                <span v-for="n in row.lessons" :key="n" class="tag" :data-lesson="n">B{{ n }}</span>
+              </td>
+              <td class="abundance" aria-hidden="true">
+                <span class="bar"><i :style="{ '--share': row.count / senseCount }" /></span>
+              </td>
               <td class="mono num count">{{ row.count }}</td>
             </tr>
           </tbody>
           <tfoot>
             <tr :style="{ '--r': rows.length }">
               <td colspan="3">Tổng</td>
+              <td class="abundance" aria-hidden="true"><span class="bar endpoint"><i style="--share: 1" /></span></td>
               <td class="mono num count">{{ senseCount }}</td>
             </tr>
           </tfoot>
@@ -154,6 +192,17 @@ tfoot td {
   transition-delay: calc(var(--r) * 90ms + var(--c, 0) * 50ms);
 }
 
+/* Bars fill to their share after their row has slid in. */
+.armed .bar i {
+  transform: scaleX(0);
+}
+
+.armed.in .bar i {
+  transform: scaleX(var(--share));
+  transition: transform 0.9s var(--ease-out);
+  transition-delay: calc(var(--r) * 90ms + 260ms);
+}
+
 td:nth-child(2) {
   --c: 1;
 }
@@ -164,6 +213,58 @@ td:nth-child(3) {
 
 td:nth-child(4) {
   --c: 3;
+}
+
+td:nth-child(5) {
+  --c: 4;
+}
+
+/* Relative abundance, as a mass spectrum reports it: each site's share of the senses. */
+.abundance {
+  width: 34%;
+}
+
+.bar {
+  display: block;
+  height: 10px;
+  border-radius: 1px;
+  background: color-mix(in oklch, var(--hairline) 55%, transparent);
+  overflow: hidden;
+}
+
+.bar i {
+  display: block;
+  height: 100%;
+  background: var(--ink-secondary);
+  transform: scaleX(var(--share));
+  transform-origin: 0 50%;
+}
+
+.endpoint i {
+  background: var(--accent);
+}
+
+.tags {
+  white-space: nowrap;
+}
+
+.tag + .tag {
+  margin-left: 0.6ch;
+}
+
+.tag {
+  color: var(--ink-secondary);
+}
+
+.tag::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 0.45ch;
+  border-radius: 50%;
+  background: var(--flame-mark);
+  vertical-align: 0.05em;
 }
 
 /* A 44px tall hit area without loosening the table rhythm. */
@@ -197,6 +298,11 @@ a {
 
   tfoot tr {
     border-bottom: 0;
+  }
+
+  .abundance {
+    width: auto;
+    align-self: center;
   }
 }
 </style>

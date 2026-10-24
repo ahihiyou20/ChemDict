@@ -3,11 +3,12 @@
     {
       "number": 10,
       "title": "Bài 10",
+      "name": "Hợp chất hữu cơ và hóa học hữu cơ",
       "senses": [
         {
           "id": "b10-01",
           "lesson": 10,
-          "row": 3,
+          "row": 6,
           "vi": "Hóa học hữu cơ",
           "en": "Organic chemistry",
           "ipa": "/ɔːˈɡænɪk ˈkemɪstri/",
@@ -23,14 +24,20 @@
         {
           "id": "b10-02",
           "lesson": 10,
-          "row": 4,
+          "row": 7,
           "vi": "Hợp chất hữu cơ",
           "en": "Organic compound",
           "ipa": "/ɔːˈɡænɪk ˈkɒmpaʊnd/",
           "pos": "Noun (danh từ)",
           "defVi": "Hợp chất thuộc lĩnh vực hóa học hữu cơ, thường chứa carbon và có thể chứa hydrogen, oxygen, nitrogen hoặc các nguyên tố khác.",
           "defEn": "A compound belonging to organic chemistry, typically containing carbon and often hydrogen and other elements.",
-          "illustration": null,
+          "illustration": {
+            "kind": "image",
+            "src": "/hinh/bai-10-organic-compound.webp",
+            "width": 800,
+            "height": 499,
+            "alt": "Mô hình quả cầu – que của phân tử butane với bốn nguyên tử C và mười nguyên tử H."
+          },
           "source": {
             "label": "IUPAC Gold Book",
             "url": "https://goldbook.iupac.org/"
@@ -39,7 +46,7 @@
         {
           "id": "b10-03",
           "lesson": 10,
-          "row": 5,
+          "row": 8,
           "vi": "Nguyên tố carbon",
           "en": "Carbon",
           "ipa": "/ˈkɑːbən/",
@@ -55,7 +62,7 @@
         {
           "id": "b10-04",
           "lesson": 10,
-          "row": 6,
+          "row": 9,
           "vi": "Hydrocarbon",
           "en": "Hydrocarbon",
           "ipa": "/ˌhaɪdrəˈkɑːbən/",
@@ -77,7 +84,7 @@
         {
           "id": "b10-05",
           "lesson": 10,
-          "row": 7,
+          "row": 10,
           "vi": "Nhóm chức",
           "en": "Functional group",
           "ipa": "/ˈfʌŋkʃənəl ɡruːp/",
@@ -99,7 +106,7 @@
         {
           "id": "b10-06",
           "lesson": 10,
-          "row": 8,
+          "row": 11,
           "vi": "Dãy đồng đẳng",
           "en": "Homologous series",
           "ipa": "/həˈmɒləɡəs ˈsɪəriːz/",
@@ -115,7 +122,7 @@
         {
           "id": "b10-07",
           "lesson": 10,
-          "row": 9,
+          "row": 12,
           "vi": "Hợp chất no",
           "en": "Saturated compound",
           "ipa": "/ˈsætʃəreɪtɪd ˈkɒmpaʊnd/",
@@ -131,7 +138,7 @@
         {
           "id": "b10-08",
           "lesson": 10,
-          "row": 10,
+          "row": 13,
           "vi": "Hợp chất không no",
           "en": "Unsaturated compound",
           "ipa": "/ʌnˈsætʃəreɪtɪd ˈkɒmpaʊnd/",
@@ -147,7 +154,7 @@
         {
           "id": "b10-09",
           "lesson": 10,
-          "row": 11,
+          "row": 14,
           "vi": "Ankan",
           "en": "Alkane",
           "ipa": "/ˈælkeɪn/",
@@ -163,7 +170,7 @@
         {
           "id": "b10-10",
           "lesson": 10,
-          "row": 12,
+          "row": 15,
           "vi": "Anken",
           "en": "Alkene",
           "ipa": "/ˈælkiːn/",
@@ -179,7 +186,7 @@
         {
           "id": "b10-11",
           "lesson": 10,
-          "row": 13,
+          "row": 16,
           "vi": "Ankin",
           "en": "Alkyne",
           "ipa": "/ˈælkaɪn/",
@@ -195,7 +202,7 @@
         {
           "id": "b10-12",
           "lesson": 10,
-          "row": 14,
+          "row": 17,
           "vi": "Hợp chất thơm",
           "en": "Aromatic compound",
           "ipa": "/ˌærəˈmætɪk ˈkɒmpaʊnd/",
@@ -217,7 +224,7 @@
         {
           "id": "b10-13",
           "lesson": 10,
-          "row": 15,
+          "row": 18,
           "vi": "Đồng phân",
           "en": "Isomer",
           "ipa": "/ˈaɪsəmər/",
@@ -233,14 +240,20 @@
         {
           "id": "b10-14",
           "lesson": 10,
-          "row": 16,
+          "row": 19,
           "vi": "Công thức phân tử",
           "en": "Molecular formula",
           "ipa": "/məˈlekjələr ˈfɔːrmjələ/",
           "pos": "Noun (danh từ)",
           "defVi": "Công thức biểu thị loại và số lượng nguyên tử của mỗi nguyên tố trong một phân tử.",
           "defEn": "A formula showing the types and numbers of atoms of each element in a molecule.",
-          "illustration": null,
+          "illustration": {
+            "kind": "image",
+            "src": "/hinh/bai-10-molecular-formula.webp",
+            "width": 865,
+            "height": 680,
+            "alt": "Bảng so sánh công thức phân tử C₄H₁₀ và C₂H₆O với công thức cấu tạo đầy đủ và thu gọn."
+          },
           "source": {
             "label": "IUPAC Gold Book",
             "url": "https://goldbook.iupac.org/"
@@ -249,7 +262,7 @@
         {
           "id": "b10-15",
           "lesson": 10,
-          "row": 17,
+          "row": 20,
           "vi": "Công thức cấu tạo",
           "en": "Structural formula",
           "ipa": "/ˈstrʌktʃərəl ˈfɔːrmjələ/",
@@ -267,99 +280,935 @@
     {
       "number": 11,
       "title": "Bài 11",
+      "name": "Phương pháp tách biệt và tinh chế hợp chất hữu cơ",
       "senses": [
         {
           "id": "b11-01",
           "lesson": 11,
-          "row": 3,
-          "vi": "Hợp chất hữu cơ",
-          "en": "Organic compound",
-          "ipa": "/ɔːˈɡænɪk ˈkɒmpaʊnd/",
-          "pos": "Noun phrase (cụm danh từ)",
-          "defVi": "Hợp chất của carbon, ngoại trừ một số hợp chất carbon được xếp vào nhóm vô cơ.",
-          "defEn": "A compound of carbon, excluding certain carbon compounds classified as inorganic.",
+          "row": 24,
+          "vi": "Sự tách biệt",
+          "en": "Separation",
+          "ipa": "/ˌsep.əˈreɪ.ʃən/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Quá trình tách các thành phần khỏi hỗn hợp.",
+          "defEn": "The process of separating the components of a mixture.",
           "illustration": {
-            "kind": "image",
-            "src": "/hinh/bai-11-organic-compound.webp",
-            "width": 800,
-            "height": 499,
-            "alt": "Mô hình quả cầu – que của phân tử butane với bốn nguyên tử C và mười nguyên tử H."
+            "kind": "diagram",
+            "name": "separation"
           },
           "source": {
-            "label": "taphuan.nxbgd.vn",
-            "url": "https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-hoa-hoc-11.4701111834#page=70"
+            "label": "Oxford Dictionary",
+            "url": "https://www.oxfordlearnersdictionaries.com/definition/english/separation"
           }
         },
         {
           "id": "b11-02",
           "lesson": 11,
-          "row": 4,
-          "vi": "Công thức phân tử",
-          "en": "Molecular formula",
-          "ipa": "/məˈlekjələr ˈfɔːrmjələ/",
-          "pos": "Noun phrase",
-          "defVi": "Công thức biểu thị số nguyên tử của mỗi nguyên tố có trong một phân tử.",
-          "defEn": "A formula showing the number of atoms of each element in a molecule.",
+          "row": 25,
+          "vi": "Tách, phân tách",
+          "en": "Separate",
+          "ipa": "/ˈsep.ə.reɪt/",
+          "pos": "Verb (động từ)",
+          "defVi": "Làm cho các thành phần tách rời nhau.",
+          "defEn": "To divide something into different parts.",
           "illustration": {
-            "kind": "image",
-            "src": "/hinh/bai-11-molecular-formula.webp",
-            "width": 865,
-            "height": 680,
-            "alt": "Bảng so sánh công thức phân tử C₄H₁₀ và C₂H₆O với công thức cấu tạo đầy đủ và thu gọn."
+            "kind": "diagram",
+            "name": "separation"
           },
           "source": {
-            "label": "taphuan.nxbgd.vn",
-            "url": "https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-hoa-hoc-11.4701111834#page=70"
+            "label": "Oxford Dictionary",
+            "url": "https://www.oxfordlearnersdictionaries.com/definition/english/separate"
           }
         },
         {
           "id": "b11-03",
           "lesson": 11,
-          "row": 5,
-          "vi": "Công thức đơn giản nhất",
-          "en": "Empirical formula",
-          "ipa": "/ɪmˈpɪrɪkəl ˈfɔːrmjələ/",
-          "pos": "Noun phrase",
-          "defVi": "Công thức biểu thị tỉ lệ số nguyên tối giản giữa các nguyên tử của các nguyên tố trong hợp chất.",
-          "defEn": "A formula showing the simplest whole-number ratio of atoms of each element in a compound.",
-          "illustration": null,
+          "row": 26,
+          "vi": "Có thể tách rời",
+          "en": "Separable",
+          "ipa": "/ˈsep.ər.ə.bəl/",
+          "pos": "Adjective (tính từ)",
+          "defVi": "Có thể được tách khỏi một vật hoặc chất khác.",
+          "defEn": "Able to be separated from something else.",
+          "illustration": {
+            "kind": "diagram",
+            "name": "separation"
+          },
           "source": {
-            "label": "sachgiaokhoa.aistudybuddy.net",
-            "url": "https://sachgiaokhoa.aistudybuddy.net/sach-online/lop-11/hoa-hoc-11/"
+            "label": "Oxford Dictionary",
+            "url": "https://www.oxfordlearnersdictionaries.com/definition/english/separable"
           }
         },
         {
           "id": "b11-04",
           "lesson": 11,
-          "row": 6,
+          "row": 27,
+          "vi": "Sự tinh chế",
+          "en": "Purification",
+          "ipa": "/ˌpjʊə.rɪ.fɪˈkeɪ.ʃən/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Quá trình loại bỏ tạp chất.",
+          "defEn": "The process of removing impurities from a substance.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/purification"
+          }
+        },
+        {
+          "id": "b11-05",
+          "lesson": 11,
+          "row": 28,
+          "vi": "Tinh chế",
+          "en": "Purify",
+          "ipa": "/ˈpjʊə.rɪ.faɪ/",
+          "pos": "Verb (động từ)",
+          "defVi": "Loại bỏ tạp chất khỏi một chất.",
+          "defEn": "To remove unwanted substances from something.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/purify"
+          }
+        },
+        {
+          "id": "b11-06",
+          "lesson": 11,
+          "row": 29,
+          "vi": "Tinh khiết",
+          "en": "Pure",
+          "ipa": "/pjʊər/",
+          "pos": "Adjective (tính từ)",
+          "defVi": "Không chứa tạp chất đáng kể.",
+          "defEn": "Not mixed with other substances.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/pure"
+          }
+        },
+        {
+          "id": "b11-07",
+          "lesson": 11,
+          "row": 30,
+          "vi": "Tạp chất",
+          "en": "Impurity",
+          "ipa": "/ɪmˈpjʊə.rə.ti/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Chất không mong muốn lẫn trong mẫu.",
+          "defEn": "An unwanted substance present in another substance.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/impurity"
+          }
+        },
+        {
+          "id": "b11-08",
+          "lesson": 11,
+          "row": 31,
+          "vi": "Hỗn hợp",
+          "en": "Mixture",
+          "ipa": "/ˈmɪks.tʃər/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Hệ gồm nhiều chất trộn lẫn với nhau.",
+          "defEn": "Two or more substances mixed together.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/mixture"
+          }
+        },
+        {
+          "id": "b11-09",
+          "lesson": 11,
+          "row": 32,
+          "vi": "Chưng cất",
+          "en": "Distillation",
+          "ipa": "/ˌdɪs.tɪˈleɪ.ʃən/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Tách chất bằng cách hóa hơi rồi ngưng tụ.",
+          "defEn": "The process of heating a liquid and cooling its vapour to separate substances.",
+          "illustration": {
+            "kind": "diagram",
+            "name": "distillation"
+          },
+          "source": {
+            "label": "Oxford Dictionary",
+            "url": "https://www.oxfordlearnersdictionaries.com/definition/english/distillation"
+          }
+        },
+        {
+          "id": "b11-10",
+          "lesson": 11,
+          "row": 33,
+          "vi": "Chưng cất",
+          "en": "Distil",
+          "ipa": "/dɪˈstɪl/",
+          "pos": "Verb (động từ)",
+          "defVi": "Làm bay hơi chất lỏng rồi ngưng tụ để thu chất.",
+          "defEn": "To heat a liquid into vapour and cool it to collect the liquid.",
+          "illustration": {
+            "kind": "diagram",
+            "name": "distillation"
+          },
+          "source": {
+            "label": "Oxford Dictionary",
+            "url": "https://www.oxfordlearnersdictionaries.com/definition/english/distil"
+          }
+        },
+        {
+          "id": "b11-11",
+          "lesson": 11,
+          "row": 34,
+          "vi": "Dịch cất",
+          "en": "Distillate",
+          "ipa": "/ˈdɪs.tɪ.leɪt/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Chất lỏng thu được sau khi ngưng tụ hơi.",
+          "defEn": "The liquid collected after vapour condensation.",
+          "illustration": {
+            "kind": "diagram",
+            "name": "distillation"
+          },
+          "source": {
+            "label": "Oxford Dictionary",
+            "url": "https://www.oxfordlearnersdictionaries.com/definition/english/distillate"
+          }
+        },
+        {
+          "id": "b11-12",
+          "lesson": 11,
+          "row": 35,
+          "vi": "Bay hơi",
+          "en": "Evaporation",
+          "ipa": "/ɪˌvæp.əˈreɪ.ʃən/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Quá trình chuyển từ thể lỏng sang thể hơi.",
+          "defEn": "The process of changing from a liquid into a vapour.",
+          "illustration": {
+            "kind": "diagram",
+            "name": "evaporation"
+          },
+          "source": {
+            "label": "Oxford Dictionary",
+            "url": "https://www.oxfordlearnersdictionaries.com/definition/english/evaporation"
+          }
+        },
+        {
+          "id": "b11-13",
+          "lesson": 11,
+          "row": 36,
+          "vi": "Bay hơi",
+          "en": "Evaporate",
+          "ipa": "/ɪˈvæp.ə.reɪt/",
+          "pos": "Verb (động từ)",
+          "defVi": "Chuyển từ thể lỏng sang thể khí.",
+          "defEn": "To change from a liquid into a gas.",
+          "illustration": {
+            "kind": "diagram",
+            "name": "evaporation"
+          },
+          "source": {
+            "label": "Oxford Dictionary",
+            "url": "https://www.oxfordlearnersdictionaries.com/definition/english/evaporate"
+          }
+        },
+        {
+          "id": "b11-14",
+          "lesson": 11,
+          "row": 37,
+          "vi": "Dễ bay hơi",
+          "en": "Volatile",
+          "ipa": "/ˈvɒl.ə.taɪl/",
+          "pos": "Adjective (tính từ)",
+          "defVi": "Dễ chuyển thành hơi.",
+          "defEn": "Able to evaporate easily.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/volatile"
+          }
+        },
+        {
+          "id": "b11-15",
+          "lesson": 11,
+          "row": 38,
+          "vi": "Ngưng tụ",
+          "en": "Condensation",
+          "ipa": "/ˌkɒn.denˈseɪ.ʃən/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Quá trình chuyển từ khí hoặc hơi sang lỏng.",
+          "defEn": "The process of a gas changing into a liquid.",
+          "illustration": {
+            "kind": "diagram",
+            "name": "evaporation"
+          },
+          "source": {
+            "label": "Oxford Dictionary",
+            "url": "https://www.oxfordlearnersdictionaries.com/definition/english/condensation"
+          }
+        },
+        {
+          "id": "b11-16",
+          "lesson": 11,
+          "row": 39,
+          "vi": "Ngưng tụ",
+          "en": "Condense",
+          "ipa": "/kənˈdens/",
+          "pos": "Verb (động từ)",
+          "defVi": "Làm cho hơi hoặc khí chuyển thành chất lỏng.",
+          "defEn": "To change a gas or vapour into a liquid.",
+          "illustration": {
+            "kind": "diagram",
+            "name": "evaporation"
+          },
+          "source": {
+            "label": "Oxford Dictionary",
+            "url": "https://www.oxfordlearnersdictionaries.com/definition/english/condense"
+          }
+        },
+        {
+          "id": "b11-17",
+          "lesson": 11,
+          "row": 40,
+          "vi": "Nhiệt độ sôi",
+          "en": "Boiling point",
+          "ipa": "/ˈbɔɪ.lɪŋ ˌpɔɪnt/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Nhiệt độ tại đó áp suất hơi bằng áp suất bên ngoài.",
+          "defEn": "The temperature at which a liquid boils at a given pressure.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/boiling-point"
+          }
+        },
+        {
+          "id": "b11-18",
+          "lesson": 11,
+          "row": 41,
+          "vi": "Chiết",
+          "en": "Extraction",
+          "ipa": "/ɪkˈstræk.ʃən/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Tách chất bằng dung môi hoặc phương pháp thích hợp.",
+          "defEn": "The process of obtaining a substance from a mixture.",
+          "illustration": {
+            "kind": "diagram",
+            "name": "extraction"
+          },
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/extraction"
+          }
+        },
+        {
+          "id": "b11-19",
+          "lesson": 11,
+          "row": 42,
+          "vi": "Chiết, lấy ra",
+          "en": "Extract",
+          "ipa": "/ɪkˈstrækt/",
+          "pos": "Verb (động từ)",
+          "defVi": "Tách hoặc thu một chất từ hỗn hợp.",
+          "defEn": "To obtain a substance from something using a process.",
+          "illustration": {
+            "kind": "diagram",
+            "name": "extraction"
+          },
+          "source": {
+            "label": "Oxford Dictionary",
+            "url": "https://www.oxfordlearnersdictionaries.com/definition/english/extract_2"
+          }
+        },
+        {
+          "id": "b11-20",
+          "lesson": 11,
+          "row": 43,
+          "vi": "Chất chiết xuất",
+          "en": "Extract",
+          "ipa": "/ˈek.strækt/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Chất thu được từ một nguyên liệu qua quá trình chiết.",
+          "defEn": "A substance obtained from another material by a process.",
+          "illustration": {
+            "kind": "diagram",
+            "name": "extraction"
+          },
+          "source": {
+            "label": "Oxford Dictionary",
+            "url": "https://www.oxfordlearnersdictionaries.com/definition/english/extract_1"
+          }
+        },
+        {
+          "id": "b11-21",
+          "lesson": 11,
+          "row": 44,
+          "vi": "Dung môi",
+          "en": "Solvent",
+          "ipa": "/ˈsɒl.vənt/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Chất hòa tan chất khác.",
+          "defEn": "A substance that dissolves another substance.",
+          "illustration": {
+            "kind": "diagram",
+            "name": "solution"
+          },
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/solvent"
+          }
+        },
+        {
+          "id": "b11-22",
+          "lesson": 11,
+          "row": 45,
+          "vi": "Dung dịch",
+          "en": "Solution",
+          "ipa": "/səˈluː.ʃən/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Hỗn hợp đồng nhất của chất tan và dung môi.",
+          "defEn": "A homogeneous mixture of a solute and a solvent.",
+          "illustration": {
+            "kind": "diagram",
+            "name": "solution"
+          },
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/solution"
+          }
+        },
+        {
+          "id": "b11-23",
+          "lesson": 11,
+          "row": 46,
+          "vi": "Chất tan",
+          "en": "Solute",
+          "ipa": "/ˈsɒl.juːt/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Chất được hòa tan trong dung môi.",
+          "defEn": "A substance dissolved in a solvent.",
+          "illustration": {
+            "kind": "diagram",
+            "name": "solution"
+          },
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/solute"
+          }
+        },
+        {
+          "id": "b11-24",
+          "lesson": 11,
+          "row": 47,
+          "vi": "Độ tan",
+          "en": "Solubility",
+          "ipa": "/ˌsɒl.jəˈbɪl.ə.ti/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Mức độ một chất có thể hòa tan trong chất khác.",
+          "defEn": "The degree to which a substance can dissolve in another substance.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/solubility"
+          }
+        },
+        {
+          "id": "b11-25",
+          "lesson": 11,
+          "row": 48,
+          "vi": "Hòa tan",
+          "en": "Dissolve",
+          "ipa": "/dɪˈzɒlv/",
+          "pos": "Verb (động từ)",
+          "defVi": "Phân tán một chất trong dung môi tạo thành dung dịch.",
+          "defEn": "To mix a substance into a liquid to form a solution.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/dissolve"
+          }
+        },
+        {
+          "id": "b11-26",
+          "lesson": 11,
+          "row": 49,
+          "vi": "Có thể hòa tan",
+          "en": "Soluble",
+          "ipa": "/ˈsɒl.jə.bəl/",
+          "pos": "Adjective (tính từ)",
+          "defVi": "Có khả năng hòa tan trong dung môi.",
+          "defEn": "Able to be dissolved in a liquid.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/soluble"
+          }
+        },
+        {
+          "id": "b11-27",
+          "lesson": 11,
+          "row": 50,
+          "vi": "Không tan",
+          "en": "Insoluble",
+          "ipa": "/ɪnˈsɒl.jə.bəl/",
+          "pos": "Adjective (tính từ)",
+          "defVi": "Không thể hoặc rất khó hòa tan trong dung môi.",
+          "defEn": "Unable to dissolve, or able to dissolve only slightly.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/insoluble"
+          }
+        },
+        {
+          "id": "b11-28",
+          "lesson": 11,
+          "row": 51,
+          "vi": "Không trộn lẫn",
+          "en": "Immiscible",
+          "ipa": "/ɪˈmɪs.ə.bəl/",
+          "pos": "Adjective (tính từ)",
+          "defVi": "Không tạo thành một pha lỏng đồng nhất khi trộn.",
+          "defEn": "Unable to mix together to form one liquid phase.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/immiscible"
+          }
+        },
+        {
+          "id": "b11-29",
+          "lesson": 11,
+          "row": 52,
+          "vi": "Phễu chiết",
+          "en": "Separatory funnel",
+          "ipa": "/ˈsep.ər.ə.tər.i ˈfʌn.əl/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Dụng cụ tách hai chất lỏng không trộn lẫn.",
+          "defEn": "A laboratory vessel used to separate immiscible liquids.",
+          "illustration": {
+            "kind": "diagram",
+            "name": "extraction"
+          },
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/funnel"
+          }
+        },
+        {
+          "id": "b11-30",
+          "lesson": 11,
+          "row": 53,
+          "vi": "Kết tinh",
+          "en": "Crystallization",
+          "ipa": "/ˌkrɪs.təl.aɪˈzeɪ.ʃən/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Quá trình hình thành tinh thể.",
+          "defEn": "The process of forming crystals.",
+          "illustration": {
+            "kind": "diagram",
+            "name": "crystallization"
+          },
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/crystallization"
+          }
+        },
+        {
+          "id": "b11-31",
+          "lesson": 11,
+          "row": 54,
+          "vi": "Kết tinh",
+          "en": "Crystallize",
+          "ipa": "/ˈkrɪs.təl.aɪz/",
+          "pos": "Verb (động từ)",
+          "defVi": "Hình thành tinh thể từ một chất.",
+          "defEn": "To form crystals.",
+          "illustration": {
+            "kind": "diagram",
+            "name": "crystallization"
+          },
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/crystallize"
+          }
+        },
+        {
+          "id": "b11-32",
+          "lesson": 11,
+          "row": 55,
+          "vi": "Có cấu trúc tinh thể",
+          "en": "Crystalline",
+          "ipa": "/ˈkrɪs.təl.aɪn/",
+          "pos": "Adjective (tính từ)",
+          "defVi": "Có cấu trúc hoặc dạng tinh thể.",
+          "defEn": "Having the structure or form of a crystal.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/crystalline"
+          }
+        },
+        {
+          "id": "b11-33",
+          "lesson": 11,
+          "row": 56,
+          "vi": "Tinh thể",
+          "en": "Crystal",
+          "ipa": "/ˈkrɪs.təl/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Chất rắn có cấu trúc sắp xếp có trật tự.",
+          "defEn": "A solid with an ordered internal structure.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/crystal"
+          }
+        },
+        {
+          "id": "b11-34",
+          "lesson": 11,
+          "row": 57,
+          "vi": "Lọc",
+          "en": "Filtration",
+          "ipa": "/fɪlˈtreɪ.ʃən/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Tách chất rắn khỏi chất lỏng bằng vật liệu lọc.",
+          "defEn": "The process of separating solids from fluids using a filter.",
+          "illustration": {
+            "kind": "diagram",
+            "name": "filtration"
+          },
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/filtration"
+          }
+        },
+        {
+          "id": "b11-35",
+          "lesson": 11,
+          "row": 58,
+          "vi": "Lọc",
+          "en": "Filter",
+          "ipa": "/ˈfɪl.tər/",
+          "pos": "Verb (động từ)",
+          "defVi": "Loại bỏ hạt rắn hoặc tạp chất bằng cách lọc.",
+          "defEn": "To remove solids or impurities using a filter.",
+          "illustration": {
+            "kind": "diagram",
+            "name": "filtration"
+          },
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/filter"
+          }
+        },
+        {
+          "id": "b11-36",
+          "lesson": 11,
+          "row": 59,
+          "vi": "Sắc kí",
+          "en": "Chromatography",
+          "ipa": "/ˌkrəʊ.məˈtɒɡ.rə.fi/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Phương pháp tách chất dựa vào sự phân bố khác nhau giữa các pha.",
+          "defEn": "A method of separating mixture components based on their different interactions with two phases.",
+          "illustration": {
+            "kind": "diagram",
+            "name": "chromatography"
+          },
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/chromatography"
+          }
+        },
+        {
+          "id": "b11-37",
+          "lesson": 11,
+          "row": 60,
+          "vi": "Sắc kí cột",
+          "en": "Column chromatography",
+          "ipa": "/ˈkɒl.əm ˌkrəʊ.məˈtɒɡ.rə.fi/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Sắc kí sử dụng cột chứa pha tĩnh để tách chất.",
+          "defEn": "A chromatographic method that separates substances in a column.",
+          "illustration": {
+            "kind": "diagram",
+            "name": "chromatography"
+          },
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/chromatography"
+          }
+        },
+        {
+          "id": "b11-38",
+          "lesson": 11,
+          "row": 61,
+          "vi": "Pha tĩnh",
+          "en": "Stationary phase",
+          "ipa": "/ˈsteɪ.ʃən.ər.i feɪz/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Pha không di chuyển trong hệ sắc kí.",
+          "defEn": "The phase that remains fixed during chromatography.",
+          "illustration": {
+            "kind": "diagram",
+            "name": "chromatography"
+          },
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/stationary"
+          }
+        },
+        {
+          "id": "b11-39",
+          "lesson": 11,
+          "row": 62,
+          "vi": "Pha động",
+          "en": "Mobile phase",
+          "ipa": "/ˈməʊ.baɪl feɪz/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Pha di chuyển qua pha tĩnh và mang các chất.",
+          "defEn": "The phase that moves through the stationary phase and carries substances.",
+          "illustration": {
+            "kind": "diagram",
+            "name": "chromatography"
+          },
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/stationary"
+          }
+        },
+        {
+          "id": "b11-40",
+          "lesson": 11,
+          "row": 63,
+          "vi": "Chất hấp phụ",
+          "en": "Adsorbent",
+          "ipa": "/ədˈzɔː.bənt/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Chất có bề mặt giữ các phân tử hoặc ion.",
+          "defEn": "A material that holds molecules or ions on its surface.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/adsorbent"
+          }
+        },
+        {
+          "id": "b11-41",
+          "lesson": 11,
+          "row": 64,
+          "vi": "Hấp phụ",
+          "en": "Adsorption",
+          "ipa": "/ədˈzɔːp.ʃən/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Quá trình các phân tử bám trên bề mặt vật liệu, đi vào bên trong một vật liệu.",
+          "defEn": "The process in which molecules collect on a surface. The process of taking a substance into another material.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/adsorption"
+          }
+        },
+        {
+          "id": "b11-42",
+          "lesson": 11,
+          "row": 65,
+          "vi": "Hấp phụ",
+          "en": "Adsorb",
+          "ipa": "/ədˈzɔːb/",
+          "pos": "Verb (động từ)",
+          "defVi": "Giữ các phân tử trên bề mặt vật liệu, thu nhận chất vào bên trong vật liệu.",
+          "defEn": "To collect or hold molecules on a surface, to take a substance into the interior of a material.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/adsorb"
+          }
+        },
+        {
+          "id": "b11-43",
+          "lesson": 11,
+          "row": 66,
+          "vi": "Đồng nhất",
+          "en": "Homogeneous",
+          "ipa": "/ˌhəʊ.məˈdʒiː.ni.əs/",
+          "pos": "Adjective (tính từ)",
+          "defVi": "Có thành phần và tính chất đồng đều.",
+          "defEn": "Having a uniform composition throughout.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/homogeneous"
+          }
+        },
+        {
+          "id": "b11-44",
+          "lesson": 11,
+          "row": 67,
+          "vi": "Không đồng nhất",
+          "en": "Heterogeneous",
+          "ipa": "/ˌhet.ər.əˈdʒiː.ni.əs/",
+          "pos": "Adjective (tính từ)",
+          "defVi": "Có thành phần hoặc tính chất không đồng đều.",
+          "defEn": "Having a non-uniform composition throughout.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/heterogeneous"
+          }
+        },
+        {
+          "id": "b11-45",
+          "lesson": 11,
+          "row": 68,
+          "vi": "Phân bố",
+          "en": "Distribute",
+          "ipa": "/dɪˈstrɪb.juːt/",
+          "pos": "Verb (động từ)",
+          "defVi": "Phân chia hoặc lan ra giữa các vị trí hay pha.",
+          "defEn": "To spread or allocate something among different places or phases.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/distribute"
+          }
+        },
+        {
+          "id": "b11-46",
+          "lesson": 11,
+          "row": 69,
+          "vi": "Phân bố",
+          "en": "Distribution",
+          "ipa": "/ˌdɪs.trɪˈbjuː.ʃən/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Cách một chất được phân bố trong các pha.",
+          "defEn": "The way a substance is spread among different phases or areas.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/distribution"
+          }
+        },
+        {
+          "id": "b11-47",
+          "lesson": 11,
+          "row": 70,
+          "vi": "Làm nóng",
+          "en": "Heat",
+          "ipa": "/hiːt/",
+          "pos": "Verb (động từ)",
+          "defVi": "Tăng nhiệt độ của một chất hoặc hỗn hợp.",
+          "defEn": "To make something hotter.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/heat"
+          }
+        },
+        {
+          "id": "b11-48",
+          "lesson": 11,
+          "row": 71,
+          "vi": "Làm nguội",
+          "en": "Cool",
+          "ipa": "/kuːl/",
+          "pos": "Verb (động từ)",
+          "defVi": "Giảm nhiệt độ của một chất.",
+          "defEn": "To reduce the temperature of something.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/cool"
+          }
+        },
+        {
+          "id": "b11-49",
+          "lesson": 11,
+          "row": 72,
+          "vi": "Nhanh chóng",
+          "en": "Rapidly",
+          "ipa": "/ˈræp.ɪd.li/",
+          "pos": "Adverb (trạng từ)",
+          "defVi": "Với tốc độ nhanh.",
+          "defEn": "At a fast rate.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/rapidly"
+          }
+        },
+        {
+          "id": "b11-50",
+          "lesson": 11,
+          "row": 73,
+          "vi": "Chậm rãi",
+          "en": "Slowly",
+          "ipa": "/ˈsləʊ.li/",
+          "pos": "Adverb (trạng từ)",
+          "defVi": "Với tốc độ chậm.",
+          "defEn": "At a slow rate.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/slowly"
+          }
+        },
+        {
+          "id": "b11-51",
+          "lesson": 11,
+          "row": 74,
+          "vi": "Khác nhau",
+          "en": "Different",
+          "ipa": "/ˈdɪf.ər.ənt/",
+          "pos": "Adjective (tính từ)",
+          "defVi": "Không giống nhau.",
+          "defEn": "Not the same.",
+          "illustration": null,
+          "source": {
+            "label": "Cambridge Dictionary",
+            "url": "https://dictionary.cambridge.org/dictionary/english/different"
+          }
+        }
+      ]
+    },
+    {
+      "number": 12,
+      "title": "Bài 12",
+      "name": "Công thức phân tử hợp chất hữu cơ",
+      "senses": [
+        {
+          "id": "b12-01",
+          "lesson": 12,
+          "row": 78,
           "vi": "Phân tử khối",
           "en": "Molecular mass",
           "ipa": "/məˈlekjələr mæs/",
-          "pos": "Noun phrase",
+          "pos": "Noun (danh từ)",
           "defVi": "Khối lượng của một phân tử, bằng tổng khối lượng các nguyên tử cấu tạo nên phân tử đó.",
           "defEn": "The mass of a molecule, equal to the sum of the masses of its constituent atoms.",
-          "illustration": {
-            "kind": "text",
-            "text": "H₂O: khoảng 18 u"
-          },
+          "illustration": null,
           "source": {
             "label": "taphuan.nxbgd.vn",
             "url": "https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-hoa-hoc-11.4701111834#page=70"
           }
         },
         {
-          "id": "b11-05",
-          "lesson": 11,
-          "row": 7,
+          "id": "b12-02",
+          "lesson": 12,
+          "row": 79,
           "vi": "Phương pháp phổ khối lượng",
           "en": "Mass spectrometry",
           "ipa": "/mæs spekˈtrɒmətri/",
-          "pos": "Noun phrase",
+          "pos": "Noun (danh từ)",
           "defVi": "Phương pháp phân tích dựa trên việc xác định tỉ số khối lượng trên điện tích của các ion, giúp xác định phân tử khối và hỗ trợ xác định công thức phân tử.",
           "defEn": "An analytical technique that measures the mass-to-charge ratios of ions to determine molecular mass and help identify molecular formulas.",
           "illustration": {
             "kind": "image",
-            "src": "/hinh/bai-11-mass-spectrometry.webp",
+            "src": "/hinh/bai-12-mass-spectrometry.webp",
             "width": 543,
             "height": 368,
             "alt": "Hình 3.5: phổ khối lượng của neon, các vạch tại m/z 20 (90,9%), 21 (0,3%) và 22 (8,8%)."
@@ -370,13 +1219,13 @@
           }
         },
         {
-          "id": "b11-06",
-          "lesson": 11,
-          "row": 8,
+          "id": "b12-03",
+          "lesson": 12,
+          "row": 80,
           "vi": "Mảnh ion",
           "en": "Fragment ion",
           "ipa": "/ˈfræɡmənt ˈaɪən/",
-          "pos": "Noun phrase",
+          "pos": "Noun (danh từ)",
           "defVi": "Ion được tạo thành khi một ion phân tử hoặc ion khác bị phân mảnh trong quá trình phân tích phổ khối lượng.",
           "defEn": "An ion formed when a molecular ion or another ion breaks apart during mass spectrometric analysis.",
           "illustration": null,
@@ -386,13 +1235,13 @@
           }
         },
         {
-          "id": "b11-07",
-          "lesson": 11,
-          "row": 9,
+          "id": "b12-04",
+          "lesson": 12,
+          "row": 81,
           "vi": "Công thức tổng quát",
           "en": "General formula",
           "ipa": "/ˈdʒenərəl ˈfɔːrmjələ/",
-          "pos": "Noun phrase",
+          "pos": "Noun (danh từ)",
           "defVi": "Công thức biểu diễn thành phần hoặc mối quan hệ chung giữa số nguyên tử của các nguyên tố trong một nhóm hợp chất.",
           "defEn": "A formula representing the general composition or relationship between the numbers of atoms in a group of compounds.",
           "illustration": null,
@@ -402,13 +1251,13 @@
           }
         },
         {
-          "id": "b11-08",
-          "lesson": 11,
-          "row": 10,
+          "id": "b12-05",
+          "lesson": 12,
+          "row": 82,
           "vi": "Tỉ số khối lượng trên điện tích",
           "en": "Mass-to-charge ratio",
           "ipa": "/mæs tə tʃɑːrdʒ ˈreɪʃiəʊ/",
-          "pos": "Noun phrase",
+          "pos": "Noun (danh từ)",
           "defVi": "Tỉ số giữa khối lượng của ion và điện tích của ion đó, thường ký hiệu là m/z.",
           "defEn": "The ratio of an ion's mass to its charge, commonly represented by m/z.",
           "illustration": null,
@@ -418,13 +1267,13 @@
           }
         },
         {
-          "id": "b11-09",
-          "lesson": 11,
-          "row": 11,
+          "id": "b12-06",
+          "lesson": 12,
+          "row": 83,
           "vi": "Tỉ lệ số nguyên tử",
           "en": "Atomic ratio",
           "ipa": "/əˈtɒmɪk ˈreɪʃiəʊ/",
-          "pos": "Noun phrase",
+          "pos": "Noun (danh từ)",
           "defVi": "Tỉ lệ giữa số nguyên tử của các nguyên tố trong một hợp chất.",
           "defEn": "The ratio between the numbers of atoms of different elements in a compound.",
           "illustration": null,
@@ -434,13 +1283,13 @@
           }
         },
         {
-          "id": "b11-10",
-          "lesson": 11,
-          "row": 12,
+          "id": "b12-07",
+          "lesson": 12,
+          "row": 84,
           "vi": "Nguyên tử nitrogen",
           "en": "Nitrogen atom",
           "ipa": "/ˈnaɪtrədʒən ˈætəm/",
-          "pos": "Noun phrase",
+          "pos": "Noun (danh từ)",
           "defVi": "Một nguyên tử của nguyên tố nitrogen, có số hiệu nguyên tử bằng 7.",
           "defEn": "An atom of nitrogen with atomic number 7.",
           "illustration": null,
@@ -450,13 +1299,13 @@
           }
         },
         {
-          "id": "b11-11",
-          "lesson": 11,
-          "row": 13,
+          "id": "b12-08",
+          "lesson": 12,
+          "row": 85,
           "vi": "Phân tích nguyên tố",
           "en": "Elemental analysis",
           "ipa": "/ˌelɪˈmentəl əˈnæləsɪs/",
-          "pos": "Noun phrase",
+          "pos": "Noun (danh từ)",
           "defVi": "Phương pháp xác định thành phần và hàm lượng các nguyên tố trong hợp chất.",
           "defEn": "A method used to determine the elements present in a compound and their amounts.",
           "illustration": null,
@@ -466,13 +1315,13 @@
           }
         },
         {
-          "id": "b11-12",
-          "lesson": 11,
-          "row": 14,
+          "id": "b12-09",
+          "lesson": 12,
+          "row": 86,
           "vi": "Phổ khối lượng",
           "en": "Mass spectrum",
           "ipa": "/mæs ˈspektrəm/",
-          "pos": "Noun phrase",
+          "pos": "Noun (danh từ)",
           "defVi": "Biểu đồ biểu diễn tín hiệu của các ion theo tỉ số khối lượng trên điện tích.",
           "defEn": "A plot showing ion signals as a function of their mass-to-charge ratios.",
           "illustration": null,
@@ -482,13 +1331,13 @@
           }
         },
         {
-          "id": "b11-13",
-          "lesson": 11,
-          "row": 15,
+          "id": "b12-10",
+          "lesson": 12,
+          "row": 87,
           "vi": "Khối lượng mol",
           "en": "Molar mass",
           "ipa": "/ˈməʊlər mæs/",
-          "pos": "Noun phrase",
+          "pos": "Noun (danh từ)",
           "defVi": "Khối lượng của một mol chất, thường được tính bằng g/mol.",
           "defEn": "The mass of one mole of a substance, usually expressed in g/mol.",
           "illustration": null,
@@ -498,29 +1347,29 @@
           }
         },
         {
-          "id": "b11-14",
-          "lesson": 11,
-          "row": 16,
+          "id": "b12-11",
+          "lesson": 12,
+          "row": 88,
           "vi": "Phần trăm khối lượng",
           "en": "Mass percentage",
           "ipa": "/mæs pərˈsentɪdʒ/",
-          "pos": "Noun phrase",
+          "pos": "Noun (danh từ)",
           "defVi": "Tỉ lệ phần trăm khối lượng của một nguyên tố hoặc thành phần trong hợp chất.",
           "defEn": "The percentage of the total mass contributed by an element or component in a compound.",
           "illustration": null,
           "source": {
-            "label": "taphuan.nxbgd.vn",
-            "url": "https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-hoa-hoc-11.4701111834#page=70"
+            "label": "SGK Hóa học 11",
+            "url": "https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-hoa-hoc-11.4701111834"
           }
         },
         {
-          "id": "b11-15",
-          "lesson": 11,
-          "row": 17,
+          "id": "b12-12",
+          "lesson": 12,
+          "row": 89,
           "vi": "Ion phân tử",
           "en": "Molecular ion",
           "ipa": "/məˈlekjələr ˈaɪən/",
-          "pos": "Noun phrase",
+          "pos": "Noun (danh từ)",
           "defVi": "Ion được hình thành khi một phân tử mất hoặc nhận electron mà không bị phân mảnh thành các ion nhỏ hơn.",
           "defEn": "An ion formed when a molecule loses or gains electrons without breaking into smaller ions.",
           "illustration": null,
@@ -532,182 +1381,169 @@
       ]
     },
     {
-      "number": 12,
-      "title": "Bài 12",
-      "senses": []
-    },
-    {
       "number": 13,
       "title": "Bài 13",
+      "name": "Cấu tạo hóa học hợp chất hữu cơ",
       "senses": [
         {
           "id": "b13-01",
           "lesson": 13,
-          "row": 3,
-          "vi": "Định nghĩa",
-          "en": "Definition",
-          "ipa": "ˌdefəˈniSHən",
-          "pos": "danh từ - noun",
-          "defVi": "Lời giải thích ngắn gọn về ý nghĩa của cụm từ",
-          "defEn": "The explanation of the meaning of something",
+          "row": 93,
+          "vi": "Hữu cơ",
+          "en": "Organic",
+          "ipa": "ôrˈɡanik",
+          "pos": "Tinh từ (adjective)",
+          "defVi": "Là các hợp chất hóa học mà phân tử có chứa cacbon",
+          "defEn": "Chemical compounds whose molecules contain carbon",
           "illustration": null,
-          "source": null
+          "source": {
+            "label": "Carbon compounds - Wikipedia",
+            "url": "https://en.wikipedia.org/wiki/Carbon_compounds"
+          }
         },
         {
           "id": "b13-02",
           "lesson": 13,
-          "row": 4,
-          "vi": "Thuyết cấu tạo hoá học",
-          "en": "theory of chemical structure",
-          "ipa": "ˈTHirē əv ˈkemək(ə)l ˈstrək(t)SHər",
-          "pos": "danh từ - noun",
-          "defVi": "Lý thuyết về cấu taọ hoá học",
-          "defEn": "The theory representing a chemical structure",
+          "row": 94,
+          "vi": "Liên kết",
+          "en": "Connect",
+          "ipa": "kəˈnek(t)",
+          "pos": "Động từ (verb)",
+          "defVi": "Là sự kết hợp giữa các chất với nhau",
+          "defEn": "The combination among substances",
           "illustration": null,
-          "source": null
+          "source": {
+            "label": "Combination reaction - Wikipedia",
+            "url": "https://en.wikipedia.org/wiki/Combination_reaction"
+          }
         },
         {
           "id": "b13-03",
           "lesson": 13,
-          "row": 5,
-          "vi": "Hữu cơ",
-          "en": "organic",
-          "ipa": "ôrˈɡanik",
-          "pos": "Tinh từ - adjective",
-          "defVi": "Là các hợp chất hóa học mà phân tử có chứa cacbon",
-          "defEn": "Chemical compounds whose molecules contain carbon",
+          "row": 95,
+          "vi": "Tan vô hạn",
+          "en": "Infinitely tangent",
+          "ipa": "ˈinfənətlē ˈtanj(ə)nt",
+          "pos": "Động từ (verb)",
+          "defVi": "Hiện tượng hai chất lỏng có thể hòa tan lẫn nhau vào nhau ở bất kỳ tỷ lệ nào để tạo thành một dung dịch đồng nhất duy nhất, không hề bị tách lớp",
+          "defEn": "the phenomenon in which two liquids can dissolve in each other in any proportion to form a single, homogeneous solution, without any phase separation",
           "illustration": null,
-          "source": null
+          "source": {
+            "label": "Miscibility - Wikipedia",
+            "url": "https://en.wikipedia.org/wiki/Miscibility"
+          }
         },
         {
           "id": "b13-04",
           "lesson": 13,
-          "row": 6,
-          "vi": "Liên kết",
-          "en": "connect",
-          "ipa": "kəˈnek(t)",
-          "pos": "Động từ - verb",
-          "defVi": "Là sự kết hợp giữa các chất với nhau",
-          "defEn": "The combination among substances",
+          "row": 96,
+          "vi": "Cấu tạo",
+          "en": "Structure",
+          "ipa": "ˈstrək(t)SHər",
+          "pos": "Danh từ (noun)",
+          "defVi": "Chỉ thành phần và cách thức sắp xếp",
+          "defEn": "indicates the components and the way they are arranged",
           "illustration": null,
-          "source": null
+          "source": {
+            "label": "Structural chemistry - Wikipedia",
+            "url": "https://en.wikipedia.org/wiki/Chemical_structure"
+          }
         },
         {
           "id": "b13-05",
           "lesson": 13,
-          "row": 7,
-          "vi": "Tan vô hạn",
-          "en": "infinitely tangent",
-          "ipa": "ˈinfənətlē ˈtanj(ə)nt",
-          "pos": "Động từ - verb",
-          "defVi": "hiện tượng hai chất lỏng có thể hòa tan lẫn nhau vào nhau ở bất kỳ tỷ lệ nào để tạo thành một dung dịch đồng nhất duy nhất, không hề bị tách lớp",
-          "defEn": "the phenomenon in which two liquids can dissolve in each other in any proportion to form a single, homogeneous solution, without any phase separation",
+          "row": 97,
+          "vi": "Hoá trị",
+          "en": "Valence",
+          "ipa": "/ˈveɪ.ləns/",
+          "pos": "Danh từ (noun)",
+          "defVi": "Là con số biểu thị khả năng liên kết của nguyên tử thuộc một nguyên tố hóa học này với nguyên tử thuộc nguyên tố khác",
+          "defEn": "a number representing the capacity of an atom of one chemical element to bond with an atom of another chemical element",
           "illustration": null,
-          "source": null
+          "source": {
+            "label": "Valence (chemistry) - Wikipedia",
+            "url": "https://en.wikipedia.org/wiki/Valence_(chemistry)"
+          }
         },
         {
           "id": "b13-06",
           "lesson": 13,
-          "row": 8,
-          "vi": "Công thức phân tử",
-          "en": "molecular formula",
-          "ipa": "məˈlekyələr ˈfôrmyələ",
-          "pos": "Danh từ - Noun",
-          "defVi": "là công thức biểu thị thành phần nguyên tố và số lượng nguyên tử của mỗi nguyên tố có trong một phân tử chất đó.",
-          "defEn": "a formula that indicates the elemental composition and the number of atoms of each element present in a molecule of that substance.",
+          "row": 98,
+          "vi": "Mạch carbon",
+          "en": "Carbon chain",
+          "ipa": "ˈkärbən CHān",
+          "pos": "Danh từ (noun)",
+          "defVi": "Tập hợp các nguyên tử cacbon liên kết trực tiếp với nhau bằng liên kết cộng hóa trị trong một phân tử hợp chất hữu cơ",
+          "defEn": "a collection of carbon atoms bonded directly to one another via covalent bonds within an organic compound molecule",
           "illustration": null,
-          "source": null
+          "source": {
+            "label": "en.wikipedia.org",
+            "url": "https://en.wikipedia.org/wiki/Catenation"
+          }
         },
         {
           "id": "b13-07",
           "lesson": 13,
-          "row": 9,
-          "vi": "Cấu tạo",
-          "en": "Structure",
-          "ipa": "ˈstrək(t)SHər",
-          "pos": "Danh từ - Noun",
-          "defVi": "chỉ thành phần và cách thức sắp xếp",
-          "defEn": "indicates the components and the way they are arranged",
+          "row": 99,
+          "vi": "Tính chất",
+          "en": "Characteristic",
+          "ipa": "ˌker(ə)ktəˈristik",
+          "pos": "Danh từ (noun)",
+          "defVi": "Là đặc điểm riêng",
+          "defEn": "a distinctive feature",
           "illustration": null,
-          "source": null
+          "source": {
+            "label": "en.wikipedia.org",
+            "url": "https://en.wikipedia.org/wiki/Chemical_property"
+          }
         },
         {
           "id": "b13-08",
           "lesson": 13,
-          "row": 10,
-          "vi": "Hoá trị",
-          "en": "chemotherapy",
-          "ipa": "ˌkēmōˈTHerəpē",
-          "pos": "Danh từ - Noun",
-          "defVi": "là con số biểu thị khả năng liên kết của nguyên tử thuộc một nguyên tố hóa học này với nguyên tử thuộc nguyên tố khác",
-          "defEn": "a number representing the capacity of an atom of one chemical element to bond with an atom of another chemical element",
+          "row": 100,
+          "vi": "Mạch hở phân nhánh",
+          "en": "Branched open-chain",
+          "ipa": "bran(t)SHt ˈōp(ə)n CHān",
+          "pos": "Danh từ (noun)",
+          "defVi": "Là loại mạch carbon trong hợp chất hữu cơ mà các nguyên tử carbon liên kết với nhau tạo thành chuỗi không khép kín",
+          "defEn": "a type of carbon skeleton in organic compounds in which carbon atoms are bonded together to form an open chain",
           "illustration": null,
-          "source": null
+          "source": {
+            "label": "en.wikipedia.org",
+            "url": "https://en.wikipedia.org/wiki/Open-chain_compound"
+          }
         },
         {
           "id": "b13-09",
           "lesson": 13,
-          "row": 11,
-          "vi": "Mạch carbon",
-          "en": "Carbon chain",
-          "ipa": "ˈkärbən CHān",
-          "pos": "Danh từ - Noun",
-          "defVi": "tập hợp các nguyên tử cacbon liên kết trực tiếp với nhau bằng liên kết cộng hóa trị trong một phân tử hợp chất hữu cơ",
-          "defEn": "a collection of carbon atoms bonded directly to one another via covalent bonds within an organic compound molecule",
+          "row": 101,
+          "vi": "Tương tự",
+          "en": "Similar",
+          "ipa": "ˈsim(ə)lər",
+          "pos": "Tính từ (adjective)",
+          "defVi": "Gần giống nhau về một số mặt, tính năng hoặc đặc điểm,",
+          "defEn": "similar in certain respects, features, or characteristics,",
           "illustration": null,
-          "source": null
+          "source": {
+            "label": "en.wikipedia.org",
+            "url": "https://en.wikipedia.org/wiki/Structural_analog"
+          }
         },
         {
           "id": "b13-10",
           "lesson": 13,
-          "row": 12,
-          "vi": "Tính chất",
-          "en": "Characteristic",
-          "ipa": "ˌker(ə)ktəˈristik",
-          "pos": "Danh từ - Noun",
-          "defVi": "là đặc điểm riêng",
-          "defEn": "a distinctive feature",
-          "illustration": null,
-          "source": null
-        },
-        {
-          "id": "b13-11",
-          "lesson": 13,
-          "row": 13,
-          "vi": "Mạch hở phân nhánh",
-          "en": "branched open-chain",
-          "ipa": "bran(t)SHt ˈōp(ə)n CHān",
-          "pos": "Danh từ - Noun",
-          "defVi": "là loại mạch carbon trong hợp chất hữu cơ mà các nguyên tử carbon liên kết với nhau tạo thành chuỗi không khép kín",
-          "defEn": "a type of carbon skeleton in organic compounds in which carbon atoms are bonded together to form an open chain",
-          "illustration": null,
-          "source": null
-        },
-        {
-          "id": "b13-12",
-          "lesson": 13,
-          "row": 14,
-          "vi": "Tương tự",
-          "en": "similar",
-          "ipa": "ˈsim(ə)lər",
-          "pos": "Tính từ - adjective",
-          "defVi": "gần giống nhau về một số mặt, tính năng hoặc đặc điểm,",
-          "defEn": "similar in certain respects, features, or characteristics,",
-          "illustration": null,
-          "source": null
-        },
-        {
-          "id": "b13-13",
-          "lesson": 13,
-          "row": 15,
+          "row": 102,
           "vi": "Đồng đẳng",
-          "en": "homologous",
+          "en": "Homologous",
           "ipa": "hōˈmäləɡəs",
-          "pos": "Tính từ - adjective",
-          "defVi": "hiện tượng các hợp chất có cấu tạo và tính chất hóa học tương tự nhau, nhưng thành phần phân tử hơn kém nhau một hay nhiều nhóm CH₂",
+          "pos": "Tính từ (adjective)",
+          "defVi": "Hiện tượng các hợp chất có cấu tạo và tính chất hóa học tương tự nhau, nhưng thành phần phân tử hơn kém nhau một hay nhiều nhóm CH₂",
           "defEn": "the phenomenon where compounds possess similar structures and chemical properties, but differ in their molecular composition by one or more CH₂ groups",
           "illustration": null,
-          "source": null
+          "source": {
+            "label": "en.wikipedia.org",
+            "url": "https://en.wikipedia.org/wiki/Homologous_series"
+          }
         }
       ]
     }

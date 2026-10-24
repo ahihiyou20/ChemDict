@@ -26,7 +26,7 @@ useMotionScope(root, ({ gsap }, el) => {
 })
 
 useSeoMeta({
-  title: `${lesson.title}: ${lesson.senses.length} thuật ngữ`,
+  title: `${lesson.title}: ${lesson.name}`,
   description: lesson.senses.length
     ? `Thuật ngữ Hóa học ${lesson.title}: ${lesson.senses.map((sense) => sense.vi).join(', ')}.`
     : `${lesson.title} chưa có thuật ngữ.`,
@@ -46,6 +46,7 @@ useSeoMeta({
         <span>{{ lesson.title }}</span>
       </p>
       <h1 class="lesson-title">{{ lesson.title }}</h1>
+      <p class="lesson-name">{{ lesson.name }}</p>
       <p class="lede">{{ lesson.senses.length }} thuật ngữ</p>
       <p class="lesson-flame" aria-hidden="true" data-pre><i /><i /><i /></p>
     </header>
@@ -174,6 +175,13 @@ useSeoMeta({
   font-weight: 500;
   letter-spacing: -0.03em;
   font-variation-settings: 'opsz' 72;
+}
+
+.lesson-name {
+  max-width: 32ch;
+  font-size: clamp(1.25rem, 2.2vw, 1.75rem);
+  line-height: 1.25;
+  font-variation-settings: 'opsz' 36;
 }
 
 .lede {

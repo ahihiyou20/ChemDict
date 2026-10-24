@@ -8,24 +8,23 @@ useMotionScope(section, (motion, root) => {
   const { gsap } = motion
   const stopDecode = decodeOnEnter(motion, root.querySelector<HTMLElement>('.section-title')!)
 
-  // Each lane is a TLC plate developing under the reader's scroll: the solvent front climbs from the
-  // origin and the spots rise to their places as it passes. The plates themselves never hide.
-  const lanes = gsap.utils.toArray<HTMLElement>('.lane', root).map((lane) => ({
-    body: lane.querySelector<HTMLElement>('.lane-body')!,
-    spots: [...lane.querySelectorAll<HTMLElement>('.spot')],
+  // Each strip is chromatography paper developing under the reader's scroll: the solvent front runs
+  // from the origin on the left and the spots come up as it passes. The strips themselves never hide.
+  const strips = gsap.utils.toArray<HTMLElement>('.strip-body', root).map((body) => ({
+    body,
+    spots: [...body.querySelectorAll<HTMLElement>('.spot')],
   }))
   // Parse every spot's transform before the first write: one style pass, not one per spot.
-  lanes.forEach(({ spots }) => spots.forEach((spot) => gsap.getProperty(spot, 'y')))
-  lanes.forEach(({ body, spots }, i) => {
+  strips.forEach(({ spots }) => spots.forEach((spot) => gsap.getProperty(spot, 'x')))
+  strips.forEach(({ body, spots }) => {
     const develop = gsap
       .timeline({
         defaults: { ease: 'none' },
-        scrollTrigger: { trigger: body, start: 'top 88%', end: `top ${40 - (i % 4) * 4}%`, scrub: 0.6 },
+        scrollTrigger: { trigger: body, start: 'top 90%', end: 'top 42%', scrub: 0.6 },
       })
-      .fromTo(body.querySelector('.front'), { yPercent: 100 }, { yPercent: 0, duration: 1 }, 0)
-    // A lesson with no terms yet is a blank plate: only its solvent front runs.
+      .fromTo(body.querySelector('.front'), { xPercent: -100 }, { xPercent: 0, duration: 1 }, 0)
     if (spots.length)
-      develop.fromTo(spots, { y: 34, opacity: 0.18 }, { y: 0, opacity: 1, duration: 0.45, stagger: { each: 0.4 / spots.length, from: 'end' } }, 0.1)
+      develop.fromTo(spots, { x: -18, opacity: 0.18 }, { x: 0, opacity: 1, duration: 0.4, stagger: { each: 0.6 / spots.length } }, 0.05)
   })
   return stopDecode
 })
@@ -38,21 +37,16 @@ useMotionScope(section, (motion, root) => {
         <h2 id="lanes-title" class="section-title">Theo từng bài học</h2>
       </div>
 
-      <ol class="plate">
-        <li
-          v-for="lesson in lessons"
-          :key="lesson.number"
-          class="lane"
-          :class="{ empty: !lesson.senses.length }"
-          :data-lesson="lesson.number"
-        >
-          <NuxtLink :to="`/bai/${lesson.number}`" class="lane-head">
-            <span class="lane-title">{{ lesson.title }}</span>
-            <span class="label">{{ lesson.senses.length }} thuật ngữ</span>
+      <ol class="strips">
+        <li v-for="lesson in lessons" :key="lesson.number" class="strip" :data-lesson="lesson.number">
+          <NuxtLink :to="`/bai/${lesson.number}`" class="strip-head">
+            <span class="strip-title">{{ lesson.title }}</span>
+            <span class="strip-name">{{ lesson.name }}</span>
+            <span class="label strip-count">{{ lesson.senses.length }} thuật ngữ</span>
           </NuxtLink>
-          <div class="lane-body">
+          <div class="strip-body">
             <div class="front" aria-hidden="true" />
-            <ul v-if="lesson.senses.length" class="spots">
+            <ul class="spots">
               <li v-for="sense in lesson.senses" :key="sense.id">
                 <NuxtLink :to="`/tu/${entryOfSense(sense.id).slug}`" class="spot">
                   <span class="dot" aria-hidden="true" />
@@ -69,83 +63,89 @@ useMotionScope(section, (motion, root) => {
 </template>
 
 <style scoped>
-.plate {
+.strips {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--s8) var(--s6);
+  gap: var(--s10);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.lane {
+.strip {
   display: grid;
-  grid-template-rows: auto 1fr;
+  gap: var(--s3);
   min-width: 0;
 }
 
-.lane-head {
-  display: flex;
+.strip-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: baseline;
-  justify-content: space-between;
-  gap: var(--s2);
+  column-gap: var(--s4);
   min-height: 44px;
-  padding-bottom: var(--s3);
   text-decoration: none;
 }
 
-.lane-title {
+.strip-title {
   font-size: 1.625rem;
   font-weight: 500;
   font-variation-settings: 'opsz' 48;
   transition: color var(--t-press) var(--ease-out);
 }
 
-.lane-head:hover .lane-title {
+.strip-name {
+  color: var(--ink-secondary);
+  font-size: 1.0625rem;
+  line-height: 1.3;
+}
+
+.strip-head:hover .strip-title {
   color: var(--flame-mark);
 }
 
-/* The plate: tinted with its lesson's flame, with a hard origin line at the foot. */
-.lane-body {
+/* The paper: tinted with its lesson's flame, the origin a hard rule on the left. */
+.strip-body {
   position: relative;
-  min-height: 100%;
   overflow: hidden;
-  padding: var(--s3) var(--s4) var(--s8);
+  padding: var(--s4) var(--s6) var(--s4) var(--s10);
   border: 1px solid var(--hairline-strong);
   border-radius: 4px;
   background: color-mix(in oklch, var(--flame) 9%, var(--ground-elevated));
-  box-shadow: inset 0 1px 0 var(--highlight), inset 0 -3px 0 var(--flame-mark);
+  box-shadow: inset 0 1px 0 var(--highlight), inset 3px 0 0 var(--flame-mark);
 }
 
-/* Solvent front: the wetted area below a dashed front line. Script lifts it from the origin. */
+/* Solvent front: the wetted paper behind a dashed front. Script carries it from the origin. */
 .front {
   position: absolute;
   inset: 0;
-  border-top: 1px dashed var(--flame-mark);
-  background: linear-gradient(to bottom, color-mix(in oklch, var(--flame) 22%, transparent), transparent 70%);
+  border-right: 1px dashed var(--flame-mark);
+  background: linear-gradient(to left, color-mix(in oklch, var(--flame) 24%, transparent), transparent 75%);
   pointer-events: none;
 }
 
 .spots {
   position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s1) var(--s6);
   margin: 0;
-  padding: var(--s2) 0;
+  padding: 0;
   list-style: none;
 }
 
 .spot {
   display: grid;
-  grid-template-columns: 12px minmax(0, 1fr);
-  column-gap: var(--s3);
+  grid-template-columns: 10px auto;
+  column-gap: var(--s2);
   align-items: baseline;
   min-height: 44px;
-  padding: 5px 0;
+  padding: 4px 0;
   text-decoration: none;
 }
 
 .dot {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: var(--flame-mark);
   box-shadow: 0 0 0 0 color-mix(in oklch, var(--flame) 45%, transparent);
@@ -154,18 +154,13 @@ useMotionScope(section, (motion, root) => {
 }
 
 .spot:hover .dot {
-  transform: scale(1.25);
+  transform: scale(1.3);
   box-shadow: 0 0 0 6px color-mix(in oklch, var(--flame) 30%, transparent);
-}
-
-.spot-vi,
-.spot-en {
-  transition: transform var(--t-peak) var(--ease-out);
 }
 
 .spot-vi {
   font-size: 1.0625rem;
-  line-height: 1.3;
+  line-height: 1.25;
 }
 
 .spot-en {
@@ -175,21 +170,31 @@ useMotionScope(section, (motion, root) => {
   color: var(--ink-secondary);
 }
 
-.spot:hover .spot-vi,
-.spot:hover .spot-en {
-  transform: translateX(4px);
-}
-
-@media (max-width: 1080px) {
-  .plate {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    row-gap: var(--s8);
-  }
+.spot:hover .spot-vi {
+  text-decoration: underline 1px var(--flame-mark);
+  text-underline-offset: 3px;
 }
 
 @media (max-width: 640px) {
-  .plate {
-    grid-template-columns: minmax(0, 1fr);
+  .strip-head {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .strip-name {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .strip-count {
+    justify-self: end;
+  }
+
+  .strip-body {
+    padding: var(--s3) var(--s4) var(--s3) var(--s6);
+  }
+
+  .spots {
+    column-gap: var(--s5);
   }
 }
 </style>

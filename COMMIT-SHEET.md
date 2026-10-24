@@ -272,3 +272,119 @@ These replace the earlier "No Lenis" decision. Native features keep working:
 - While a lookup is active the stage fades out and then leaves the compositor (`visibility: hidden`).
 - Motion scopes are killed, not reverted, on unmount: their DOM is discarded anyway, so the next page mounts without that layout work.
 - Phase 7 gates it: Enter → answer on screen < 150ms, and the answer is visible at load.
+
+## 10. Amendment 3: the page as one separation train (Vinh, 2026-10-24)
+
+Vinh's brief:
+- Import the updated vocabulary from the "Bảng tổng hợp" tab.
+- Fill the empty ground below the hero with chemistry motion that answers scroll, without covering any text.
+- Make the sections react to each other like a chain reaction, or give each one its own illustrative animation.
+- Add a scene change between pages and on lookups.
+
+The grammar stays **live-surface** and the register stays **`build`**. The lookup-speed contract in §9 still binds everything below.
+
+### Content
+
+- **Source:** the "Bảng tổng hợp" tab is now the vocabulary, with 88 senses:
+
+  | Lesson | Subject | Senses |
+  |---|---|---|
+  | Bài 10 | Hợp chất hữu cơ và hóa học hữu cơ | 15 |
+  | Bài 11 | Phương pháp tách biệt và tinh chế hợp chất hữu cơ | 51 |
+  | Bài 12 | Công thức phân tử hợp chất hữu cơ | 12 |
+  | Bài 13 | Cấu tạo hóa học hợp chất hữu cơ | 10 |
+
+  The 88 senses make 87 headwords: *Extract* is both a verb and a noun. Each lesson's subject comes from its section heading in the tab.
+- **Parts of speech:** the summary tab labels ten Bài 11 adjectives as verbs, while the Bài 11 tab labels them correctly. The importer takes the adjective label from the lesson tab for those ten (*Separable, Pure, Volatile, Soluble, Insoluble, Immiscible, Crystalline, Homogeneous, Heterogeneous, Different*). Everything else is verbatim.
+- **Pictures:** the six pasted pictures float over the wrong rows in the summary tab, so they are placed by content (md5):
+  - methane → *Hydrocarbon*
+  - ethanol → *Functional group*
+  - benzene → *Aromatic compound*
+  - butane → *Organic compound*
+  - formula table → *Molecular formula*
+  - neon spectrum → *Mass spectrometry*
+- **Linked pictures:** column I links 25 Bài 11 terms to pictures on other sites (BBC, Pinterest, GeeksforGeeks and others). This build does not copy them. The site draws its own apparatus instead: eight animated line diagrams (separation, distillation, evaporation and condensation, extraction with a separatory funnel, solution, crystallization, filtration, column chromatography). Each term lights the part of the apparatus it names. Nothing claims they are the linked pictures.
+
+### Concept: the reader's scroll is the solvent
+
+Bài 11 is now the bulk of the dictionary, and it is about separating a mixture. So the home page below the hero becomes **one continuous piece of glassware**, run by the reader's scroll.
+
+The **spine** is a glass tube in the left gutter, from the hero's foot to the footer. Its liquid level follows the reader down the page (`scaleY`, scrubbed, `ease: 'none'`). Every section is a stage of the apparatus, and each stage starts only when the liquid reaches its tap:
+
+| Stage | Apparatus | Reaction it triggers |
+|---|---|---|
+| Hero → marquee | **Condenser.** The marquee runs inside a cooling jacket. Vapour from the hero condenses into droplets that slide with scroll velocity. | Droplets fall into the spine. |
+| A–Z index | **Manifold.** One side-arm per letter group. | When the liquid reaches a side-arm, the arm fills and its outlined initial crystallises (fill). The fill runs from letter to letter like a fuse. |
+| Lesson lanes | **Column chromatography.** One dark band of mixture enters the column and separates into the four flame colours as the reader scrolls. Each colour runs at its own rate, which is what separation is. | Each colour leaves the column into its lesson's strip, and the strip develops: the solvent front crosses it and the term spots come up. |
+| Source ledger | **Burette.** The tube is graduated, and drops fall. | Each source row receives drops, and its abundance bar fills to its share of the 88 senses, read as a mass-spectrum abundance. |
+| Footer | **Endpoint.** | The last drop turns the receiving flask phenolphthalein pink (the brand accent), and the footer rule turns pink. |
+
+**Ambient ground.** In the right gutter, the hero's electron cloud keeps rising as vapour: small flame-coloured points and bubbles drift up at three depths. Their rate follows scroll velocity, like heat: idle is a slow drift, and a fast scroll boils.
+
+**Coupling.** Pointing at anything that belongs to a lesson lights every member of that lesson across the page and dims the rest. That covers the header cell, spectrum lines, marquee separators, A–Z dots, strip spots, ledger rows and spine taps. It is one attribute on `<html>` plus CSS, so there is no per-element script.
+
+### Where things may sit (Vinh: never over text)
+
+- Apparatus lives only in the side gutters, in section padding, and inside its own figure boxes.
+- Text columns never have art behind them. QA checks that no decorative element's box intersects a text node's box.
+- Below 860px the gutters are 16px. There:
+  - The spine thins to a 3px liquid line at the edge.
+  - The taps become 8px stubs.
+  - The vapour field is off.
+  - The column, burette and condenser keep their in-section figure boxes.
+
+### Lessons section, rebuilt for 88 senses
+
+The four vertical plates would grow to 51 rows. They become **four horizontal chromatography strips**, one per lesson and stacked:
+- Each strip has its origin line on the left.
+- Its term spots flow in rows: VI term over EN in mono, each a 44px link.
+- The strip's head names the lesson and its subject.
+- The solvent front develops each strip left to right when that strip's colour arrives from the column.
+
+### Sources section, rebuilt
+
+Sources are grouped by site:
+- IUPAC Gold Book
+- Cambridge Dictionary
+- Oxford Learner's Dictionaries
+- SGK Hóa học 11
+- Wikipedia
+
+Each row shows the site name (the sheet's most common label for that site), a link to the site, the lessons it covers and an abundance bar with a count. That gives about five rows instead of 70 near-duplicates.
+
+### Scene change
+
+- **View Transitions**, through Nuxt `experimental.viewTransition`.
+- **Effect:** the old page is wiped downwards by a solvent front, a band in the four flame colours. The new page is already underneath, so the headword is uncovered first, within about two frames of the transition starting.
+- **Timing:** 420ms on `cubic-bezier(0.22, 1, 0.36, 1)`, a short-lived clip-path.
+- **Header:** the header and the indicator strip keep their own transition names, so they hold still.
+- **Off:** under reduced motion and where the API is missing. The indicator-strip sweep stays as the fallback.
+- Phase 7 gates it: Enter → answer uncovered < 150ms.
+
+### Engineering contract
+
+- The spine, taps, column, burette and vapour animate only `transform` and `opacity` on composited layers. The one exception is the scene change's short-lived clip-path.
+- All of it is created after the opening and the 3D's quiet start.
+- It stops while a lookup is active or the tab is hidden.
+- Each stage runs only while its section is on screen (IntersectionObserver or ScrollTrigger toggles).
+- Under reduced motion, every stage is shown in its final state: full spine, developed strips, filled bars, pink endpoint. Nothing moves.
+- Without JS, the same final state comes from markup and CSS.
+- No canvas is added. The page keeps at most one canvas, the 3D hero.
+- The vapour field is DOM points: about 18 at 1440px wide.
+
+### Feeling curve after the hero
+
+| Section | Feeling | Mechanism |
+|---|---|---|
+| Marquee | Momentum | Condensing droplets |
+| A–Z | Calm, orderly crystallisation | A fuse of fills |
+| Lessons | Recognition and a small surprise | The mixture splits into the reader's lesson colour |
+| Sources | Trust | Measured drops, then the pink endpoint as a quiet close |
+
+The hero opening is still the only wow peak. The endpoint is the close, not a second peak: one colour change and no burst.
+
+### Anti-reference check
+
+- No bubbling-beaker emoji and no toxic green. The glassware is hairline line-art in the committed hues.
+- The apparatus is functional: it carries the reveal chain and the lesson colours.
+- No benzene or hexagon wallpaper.

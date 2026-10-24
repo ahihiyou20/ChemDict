@@ -3,9 +3,21 @@ export interface Citation {
   url: string | null
 }
 
+/** Apparatus the site draws itself, for terms whose picture lives on another site. */
+export type DiagramName =
+  | 'separation'
+  | 'distillation'
+  | 'evaporation'
+  | 'extraction'
+  | 'solution'
+  | 'crystallization'
+  | 'filtration'
+  | 'chromatography'
+
 export type Illustration =
   | { kind: 'image'; src: string; width: number; height: number; alt: string }
   | { kind: 'text'; text: string }
+  | { kind: 'diagram'; name: DiagramName }
 
 /** One row of the vocabulary sheet, copied verbatim. */
 export interface Sense {
@@ -24,7 +36,10 @@ export interface Sense {
 
 export interface Lesson {
   number: number
+  /** "Bài 11" */
   title: string
+  /** The lesson's subject, e.g. "Phương pháp tách biệt và tinh chế hợp chất hữu cơ" */
+  name: string
   senses: Sense[]
 }
 
