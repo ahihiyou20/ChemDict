@@ -1,18 +1,13 @@
 <script setup lang="ts">
-const { sheet, entries, senseCount } = useLexicon()
 </script>
 
 <template>
   <footer class="site-footer">
     <div class="wrap foot">
       <div class="foot-top">
-        <p class="brand-line"><span class="name">ChemDict</span> · Từ điển thuật ngữ Hóa học Anh – Việt</p>
+        <p class="label">Nhấn <kbd>/</kbd> ở bất kỳ trang nào để tra từ.</p>
         <ThemeToggle />
       </div>
-      <p class="label">
-        {{ entries.length }} mục từ, {{ senseCount }} dòng dữ liệu. Toàn bộ nội dung chép nguyên văn từ “{{ sheet.title }}”.
-        Nhấn <kbd>/</kbd> ở bất kỳ trang nào để tra từ.
-      </p>
     </div>
   </footer>
 </template>
@@ -20,7 +15,7 @@ const { sheet, entries, senseCount } = useLexicon()
 <style scoped>
 .site-footer {
   border-top: 1px solid var(--hairline);
-  padding-block: var(--s12) var(--s16);
+  padding-block: var(--s8) var(--s12);
 }
 
 .foot {
@@ -34,14 +29,6 @@ const { sheet, entries, senseCount } = useLexicon()
   align-items: center;
   justify-content: space-between;
   gap: var(--s3);
-}
-
-.brand-line {
-  font-size: 1.125rem;
-}
-
-.name {
-  font-weight: 600;
 }
 
 .label {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { hostOf } from '#shared/utils/lexicon'
 
-const { sheet, lessons, senseCount } = useLexicon()
+const { lessons, senseCount } = useLexicon()
 
 interface Row {
   label: string
@@ -14,7 +14,8 @@ const rows = computed(() => {
   const byKey = new Map<string, Row>()
   for (const lesson of lessons) {
     for (const sense of lesson.senses) {
-      const label = sense.source?.label ?? 'Chưa ghi nguồn trong bảng'
+      // Senses without a citation are credited to the open web, as Vinh asked.
+      const label = sense.source?.label ?? 'Internet'
       const url = sense.source?.url ?? null
       const key = `${label}|${url}`
       const row = byKey.get(key) ?? { label, url, count: 0, lessons: [] }
@@ -32,22 +33,18 @@ const rows = computed(() => {
   <section class="ledger-section" aria-labelledby="source-title">
     <div class="wrap section">
       <div class="section-head">
-        <h2 id="source-title" class="section-title">Một nguồn duy nhất</h2>
-        <p class="section-lede">
-          Mọi thuật ngữ, phiên âm, định nghĩa và hình minh họa ở đây được chép nguyên văn từ bảng
-          “{{ sheet.title }}”. Cột “Nguồn tham khảo” của từng dòng được giữ lại và ghi dưới mỗi nghĩa.
-        </p>
+        <h2 id="source-title" class="section-title">Một số nguồn tham khảo</h2>
       </div>
 
       <div class="table-wrap">
         <table>
-          <caption class="visually-hidden">Nguồn tham khảo ghi trong bảng từ vựng</caption>
+          <caption class="visually-hidden">Một số nguồn tham khảo</caption>
           <thead>
             <tr>
-              <th scope="col">Nguồn tham khảo ghi trong bảng</th>
+              <th scope="col">Nguồn</th>
               <th scope="col">Liên kết</th>
               <th scope="col">Bài</th>
-              <th scope="col" class="num">Số dòng</th>
+              <th scope="col" class="num">Số thuật ngữ</th>
             </tr>
           </thead>
           <tbody>
@@ -55,7 +52,7 @@ const rows = computed(() => {
               <td>{{ row.label }}</td>
               <td class="mono">
                 <a v-if="row.url" :href="row.url" target="_blank" rel="noopener noreferrer">{{ hostOf(row.url) }}<span class="visually-hidden"> (mở thẻ mới)</span></a>
-                <span v-else class="muted">không có</span>
+                <span v-else class="muted" aria-label="không có liên kết">—</span>
               </td>
               <td class="mono">{{ row.lessons.map((n) => `B${n}`).join(', ') }}</td>
               <td class="mono num">{{ row.count }}</td>

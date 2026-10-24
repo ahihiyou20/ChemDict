@@ -34,7 +34,7 @@ onBeforeUnmount(() => revert?.())
     <div class="wrap section">
       <div class="section-head">
         <h2 id="lanes-title" class="section-title">Theo từng bài học</h2>
-        <p class="section-lede">Mỗi cột là một thẻ trong bảng từ vựng, giữ đúng thứ tự các dòng.</p>
+        <p class="section-lede">Mỗi cột là một bài học, giữ đúng thứ tự các thuật ngữ trong bài.</p>
       </div>
 
       <ol ref="plate" class="plate">
@@ -54,7 +54,7 @@ onBeforeUnmount(() => revert?.())
                 </NuxtLink>
               </li>
             </ul>
-            <p v-else class="lane-empty">Thẻ “{{ lesson.title }}” chưa có thuật ngữ nào trong bảng tổng hợp.</p>
+            <p v-else class="lane-empty">{{ lesson.title }} chưa có thuật ngữ nào.</p>
             <span class="origin label" aria-hidden="true">vạch xuất phát</span>
           </div>
         </li>

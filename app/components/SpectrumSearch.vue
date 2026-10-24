@@ -143,7 +143,7 @@ const visibleHits = computed(() => hits.value.slice(0, RESULT_LIMIT))
 
 const statusText = computed(() => {
   if (!isQuerying.value) return ''
-  if (!hits.value.length) return `Không tìm thấy “${searched.value}” trong bảng từ vựng.`
+  if (!hits.value.length) return `Không tìm thấy “${searched.value}” trong từ điển.`
   const more = hits.value.length > RESULT_LIMIT ? ` Hiện ${RESULT_LIMIT} mục khớp nhất, các mục còn lại sáng trên phổ.` : ''
   return `${hits.value.length} mục từ khớp với “${searched.value}”.${more}`
 })

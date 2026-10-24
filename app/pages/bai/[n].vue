@@ -5,7 +5,7 @@ const { lessons, entryOfSense } = useLexicon()
 const index = lessons.findIndex((lesson) => String(lesson.number) === String(route.params.n))
 const lesson = lessons[index]
 if (!lesson) {
-  throw createError({ statusCode: 404, statusMessage: 'Không có bài này trong bảng từ vựng', fatal: true })
+  throw createError({ statusCode: 404, statusMessage: 'Không có bài này trong từ điển', fatal: true })
 }
 const previous = lessons[index - 1]
 const next = lessons[index + 1]
@@ -14,7 +14,7 @@ useSeoMeta({
   title: `${lesson.title}: ${lesson.senses.length} thuật ngữ`,
   description: lesson.senses.length
     ? `Thuật ngữ Hóa học ${lesson.title}: ${lesson.senses.map((sense) => sense.vi).join(', ')}.`
-    : `${lesson.title} chưa có thuật ngữ trong bảng từ vựng.`,
+    : `${lesson.title} chưa có thuật ngữ.`,
 })
 </script>
 
@@ -24,10 +24,10 @@ useSeoMeta({
       <p class="label crumbs">
         <NuxtLink to="/">Từ điển</NuxtLink>
         <span aria-hidden="true">/</span>
-        <span>Thẻ “{{ lesson.title }}” trong bảng từ vựng</span>
+        <span>{{ lesson.title }}</span>
       </p>
       <h1 class="lesson-title">{{ lesson.title }}</h1>
-      <p class="lede">{{ lesson.senses.length }} thuật ngữ, theo đúng thứ tự các dòng trong bảng.</p>
+      <p class="lede">{{ lesson.senses.length }} thuật ngữ, theo thứ tự trong bài.</p>
     </header>
 
     <div class="wrap">
@@ -55,7 +55,7 @@ useSeoMeta({
         </tbody>
       </table>
       <p v-else class="empty">
-        Thẻ “{{ lesson.title }}” trong bảng từ vựng hiện chưa có thuật ngữ nào. Trang này sẽ có nội dung khi bảng được bổ sung.
+        {{ lesson.title }} hiện chưa có thuật ngữ nào. Trang này sẽ có nội dung khi được bổ sung.
       </p>
     </div>
 

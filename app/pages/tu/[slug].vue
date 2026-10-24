@@ -6,7 +6,7 @@ const { lessons, sortedEn, entryBySlug } = useLexicon()
 
 const entry = entryBySlug(String(route.params.slug))
 if (!entry) {
-  throw createError({ statusCode: 404, statusMessage: 'Không có mục từ này trong bảng từ vựng', fatal: true })
+  throw createError({ statusCode: 404, statusMessage: 'Không có mục từ này trong từ điển', fatal: true })
 }
 
 const position = sortedEn.indexOf(entry)
@@ -99,7 +99,7 @@ onBeforeUnmount(() => revert?.())
               :loading="i === 0 ? 'eager' : 'lazy'"
               decoding="async"
             >
-            <figcaption class="label">Hình minh họa trong bảng từ vựng, {{ lessonTitle(sense.lesson) }}</figcaption>
+            <figcaption class="label">Hình minh họa, {{ lessonTitle(sense.lesson) }}</figcaption>
           </figure>
           <div v-else-if="sense.illustration?.kind === 'text'" class="example">
             <p class="label">Minh họa</p>
@@ -112,8 +112,7 @@ onBeforeUnmount(() => revert?.())
               {{ sense.source.label }}<span v-if="sense.source.label !== hostOf(sense.source.url)" class="host"> ({{ hostOf(sense.source.url) }})</span><span aria-hidden="true"> ↗</span><span class="visually-hidden"> (mở thẻ mới)</span>
             </a>
             <span v-else-if="sense.source">{{ sense.source.label }}</span>
-            <span v-else>chưa ghi trong bảng tổng hợp</span>
-            <span class="provenance">· Bảng từ vựng, thẻ “{{ lessonTitle(sense.lesson) }}”, dòng {{ sense.row }}</span>
+            <span v-else>Internet</span>
           </p>
         </div>
       </li>
@@ -339,8 +338,7 @@ onBeforeUnmount(() => revert?.())
   color: var(--accent);
 }
 
-.host,
-.provenance {
+.host {
   color: var(--ink-secondary);
 }
 
