@@ -9,6 +9,8 @@ useSeoMeta({
 })
 
 const title = ref<HTMLElement | null>(null)
+const home = ref<HTMLElement | null>(null)
+useLessonFocus(home)
 
 // The opening: the title's characters flip up into place and the flame bar burns in under "Hóa học".
 useMotionScope(title, ({ gsap, SplitText, finePointer }, root) => {
@@ -45,7 +47,7 @@ useMotionScope(title, ({ gsap, SplitText, finePointer }, root) => {
 </script>
 
 <template>
-  <div class="home">
+  <div ref="home" class="home">
     <section class="hero" aria-labelledby="hero-title">
       <div class="wrap hero-inner">
         <div class="hero-copy">

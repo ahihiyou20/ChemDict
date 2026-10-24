@@ -77,6 +77,8 @@ export interface Layout {
   drops: number[]
   outlet: { x: number; y: number }
   recorder: Recorder | null
+  /** The still: the free gutter beside the A–Z, where the pot boils. */
+  boil: { left: number; width: number; top: number; bottom: number } | null
 }
 
 const INK = 'var(--ink)'
@@ -191,7 +193,10 @@ export function measureTrain(home: HTMLElement): Layout | null {
     drops.forEach((s, i) => (drops[i] = fit(s)))
   }
 
-  return { W, H, wide, tube, lw, pipes, column, bands, burette, flask, drops, outlet, recorder }
+  const boilLeft = contentRight + 16
+  const boil = wide && W - 16 - boilLeft >= 40 ? { left: boilLeft, width: W - 16 - boilLeft, top: az.top + 24, bottom: az.bottom - 24 } : null
+
+  return { W, H, wide, tube, lw, pipes, column, bands, burette, flask, drops, outlet, recorder, boil }
 }
 
 /**

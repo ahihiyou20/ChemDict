@@ -1,14 +1,20 @@
 <script setup lang="ts">
 // The page's one marquee: Bài 10's terms drift past, English set solid and Vietnamese in outline.
 // It repeats the A–Z index below, so it is decoration and hidden from assistive technology.
+// It is also the separation train's condenser (COMMIT-SHEET §10): the terms flow towards the outlet
+// on the left, where the train's glass begins, and coolant runs the other way along both walls.
 const { entries } = useLexicon()
 const terms = entries.filter((entry) => entry.lessons.includes(10))
 
 const band = ref<HTMLElement | null>(null)
+/** Length of one coolant dash plus its gap, in px. */
+const COOLANT_PERIOD = 36
 
 useMotionScope(band, ({ gsap, ScrollTrigger }, root) => {
   const track = root.querySelector<HTMLElement>('.track')!
   const loop = gsap.to(track, { xPercent: -50, duration: 110, ease: 'none', repeat: -1, paused: true })
+  // One dash period of coolant per cycle, so the jacket loops seamlessly.
+  const coolant = gsap.to(root.querySelectorAll('.coolant'), { x: COOLANT_PERIOD, duration: 0.9, ease: 'none', repeat: -1, paused: true })
   // Start far into the repeats so a reversed band has room to run backwards.
   loop.totalTime(110 * 1000)
   const speed = { value: 1 }
@@ -16,8 +22,18 @@ useMotionScope(band, ({ gsap, ScrollTrigger }, root) => {
   let direction = 1
   let hovering = false
 
+  // The coolant keeps its own direction and never stops; it only runs faster when the band is thrown.
   const steer = (value: number, duration: number) =>
-    gsap.to(speed, { value, duration, ease: 'power2.out', overwrite: true, onUpdate: () => void loop.timeScale(speed.value) })
+    gsap.to(speed, {
+      value,
+      duration,
+      ease: 'power2.out',
+      overwrite: true,
+      onUpdate: () => {
+        loop.timeScale(speed.value)
+        coolant.timeScale(Math.max(1, Math.abs(speed.value)))
+      },
+    })
   // Scrolling throws the band along in the scroll's direction, then it drifts back to cruising speed.
   const settle = gsap.delayedCall(0.14, () => {
     steer(hovering ? 0 : direction, 1.2)
@@ -28,7 +44,15 @@ useMotionScope(band, ({ gsap, ScrollTrigger }, root) => {
     trigger: root,
     start: 'top bottom',
     end: 'bottom top',
-    onToggle: (self) => (self.isActive ? loop.play() : loop.pause()),
+    onToggle: (self) => {
+      if (self.isActive) {
+        loop.play()
+        coolant.play()
+      } else {
+        loop.pause()
+        coolant.pause()
+      }
+    },
     onUpdate: (self) => {
       const velocity = self.getVelocity()
       direction = self.direction
@@ -58,6 +82,8 @@ useMotionScope(band, ({ gsap, ScrollTrigger }, root) => {
 
 <template>
   <div ref="band" class="marquee" aria-hidden="true">
+    <i class="coolant" data-side="top" />
+    <i class="coolant" data-side="bottom" />
     <div class="track">
       <div v-for="copy in 2" :key="copy" class="run">
         <NuxtLink v-for="entry in terms" :key="entry.slug" :to="`/tu/${entry.slug}`" class="term" tabindex="-1" :data-lesson="entry.lessons[0]">
@@ -72,9 +98,32 @@ useMotionScope(band, ({ gsap, ScrollTrigger }, root) => {
 
 <style scoped>
 .marquee {
+  position: relative;
   overflow: hidden;
   padding-block: clamp(16px, 2.6vw, 32px);
   border-block: 1px solid var(--hairline);
+}
+
+/* The condenser's jacket: dashes of coolant along both walls, flowing against the terms. */
+.coolant {
+  position: absolute;
+  left: -36px;
+  right: 0;
+  height: 2px;
+  background: repeating-linear-gradient(
+    90deg,
+    color-mix(in oklch, var(--flame-11-mark) 60%, transparent) 0 14px,
+    transparent 14px 36px
+  );
+  pointer-events: none;
+}
+
+.coolant[data-side='top'] {
+  top: 6px;
+}
+
+.coolant[data-side='bottom'] {
+  bottom: 6px;
 }
 
 .track {

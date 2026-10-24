@@ -7,7 +7,7 @@ import { DROP_FALL, LESSONS, measureTrain, type DropDetail, type Layout, type Pi
  * runs down to a chromatography column at the seam of the A–Z and the lessons, the column separates it
  * into the four lesson flames, each fraction feeds its lesson's strip while a chart recorder in the other
  * gutter writes its peak, and what is left runs across to a burette that titrates the source ledger,
- * drop by drop, to a pink endpoint.
+ * drop by drop, to a pink endpoint. Beside the A–Z the pot boils, its bubbles rising to the condenser.
  *
  * Geometry is measured from the sections (lib/train.ts), so the glass never crosses text. Every liquid
  * moves by transform only, driven from the scroll position.
@@ -15,8 +15,6 @@ import { DROP_FALL, LESSONS, measureTrain, type DropDetail, type Layout, type Pi
 
 const layer = ref<HTMLElement | null>(null)
 const layout = shallowRef<Layout | null>(null)
-const endpoint = ref(false)
-const level = ref(0)
 
 const vertical = (p: Pipe) => p.x0 === p.x1
 
@@ -57,6 +55,7 @@ const flaskClip = computed(() => {
 
 /** Band height in px before scaling: the bands are drawn soft-edged at this size and scaled to their spread. */
 const BAND = 40
+const BUBBLES = 22
 
 useMotionScope(
   layer,
@@ -173,13 +172,24 @@ useMotionScope(
       while (released < l.drops.length && s >= l.drops[released]!) release(l, released++)
     }
 
+    // The flask and the endpoint are written straight to the DOM: a drop must not re-render the glass,
+    // and the endpoint touches the footer alone, not a class on the whole document.
+    let level = 0
+    let turned = false
+    let dripping = false
+    const show = () => {
+      const flask = root.querySelector<HTMLElement>('.flask-liquid')
+      if (flask) flask.style.transform = `scaleY(${level})`
+      root.classList.toggle('endpoint', turned)
+      root.classList.toggle('dripping', dripping)
+      document.querySelector('.site-footer')?.classList.toggle('rx-endpoint', turned)
+    }
+
     const land = (index: number, total: number) => {
-      level.value = Math.min(0.55, (index + 1) * 0.09)
+      level = Math.min(0.55, (index + 1) * 0.09)
+      if (index === total - 1) turned = true
+      show()
       document.dispatchEvent(new CustomEvent<DropDetail>('rx:drop', { detail: { index, total } }))
-      if (index === total - 1) {
-        endpoint.value = true
-        document.documentElement.classList.add('rx-endpoint')
-      }
     }
 
     const release = (l: Layout, index: number) => {
@@ -204,16 +214,58 @@ useMotionScope(
       )
     }
 
+    // The still: bubbles nucleate anywhere down the gutter, grow as they rise and burst. Scrolling
+    // turns the heat up; the pot only boils while it is on screen.
+    let boiling: gsap.core.Timeline | null = null
+    let boilTrigger: ScrollTrigger | null = null
+    const boil = () => {
+      boiling?.kill()
+      boilTrigger?.kill()
+      boiling = null
+      boilTrigger = null
+      const pot = layout.value?.boil
+      if (!pot || reduced) return
+      const { random } = gsap.utils
+      boiling = gsap.timeline({ paused: true })
+      root.querySelectorAll<HTMLElement>('.boil i').forEach((bubble, i) => {
+        const life = random(3.2, 6.4)
+        const rise = gsap
+          .timeline({ repeat: -1, repeatRefresh: true })
+          .fromTo(
+            bubble,
+            { x: () => random(4, pot.width - 8), y: () => random(pot.top + 120, pot.bottom), scale: 0.4 },
+            { y: `-=${random(140, 320)}`, scale: () => random(0.9, 1.5), duration: life, ease: 'sine.in' },
+            0,
+          )
+          .fromTo(bubble, { opacity: 0 }, { opacity: 0.9, duration: 0.6, ease: 'none' }, 0)
+          .to(bubble, { opacity: 0, duration: 0.35, ease: 'power1.in' }, life - 0.35)
+        boiling!.add(rise, (i / BUBBLES) * 5)
+      })
+      boilTrigger = ScrollTrigger.create({
+        trigger: home.querySelector('section.az'),
+        start: 'top bottom',
+        end: 'bottom top',
+        onToggle: (self) => (self.isActive ? boiling?.play() : boiling?.pause()),
+        onUpdate: (self) => {
+          boiling?.timeScale(1 + Math.min(Math.abs(self.getVelocity()) / 900, 3))
+          heat.restart(true)
+        },
+      })
+      if (boilTrigger.isActive) boiling.play()
+    }
+    const heat = gsap.delayedCall(0.3, () => boiling && gsap.to(boiling, { timeScale: 1, duration: 1.2, ease: 'power2.out' })).pause()
+
     const rebuild = () => {
       const next = measureTrain(home)
       if (!next) return
       layout.value = next
       nextTick(() => {
         bind()
+        boil()
         if (reduced) {
           released = next.drops.length
-          level.value = 0.55
-          endpoint.value = true
+          level = 0.55
+          turned = true
           render(Number.MAX_SAFE_INTEGER)
         } else {
           // Tell the ledger its rows are now titrated by drops rather than on sight.
@@ -221,6 +273,7 @@ useMotionScope(
           released = Math.min(released, next.drops.length)
           render(scroll || scrollY)
         }
+        show()
       })
     }
 
@@ -237,14 +290,25 @@ useMotionScope(
     // The condenser's outlet drips only while it is on screen.
     const outlet = reduced
       ? null
-      : ScrollTrigger.create({ trigger: home.querySelector('.marquee'), start: 'top bottom', end: 'bottom top', onToggle: (self) => root.classList.toggle('dripping', self.isActive) })
+      : ScrollTrigger.create({
+          trigger: home.querySelector('.marquee'),
+          start: 'top bottom',
+          end: 'bottom top',
+          onToggle: (self) => {
+            dripping = self.isActive
+            root.classList.toggle('dripping', dripping)
+          },
+        })
 
     return () => {
       clearTimeout(timer)
       observer.disconnect()
       trigger?.kill()
       outlet?.kill()
-      document.documentElement.classList.remove('rx-endpoint')
+      boiling?.kill()
+      boilTrigger?.kill()
+      heat.kill()
+      document.querySelector('.site-footer')?.classList.remove('rx-endpoint')
     }
   },
   { reduced: true },
@@ -252,7 +316,7 @@ useMotionScope(
 </script>
 
 <template>
-  <div ref="layer" class="train" :class="{ wide: layout?.wide, endpoint }" aria-hidden="true">
+  <div ref="layer" class="train" :class="{ wide: layout?.wide }" aria-hidden="true">
     <template v-if="layout && glass">
       <svg class="glass" :width="layout.W" :height="layout.H" :viewBox="`0 0 ${layout.W} ${layout.H}`">
         <path class="tube" :d="glass.pipes" :stroke-width="layout.tube" />
@@ -282,7 +346,11 @@ useMotionScope(
       <i v-if="layout.recorder" class="pen" />
 
       <i class="burette-liquid" :style="box(layout.burette.x - layout.burette.w / 2 + 2.5, layout.burette.top + 3, layout.burette.w - 5, layout.burette.bottom - layout.burette.top - 5)" />
-      <i class="flask-liquid" :style="{ ...box(layout.flask.x - layout.flask.w / 2, layout.flask.top, layout.flask.w, layout.flask.h), clipPath: flaskClip, transform: `scaleY(${level})` }" />
+      <i class="flask-liquid" :style="{ ...box(layout.flask.x - layout.flask.w / 2, layout.flask.top, layout.flask.w, layout.flask.h), clipPath: flaskClip }" />
+
+      <div v-if="layout.boil" class="boil" :style="{ left: `${layout.boil.left}px` }">
+        <i v-for="n in BUBBLES" :key="n" :style="{ width: `${4 + (n % 5) * 2}px`, height: `${4 + (n % 5) * 2}px` }" />
+      </div>
 
       <i class="outlet-drop" :style="{ left: `${layout.outlet.x}px`, top: `${layout.outlet.y}px` }" />
       <i class="front" />
@@ -434,6 +502,7 @@ useMotionScope(
   background: var(--ink-secondary);
   opacity: 0.55;
   transform-origin: 50% 100%;
+  transform: scaleY(0);
   transition:
     transform 0.4s var(--ease-out),
     background-color 0.6s var(--ease-out),
@@ -483,6 +552,21 @@ useMotionScope(
   margin: -4px 0 0 -3px;
   border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
   background: var(--ink-secondary);
+}
+
+.boil {
+  position: absolute;
+  top: 0;
+}
+
+.boil i {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 1px solid color-mix(in oklch, var(--ink-secondary) 75%, transparent);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--highlight) 0 22%, transparent 30%);
+  opacity: 0;
 }
 
 .outlet-drop {

@@ -402,7 +402,101 @@ html.rx-route::view-transition-new(root) {
 }
 
 /* The ledger's titration reached its endpoint: the indicator's pink carries into the page's last rule. */
-html.rx-endpoint .site-footer {
+footer.site-footer.rx-endpoint {
   border-top-color: var(--accent);
   transition: border-top-color 0.8s var(--ease-out);
+}
+
+/* Lesson focus (useLessonFocus): pointing at one lesson's strip, column, tag, term or flame lights that
+   lesson across the home page. The others step back; nothing is hidden. */
+.home :is(.strip, .spectrum .column, .axis-x .tick, .train .peak) {
+  transition: opacity 0.3s var(--ease-out);
+}
+
+.home .ledger-section td {
+  transition: background-color 0.3s var(--ease-out);
+}
+
+.home .train :is(.liquid, .band) {
+  transition: box-shadow 0.3s var(--ease-out);
+}
+
+.home[data-focus='10'] :is(.strip, .spectrum .column, .axis-x .tick, .train .peak):not([data-lesson='10']) {
+  opacity: 0.32;
+}
+
+.home[data-focus='10'] .item[data-lesson='10'] .dot {
+  transform: none;
+}
+
+.home[data-focus='10'] .item[data-lesson='10'] :is(.primary, .secondary) {
+  transform: translateX(16px);
+}
+
+.home[data-focus='10'] .ledger-section tr[data-lessons~='10'] td {
+  background: color-mix(in oklch, var(--flame-10) 16%, transparent);
+}
+
+.home[data-focus='10'] .train :is([data-pipe$='-10'], .band[data-lesson='10']) {
+  box-shadow: 0 0 12px 1px var(--flame-10);
+}
+
+.home[data-focus='11'] :is(.strip, .spectrum .column, .axis-x .tick, .train .peak):not([data-lesson='11']) {
+  opacity: 0.32;
+}
+
+.home[data-focus='11'] .item[data-lesson='11'] .dot {
+  transform: none;
+}
+
+.home[data-focus='11'] .item[data-lesson='11'] :is(.primary, .secondary) {
+  transform: translateX(16px);
+}
+
+.home[data-focus='11'] .ledger-section tr[data-lessons~='11'] td {
+  background: color-mix(in oklch, var(--flame-11) 16%, transparent);
+}
+
+.home[data-focus='11'] .train :is([data-pipe$='-11'], .band[data-lesson='11']) {
+  box-shadow: 0 0 12px 1px var(--flame-11);
+}
+
+.home[data-focus='12'] :is(.strip, .spectrum .column, .axis-x .tick, .train .peak):not([data-lesson='12']) {
+  opacity: 0.32;
+}
+
+.home[data-focus='12'] .item[data-lesson='12'] .dot {
+  transform: none;
+}
+
+.home[data-focus='12'] .item[data-lesson='12'] :is(.primary, .secondary) {
+  transform: translateX(16px);
+}
+
+.home[data-focus='12'] .ledger-section tr[data-lessons~='12'] td {
+  background: color-mix(in oklch, var(--flame-12) 16%, transparent);
+}
+
+.home[data-focus='12'] .train :is([data-pipe$='-12'], .band[data-lesson='12']) {
+  box-shadow: 0 0 12px 1px var(--flame-12);
+}
+
+.home[data-focus='13'] :is(.strip, .spectrum .column, .axis-x .tick, .train .peak):not([data-lesson='13']) {
+  opacity: 0.32;
+}
+
+.home[data-focus='13'] .item[data-lesson='13'] .dot {
+  transform: none;
+}
+
+.home[data-focus='13'] .item[data-lesson='13'] :is(.primary, .secondary) {
+  transform: translateX(16px);
+}
+
+.home[data-focus='13'] .ledger-section tr[data-lessons~='13'] td {
+  background: color-mix(in oklch, var(--flame-13) 16%, transparent);
+}
+
+.home[data-focus='13'] .train :is([data-pipe$='-13'], .band[data-lesson='13']) {
+  box-shadow: 0 0 12px 1px var(--flame-13);
 }
