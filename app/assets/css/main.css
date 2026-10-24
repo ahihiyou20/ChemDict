@@ -13,6 +13,9 @@
   --highlight: oklch(1 0 0 / 0.65);
   --shadow-ink: oklch(0.24 0.025 250 / 0.22);
   --grain-opacity: 0.03;
+  /* Illustration plates stay light in both themes: the sheet's images have white grounds. */
+  --plate: oklch(0.99 0.003 215);
+  --plate-caption: oklch(0.42 0.03 235);
 
   --font-serif: 'Newsreader Variable', 'Noto Serif', Georgia, serif;
   --font-mono: 'Noto Sans Mono Variable', 'Noto Sans Mono', ui-monospace, monospace;
@@ -39,8 +42,9 @@
   --t-peak: 220ms;
 }
 
+/* Dark tokens apply when the system asks for them, unless the reader pinned light, or when pinned dark. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
     --ground: oklch(0.18 0.015 235);
     --ground-elevated: oklch(0.225 0.018 235);
     --ink: oklch(0.95 0.008 215);
@@ -52,7 +56,30 @@
     --highlight: oklch(1 0 0 / 0.06);
     --shadow-ink: oklch(0 0 0 / 0.5);
     --grain-opacity: 0.05;
+    --plate: oklch(0.96 0.004 215);
+    --plate-caption: oklch(0.38 0.03 235);
   }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --ground: oklch(0.18 0.015 235);
+  --ground-elevated: oklch(0.225 0.018 235);
+  --ink: oklch(0.95 0.008 215);
+  --ink-secondary: oklch(0.76 0.025 220);
+  --accent: oklch(0.76 0.15 355);
+  --accent-soft: oklch(0.76 0.15 355 / 0.16);
+  --hairline: oklch(0.33 0.02 235);
+  --hairline-strong: oklch(0.42 0.025 235);
+  --highlight: oklch(1 0 0 / 0.06);
+  --shadow-ink: oklch(0 0 0 / 0.5);
+  --grain-opacity: 0.05;
+  --plate: oklch(0.96 0.004 215);
+  --plate-caption: oklch(0.38 0.03 235);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
 }
 
 *,
@@ -101,7 +128,7 @@ a {
   color: inherit;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.18em;
-  transition: color var(--t-press) var(--ease-out), text-decoration-color var(--t-press) var(--ease-out);
+  transition: color var(--t-press) var(--ease-out);
 }
 
 a:hover {

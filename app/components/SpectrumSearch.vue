@@ -14,6 +14,8 @@ const hovered = ref<string | null>(null)
 const input = ref<HTMLInputElement | null>(null)
 const results = ref<HTMLOListElement | null>(null)
 const instrument = ref<HTMLElement | null>(null)
+/** 'armed' until the opening scan has run; CSS keeps the comb at baseline meanwhile. */
+const scanState = ref<'armed' | 'done'>('armed')
 const plot = ref<HTMLElement | null>(null)
 const plotWidth = ref(0)
 
@@ -34,6 +36,8 @@ const columns = lessons.map((lesson) => ({
 const maxLessons = Math.max(...entries.map((entry) => entry.lessons.length))
 const idlePeak = entries.reduce((best, entry) => (entry.lessons.length > best.lessons.length ? entry : best))
 const isQuerying = computed(() => searched.value.length > 0)
+const searchActive = useState('search-active', () => false)
+watch(isQuerying, (value) => (searchActive.value = value))
 const ranked = computed(() => new Map(hits.value.map((hit, rank) => [hit.entry.slug, { hit, rank }])))
 
 function heightOf(entry: Entry): number {
@@ -84,7 +88,9 @@ function measure() {
   })
 }
 
-const view = computed(() =>
+const LABEL_GAP_PX = 44
+
+const rawView = computed(() =>
   columns.map((column) => ({
     ...column,
     slots: column.slots.map((slot) => {
@@ -106,6 +112,32 @@ const view = computed(() =>
     }),
   })),
 )
+
+/** Neighbouring peaks with the same height would print their values on top of each other; keep the higher-ranked one. */
+const view = computed(() => {
+  const kept: number[] = []
+  const ordered = rawView.value
+    .flatMap((column) => column.slots)
+    .filter((slot) => slot.annotation)
+    .sort((a, b) => rank(a.annotation!.kind) - rank(b.annotation!.kind))
+  const hidden = new Set<string>()
+  for (const slot of ordered) {
+    const x = slotCentres.value[slot.index] ?? 0
+    if (slot.annotation!.kind === 'value' && kept.some((other) => Math.abs(other - x) < LABEL_GAP_PX)) {
+      hidden.add(slot.sense.id)
+    } else {
+      kept.push(x)
+    }
+  }
+  return rawView.value.map((column) => ({
+    ...column,
+    slots: column.slots.map((slot) => (hidden.has(slot.sense.id) ? { ...slot, annotation: null } : slot)),
+  }))
+})
+
+function rank(kind: 'name' | 'value' | 'hover') {
+  return kind === 'hover' ? 0 : kind === 'name' ? 1 : 2
+}
 
 const visibleHits = computed(() => hits.value.slice(0, RESULT_LIMIT))
 
@@ -215,8 +247,10 @@ onMounted(async () => {
     measure()
   }
 
-  const root = document.documentElement
-  if (!root.classList.contains('js-scan') || !instrument.value) return
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches || !instrument.value) {
+    scanState.value = 'done'
+    return
+  }
 
   // The one wow peak: a single scan sweeps the axis and the comb rises behind it.
   const { gsap } = await import('gsap')
@@ -228,7 +262,7 @@ onMounted(async () => {
     gsap
       .timeline({
         onComplete() {
-          root.classList.remove('js-scan')
+          scanState.value = 'done'
           gsap.set(inks, { clearProps: 'transform' })
           gsap.set(scan, { clearProps: 'all' })
         },
@@ -237,7 +271,7 @@ onMounted(async () => {
       .fromTo('.scan', { xPercent: 0 }, { xPercent: 100, duration: sweep, ease: 'none' }, 0)
       .fromTo(
         inks,
-        { scaleY: 0 },
+        { scaleY: 0.04 },
         { scaleY: 1, duration: 0.55, ease: 'power3.out', stagger: { each: sweep / inks.length } },
         0.05,
       )
@@ -254,7 +288,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div id="tra-cuu" ref="instrument" class="instrument">
+  <div id="tra-cuu" ref="instrument" class="instrument" :data-scan="scanState">
     <form class="plate" role="search" @submit.prevent="onSubmit">
       <label for="tra-cuu-o" class="visually-hidden">Tra thuật ngữ bằng tiếng Anh hoặc tiếng Việt</label>
       <svg class="plate-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -280,10 +314,6 @@ onBeforeUnmount(() => {
       </button>
       <kbd v-else class="kbd" aria-hidden="true">/</kbd>
     </form>
-    <noscript>
-      <p class="label noscript">Tra cứu trực tiếp cần JavaScript. Mọi mục từ đều có trong danh mục A–Z bên dưới.</p>
-    </noscript>
-
     <div class="spectrum" aria-hidden="true">
       <p class="axis-y label">
         {{ isQuerying ? 'Chiều cao vạch = độ khớp tương đối (%)' : 'Mỗi vạch là một thuật ngữ · chiều cao = số bài có thuật ngữ đó' }}
@@ -331,6 +361,9 @@ onBeforeUnmount(() => {
     </div>
 
     <div class="readout">
+      <noscript>
+        <p class="label">Tra cứu trực tiếp cần JavaScript. Mọi mục từ đều có trong <a href="#az-title">danh mục A–Z</a> bên dưới.</p>
+      </noscript>
       <p id="tra-cuu-trang-thai" class="label status" :class="{ 'visually-hidden': !statusText }" role="status">
         {{ statusText }}
         <a v-if="isQuerying && !hits.length" href="#az-title">Xem danh mục A–Z</a>
@@ -458,8 +491,10 @@ input::-webkit-search-cancel-button {
   color: var(--ink-secondary);
 }
 
-.noscript {
-  margin-top: var(--s3);
+/* Without JS the suggestions and the "/" shortcut cannot work, so they stay out of the way. */
+:global(html:not(.js)) .suggest,
+:global(html:not(.js)) .kbd {
+  display: none;
 }
 
 /* Structural overlap: the plate sits over the top edge of the spectrum. */
@@ -546,8 +581,18 @@ input::-webkit-search-cancel-button {
   transform-origin: bottom;
 }
 
-:global(.js-scan) .ink {
-  transform: scaleY(0);
+/* Lines wait at baseline noise for the scan; if the app never boots, the failsafe raises them. */
+@media (prefers-reduced-motion: no-preference) {
+  :global(html.js) .instrument[data-scan='armed'] .ink {
+    transform: scaleY(0.04);
+    animation: scan-failsafe 0.3s var(--ease-out) 4s forwards;
+  }
+}
+
+@keyframes scan-failsafe {
+  to {
+    transform: none;
+  }
 }
 
 .is-hit .line,

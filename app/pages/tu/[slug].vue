@@ -222,6 +222,7 @@ onBeforeUnmount(() => revert?.())
 }
 
 .lesson-tag {
+  position: relative;
   font-family: var(--font-mono);
   font-size: 0.75rem;
   padding: 2px 8px;
@@ -230,6 +231,18 @@ onBeforeUnmount(() => revert?.())
   text-decoration: none;
   color: var(--ink-secondary);
   transition: border-color var(--t-press) var(--ease-out), color var(--t-press) var(--ease-out);
+}
+
+/* Grow the pill's hit area to 44px without changing its drawn size. */
+.lesson-tag::after,
+.crumbs a::after {
+  content: '';
+  position: absolute;
+  inset: -12px -6px;
+}
+
+.crumbs a {
+  position: relative;
 }
 
 .lesson-tag:hover {
@@ -279,7 +292,7 @@ onBeforeUnmount(() => revert?.())
   padding: var(--s3);
   border: 1px solid var(--hairline-strong);
   border-radius: 6px;
-  background: oklch(0.99 0.003 215);
+  background: var(--plate);
   box-shadow: 0 1px 0 var(--hairline-strong), 0 24px 40px -30px var(--shadow-ink);
 }
 
@@ -290,7 +303,7 @@ onBeforeUnmount(() => revert?.())
 
 .figure figcaption {
   margin-top: var(--s2);
-  color: oklch(0.42 0.03 235);
+  color: var(--plate-caption);
 }
 
 .example {
@@ -390,13 +403,4 @@ onBeforeUnmount(() => revert?.())
   }
 }
 
-@media (prefers-color-scheme: dark) {
-  .figure {
-    background: oklch(0.96 0.004 215);
-  }
-
-  .figure figcaption {
-    color: oklch(0.38 0.03 235);
-  }
-}
 </style>

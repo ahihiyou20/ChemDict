@@ -5,7 +5,10 @@ const { sheet, entries, senseCount } = useLexicon()
 <template>
   <footer class="site-footer">
     <div class="wrap foot">
-      <p class="brand-line"><span class="name">ChemDict</span> · Từ điển thuật ngữ Hóa học Anh – Việt</p>
+      <div class="foot-top">
+        <p class="brand-line"><span class="name">ChemDict</span> · Từ điển thuật ngữ Hóa học Anh – Việt</p>
+        <ThemeToggle />
+      </div>
       <p class="label">
         {{ entries.length }} mục từ, {{ senseCount }} dòng dữ liệu. Toàn bộ nội dung chép nguyên văn từ “{{ sheet.title }}”.
         Nhấn <kbd>/</kbd> ở bất kỳ trang nào để tra từ.
@@ -22,6 +25,14 @@ const { sheet, entries, senseCount } = useLexicon()
 
 .foot {
   display: grid;
+  gap: var(--s3);
+}
+
+.foot-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
   gap: var(--s3);
 }
 

@@ -24,6 +24,7 @@ function jumpToSearch() {
       </NuxtLink>
 
       <div class="tools">
+        <ThemeToggle class="header-theme" />
         <button v-if="!isHome" type="button" class="jump" @click="jumpToSearch">
           Tra từ <kbd>/</kbd>
         </button>
@@ -203,6 +204,12 @@ kbd {
 
   .cell {
     width: 44px;
+  }
+}
+
+@media (max-width: 860px) {
+  .header-theme {
+    display: none;
   }
 }
 

@@ -24,9 +24,9 @@ export default defineNuxtConfig({
       link: [{ rel: 'icon', type: 'image/svg+xml', href: 'favicon.svg' }],
       script: [
         {
-          // Arms the opening spectrum scan before first paint; the failsafe un-arms it if the app never boots.
+          // Before first paint: mark JS as available and apply a theme the reader pinned earlier.
           innerHTML:
-            "(function(d){if(!matchMedia('(prefers-reduced-motion: reduce)').matches){d.classList.add('js-scan');setTimeout(function(){d.classList.remove('js-scan')},4000)}})(document.documentElement)",
+            "(function(d){d.classList.add('js');try{var t=localStorage.getItem('chemdict-theme');if(t==='light'||t==='dark')d.dataset.theme=t}catch(e){}})(document.documentElement)",
           tagPosition: 'head',
         },
       ],

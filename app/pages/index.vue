@@ -15,11 +15,14 @@ useSeoMeta({
     <section class="hero" aria-labelledby="hero-title">
       <div class="wrap hero-inner">
         <div class="hero-copy">
-          <h1 id="hero-title" class="hero-title">Từ điển thuật ngữ Hóa học Anh – Việt</h1>
-          <p class="hero-lede">
-            {{ entries.length }} mục từ ({{ senseCount }} dòng) từ Bài {{ lessonList }}. Gõ tiếng Anh hoặc tiếng Việt để xem
-            định nghĩa song ngữ, phiên âm và nguồn tham khảo của từng thuật ngữ.
-          </p>
+          <div class="hero-text">
+            <h1 id="hero-title" class="hero-title">Từ điển thuật ngữ Hóa học Anh – Việt</h1>
+            <p class="hero-lede">
+              {{ entries.length }} mục từ ({{ senseCount }} dòng) từ Bài {{ lessonList }}. Gõ tiếng Anh hoặc tiếng Việt để xem
+              định nghĩa song ngữ, phiên âm và nguồn tham khảo của từng thuật ngữ.
+            </p>
+          </div>
+          <BenzeneCloud class="hero-cloud" />
         </div>
         <SpectrumSearch />
       </div>
@@ -32,8 +35,9 @@ useSeoMeta({
 
 <style scoped>
 .hero {
-  padding-top: clamp(32px, 6vw, 72px);
+  padding-top: clamp(32px, 5vw, 56px);
   padding-bottom: clamp(32px, 5vw, 64px);
+  overflow-x: clip;
 }
 
 .hero-inner {
@@ -42,10 +46,18 @@ useSeoMeta({
 }
 
 .hero-copy {
+  position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
   align-items: end;
   gap: var(--s6) clamp(24px, 5vw, 72px);
+}
+
+.hero-text {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: var(--s5);
 }
 
 .hero-title {
