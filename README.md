@@ -9,7 +9,7 @@ ChemDict là trang từ điển tra thuật ngữ hóa học bằng tiếng Anh 
 
 Nguồn duy nhất là Google Sheet *"[Hóa ESL 11A10 + 11E2] Bảng từ vựng"* (các thẻ Bài 10–13). Dữ liệu được ghi cứng trong `shared/data/lexicon.json`, không dùng cơ sở dữ liệu.
 
-Công nghệ: Nuxt 4 xuất trang tĩnh, Orama tìm kiếm ngay trên trình duyệt, GSAP cho chuyển động, và Three.js (WebGPU/TSL, tự lùi về WebGL2) cho đám mây electron benzene ở màn mở đầu.
+Công nghệ: Nuxt 4 xuất trang tĩnh, Orama tìm kiếm ngay trên trình duyệt, GSAP (ScrollTrigger, SplitText) và Lenis cho chuyển động và cuộn mượt, và Three.js (WebGPU/TSL, tự lùi về WebGL2) cho đám mây electron ở màn mở đầu, biến hình qua benzene, methane, ethylene và acetylene. Chuyển động không bao giờ làm chậm việc tra từ: nội dung mục từ hiện ngay, cảnh 3D chỉ dựng khi người đọc không gõ.
 
 ## Chạy và build
 
@@ -65,7 +65,7 @@ Hai script kiểm tra dùng Playwright và chạy trên bản production:
 
 ```sh
 npm run build && npx serve .output/public -l 4173
-node scripts/motionqa.mjs http://localhost:4173   # 41 tiêu chí: fps ở DPR 2, Web Vitals, tương phản, bàn phím, không JS, vùng chạm
+node scripts/motionqa.mjs http://localhost:4173   # 70 tiêu chí: fps ở DPR 2, Web Vitals, tốc độ tra từ, tương phản, bàn phím, không JS, vùng chạm
 node scripts/shoot.mjs http://localhost:4173      # chụp 390 / 768 / 1440; thêm SCHEMES=light,dark, REDUCED=1 hoặc NOJS=1
 ```
 

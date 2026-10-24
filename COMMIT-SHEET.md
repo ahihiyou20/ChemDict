@@ -195,13 +195,13 @@ Awwwards pages cannot be opened from this cloud session: the proxy refuses `awww
 | Typing animation, Martian Mono ([link](https://www.awwwards.com/inspiration/typing-animation-martian-mono)) | IPA readouts type out like an instrument. |
 | Magnetic text / gooey button ([link](https://www.awwwards.com/inspiration/magnetic-text-gooey-button-gabriel-veres)); momentum-based hover ([link](https://www.awwwards.com/inspiration/momentum-based-hover-more-nutrition)) | Magnetic suggestion chips, lesson cells and next-entry arrow. Fine pointers only. |
 | Scroll animations, elements and outlined font ([link](https://www.awwwards.com/inspiration/scroll-animations-elements-and-outlined-font)) | Outlined A–Z initials that fill as their group enters. |
-| Page transition, Overwatch ([link](https://www.awwwards.com/inspiration/page-transition-overwatch)); GUS about-page transition ([link](https://www.awwwards.com/inspiration/gus-animated-about-page-transition)) | A **chromatography-band wipe** between routes: four flame-coloured bands sweep up and away. |
+| Page transition, Overwatch ([link](https://www.awwwards.com/inspiration/page-transition-overwatch)); GUS about-page transition ([link](https://www.awwwards.com/inspiration/gus-animated-about-page-transition)) | A **chromatography-band sweep** on route change: four flame bands run along the indicator strip while the new page is already on screen. It never covers or delays the page. |
 | Bright Biotech, SOTD, scrolling story ([link](https://www.awwwards.com/inspiration/mission-scrolling-story-bright-biotech)) | The molecule answers scroll and disperses as the hero leaves. |
 | Interactive Mendeleev's table ([link](https://www.awwwards.com/inspiration/interactive-mendeleevs-table)) | The lesson matrix cells react: drop-in, counting numbers, tilt and flame fill on hover. Used once, as navigation. |
 
 ### Palette: flame-test lesson hues
 
-Every lesson gets the colour of a flame test. The colour identifies that lesson everywhere: matrix cells, spectrum lines, lanes, entry tags, index dots, the marquee and the route wipe. Flame hues are used for fills, marks and lines, and never for body text. Text on a flame fill is always `--on-flame`, a dark ink, with ≥ 4.5:1 checked in Phase 7.
+Every lesson gets the colour of a flame test. The colour identifies that lesson everywhere: matrix cells, spectrum lines, lanes, entry tags, index dots, the marquee and the route sweep. Flame hues are used for fills, marks and lines, and never for body text. Text on a flame fill is always `--on-flame`, a dark ink, with ≥ 4.5:1 checked in Phase 7. Lines, dots and outlined initials on the light ground use a darker `--flame-N-mark` of the same hue (≥ 3:1, checked in Phase 7); in the dark theme the marks equal the fills.
 
 | Lesson | Flame test | Light | Dark |
 |---|---|---|---|
@@ -219,14 +219,14 @@ Each surface uses a different mechanism, so no fade-up repeats down the page.
 | Surface | Mechanism |
 |---|---|
 | Opening (the single wow peak, ≈ 2.4s) | Gas condenses into benzene in 3D, the spectrum scan sweeps, the hero title flips in character by character, and a flame bar wipes under "Hóa học". |
-| Header | Lesson cells drop in and their counts tick up (first load only). On hover a cell tilts, fills with its flame colour and is magnetic. |
+| Header | The brand's five spectral lines ring once. Lesson numbers turn over like split-flap leaves inside their tiles (the tiles never move, so a tap during the flip still lands). On hover a cell tilts, fills with its flame colour and is magnetic. |
 | Section titles | Element-symbol decode on entry, once. |
 | Marquee (the one allowed) | EN · VI term pairs with flame separators. Its speed follows scroll velocity and it pauses on hover. Decorative and `aria-hidden`; it duplicates the A–Z index. |
-| A–Z index | Outlined initials fill via clip-path, items cascade diagonally, and on hover an item shifts, shows a flame dot and decodes its VI term. |
-| Lesson lanes | Solvent-front wipe, then spots develop up to their positions, scrubbed with `ease: 'none'`. |
-| Source ledger | Rows clip in from the left and counts tick up. |
-| Entry page | Headword characters rise, the IPA types out, definitions use a line mask, and the plate reveals with clip-path plus a scrubbed parallax (`ease: 'none'`). The next-entry plate gets a flame wipe on hover. |
-| Route change | Chromatography-band wipe, ≤ 0.6s in total. |
+| A–Z index | Outlined initials fill via clip-path and items cascade in, played by CSS transitions from one class per group (an IntersectionObserver adds it), so arming ~20 groups reads no styles. On hover an item steps aside for its lesson's flame dot. |
+| Lesson lanes | Each lane is a TLC plate developing under the scroll: the solvent front climbs and the spots rise to their places, scrubbed with `ease: 'none'`. The plates never hide. |
+| Source ledger | Cells slide in row by row (CSS transitions) and the counts tally up. |
+| Entry page | Nothing that answers the lookup is hidden or delayed: the headword, IPA and definitions are on screen at first paint. Decoration moves around them: headword characters ripple once, the lesson flame bar and sense rules draw in, outlined sense numerals fill, the illustration drifts in its window (scrubbed, `ease: 'none'`), and the next-entry plate floods with its flame on hover. |
+| Route change | Band sweep along the indicator strip, non-blocking. |
 | Scroll | Lenis (`autoRaf: false`, driven by the GSAP ticker, `lagSmoothing(0)`, `lenis.on('scroll', ScrollTrigger.update)`) and the indicator progress strip. |
 
 These replace the earlier "No Lenis" decision. Native features keep working:
@@ -234,7 +234,7 @@ These replace the earlier "No Lenis" decision. Native features keep working:
 - `/` focus scrolls through `lenis.scrollTo`.
 - Scrollable overlays carry `data-lenis-prevent`.
 
-**Reduced motion:** no Lenis, no decode, a static marquee, no route wipe, no typing, and final numbers shown at once. The 3D is a still benzene.
+**Reduced motion:** no Lenis, no decode, a static marquee, no route sweep, and final numbers shown at once. The 3D is a still benzene.
 
 **No JS:** all text is visible and the marquee is a static row.
 
@@ -262,3 +262,13 @@ These replace the earlier "No Lenis" decision. Native features keep working:
 - It is still a point-density cloud: no ball-and-stick, and no navy-to-purple gradient behind it.
 - The glow appears only in the dark theme, over the committed ground.
 - The molecules are dictionary entries, not wallpaper.
+
+### Lookup-speed contract (Vinh: animation must never slow a lookup)
+
+- Entry content is never pre-hidden. Only decorations carry `data-pre`.
+- No route transition covers or delays a page. The band sweep runs on the indicator strip.
+- The 3D scene builds only after a quiet moment: page idle, no lookup active and no key pressed for 1.2s. A lookup that starts mid-build terminates the worker; the scene is rebuilt when the field is clear. Its first frame can hold the GPU process (and with it every page frame) for hundreds of milliseconds on a slow or software GPU, which is exactly when a reader types.
+- Shaders compile through `compileAsync` (parallel where the driver allows). Point sprites draw without MSAA. A software GPU gets one still at 0.75× resolution with 9k points, drawn once and never while the stage is hidden.
+- While a lookup is active the stage fades out and then leaves the compositor (`visibility: hidden`).
+- Motion scopes are killed, not reverted, on unmount: their DOM is discarded anyway, so the next page mounts without that layout work.
+- Phase 7 gates it: Enter → answer on screen < 150ms, and the answer is visible at load.

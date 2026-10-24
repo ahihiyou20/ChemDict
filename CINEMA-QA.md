@@ -6,11 +6,11 @@ To reproduce:
 
 ```sh
 npm run build && npx serve .output/public -l 4173
-node scripts/motionqa.mjs http://localhost:4173    # 41 numeric gates, exits non-zero on any FAIL
+node scripts/motionqa.mjs http://localhost:4173    # 70 numeric gates, exits non-zero on any FAIL
 node scripts/shoot.mjs http://localhost:4173       # 390 / 768 / 1440 sweep; env SCHEMES=light,dark, REDUCED=1, NOJS=1
 ```
 
-**Result: 41 / 41 gates PASS.** The visual sweep is clean:
+**Result: 70 / 70 gates PASS** (re-run after the colour and motion round, Amendment 2). The visual sweep is clean:
 
 - 36 light and dark screenshots across 6 routes and 3 viewports, plus the reduced-motion and no-JS runs.
 - 0 horizontal overflow, 0 console errors and 0 failed requests.
@@ -19,7 +19,7 @@ node scripts/shoot.mjs http://localhost:4173       # 390 / 768 / 1440 sweep; env
 
 - The runs used headless Chromium in a cloud container, driven by the Playwright library (the same engine the Playwright MCP uses; the MCP server is not attached to this session).
 - The container has **no GPU**. WebGL runs on SwiftShader (CPU emulation), and WebGPU is unavailable, so three.js takes its automatic WebGL2 fallback.
-- **On this machine the 3D cloud lands on the `still` tier.** It detects the software GPU and draws one art-directed frame at pixel ratio 1, which is the behaviour the tiers are designed to produce.
+- **On this machine the 3D cloud lands on the `still` tier.** It detects the software GPU and draws one art-directed frame (0.75× resolution, 9k points), which is the behaviour the tiers are designed to produce.
 - The **animated tier** was checked separately on a temporary build with software detection switched off. Results:
   - The cloud turns, and theme changes reach the worker.
   - 0 console errors.
@@ -58,20 +58,33 @@ node scripts/shoot.mjs http://localhost:4173       # 390 / 768 / 1440 sweep; env
 
 | Gate | Result | Measured |
 |------|--------|----------|
-| Full-page smooth scroll, avgFps ≥ 55 | PASS | 60 fps, 0 dropped frames out of 150 |
+| Full-page smooth scroll, avgFps ≥ 55 | PASS | 60 fps, 2 dropped frames out of 148 |
 | Idle hero frame rate | PASS | 61 fps |
 | At most one canvas | PASS | 1 |
 | Page frame untransformed during the opening scan | PASS | `html` / `body` transform `none` |
 | 3D hidden while a lookup is active | PASS | canvas opacity 0, render loop paused |
 
+## 7.3b Lookup speed (Vinh: animation must never slow a lookup)
+
+| Gate | Result | Evidence |
+|---|---|---|
+| Entry answer visible at load | PASS | `/tu/aromatic-compound`: headword and definition at opacity 1 with nothing hidden above them |
+| Enter → answer on screen < 150ms | PASS | 84 ms in the gate, typing straight after load. The pre-round build measured 57–69 ms the same way; with the hero settled the two builds measure 79–81 ms and 66 ms. |
+
+Found and fixed while building this gate:
+
+- **The 3D's first frame stalled every page frame for 0.5–0.9s** on the software GPU. The worker's OffscreenCanvas commit reads pixels back, which waits for the whole draw and holds the GPU process that also presents the page. It landed 0.6–1.5s after load, just as a reader types. The scene now builds only after 1.2s with no key pressed and no lookup active, a lookup aborts a build in progress, and the software still is cheaper (see COMMIT-SHEET §9, lookup-speed contract).
+- **Enter could do nothing** when pressed within 300ms of the last keystroke: the deferred `?q=` sync replaced the route under the pending navigation. This predates the round. The search now clears that timer when the route is left.
+- **GSAP `clearProps` on transforms** re-parsed every element through `getComputedStyle`, costing whole frames mid-scroll (TBT 810ms). The cascades now run on CSS transitions.
+
 ## Core Web Vitals (production build, motion allowed)
 
 | Metric | Target | Measured | Result |
 |--------|--------|----------|--------|
-| FCP | < 1.5s | 172 ms | PASS |
-| LCP | < 2.5s | 172 ms (hero title) | PASS |
-| CLS | < 0.1 | 0.0002 | PASS |
-| TBT | < 200ms | 63 ms | PASS |
+| FCP | < 1.5s | 212 ms | PASS |
+| LCP | < 2.5s | 392 ms (hero title) | PASS |
+| CLS | < 0.1 | 0.0064 | PASS |
+| TBT | < 200ms | 76 ms | PASS |
 
 Bundle facts:
 
@@ -98,6 +111,10 @@ Bundle facts:
 | UI timings and easing | PASS | 140ms press, 220ms peak, ease-out everywhere; the only over-300ms transitions are the choreographed canvas settle (reason in COMMIT-SHEET §4) |
 | Compositor-only animation | PASS | transform and opacity, plus a one-off clip-path wipe |
 | Cross-route drift (system register) | PASS | `/`, entry, lesson and 404 resolve identical tokens, fonts, header and footer |
+| Flame fills: `--on-flame` text ≥ 4.5 | PASS | lowest 5.73 (Bài 13, light) |
+| Flame marks on either ground ≥ 3 | PASS | lowest 3.49 (Bài 10 mark on the light elevated ground) |
+| Exactly one marquee, `aria-hidden` | PASS | 1 |
+| Lenis only with motion allowed | PASS | `html.lenis` present by default, absent under reduced motion |
 
 ## Phase 6
 
