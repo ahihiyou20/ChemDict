@@ -226,15 +226,21 @@ figcaption a {
   /* On narrow screens the cloud becomes a backdrop behind the title, never pushing the search down. */
   .cloud {
     position: absolute;
-    top: -12px;
+    top: -20px;
     right: calc(var(--gutter) * -1);
-    width: min(64vw, 300px);
+    width: min(62vw, 260px);
     z-index: 0;
     pointer-events: none;
   }
 
+  /* It belongs to the display title: fade it out before the body copy starts. */
+  .stage {
+    -webkit-mask-image: linear-gradient(to bottom, #000 35%, transparent 72%);
+    mask-image: linear-gradient(to bottom, #000 35%, transparent 72%);
+  }
+
   .is-ready canvas {
-    opacity: 0.5;
+    opacity: 0.55;
   }
 
   figcaption {
