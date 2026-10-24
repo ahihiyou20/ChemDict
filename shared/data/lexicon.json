@@ -1,0 +1,719 @@
+{
+  "sheet": {
+    "title": "[Hóa ESL 11A10 + 11E2] Bảng từ vựng",
+    "url": "https://docs.google.com/spreadsheets/d/169QZcTti2lvf3sVGuyJwoYf9G-zxpr0iE-0e7PzYy8Q/edit"
+  },
+  "lessons": [
+    {
+      "number": 10,
+      "title": "Bài 10",
+      "senses": [
+        {
+          "id": "b10-01",
+          "lesson": 10,
+          "row": 3,
+          "vi": "Hóa học hữu cơ",
+          "en": "Organic chemistry",
+          "ipa": "/ɔːˈɡænɪk ˈkemɪstri/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Ngành hóa học nghiên cứu các hợp chất hữu cơ, cấu trúc, tính chất và phản ứng của chúng.",
+          "defEn": "The branch of chemistry that studies organic compounds, their structures, properties, and reactions.",
+          "illustration": null,
+          "source": {
+            "label": "IUPAC",
+            "url": "https://goldbook.iupac.org/"
+          }
+        },
+        {
+          "id": "b10-02",
+          "lesson": 10,
+          "row": 4,
+          "vi": "Hợp chất hữu cơ",
+          "en": "Organic compound",
+          "ipa": "/ɔːˈɡænɪk ˈkɒmpaʊnd/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Hợp chất thuộc lĩnh vực hóa học hữu cơ, thường chứa carbon và có thể chứa hydrogen, oxygen, nitrogen hoặc các nguyên tố khác.",
+          "defEn": "A compound belonging to organic chemistry, typically containing carbon and often hydrogen and other elements.",
+          "illustration": null,
+          "source": {
+            "label": "IUPAC Gold Book",
+            "url": "https://goldbook.iupac.org/"
+          }
+        },
+        {
+          "id": "b10-03",
+          "lesson": 10,
+          "row": 5,
+          "vi": "Nguyên tố carbon",
+          "en": "Carbon",
+          "ipa": "/ˈkɑːbən/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Nguyên tố hóa học có kí hiệu C, số hiệu nguyên tử 6, tạo nên bộ khung của phần lớn hợp chất hữu cơ.",
+          "defEn": "A chemical element with the symbol C and atomic number 6, forming the backbone of most organic compounds.",
+          "illustration": null,
+          "source": {
+            "label": "IUPAC",
+            "url": "https://goldbook.iupac.org/"
+          }
+        },
+        {
+          "id": "b10-04",
+          "lesson": 10,
+          "row": 6,
+          "vi": "Hydrocarbon",
+          "en": "Hydrocarbon",
+          "ipa": "/ˌhaɪdrəˈkɑːbən/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Hợp chất chỉ chứa hai nguyên tố carbon và hydrogen.",
+          "defEn": "A compound consisting only of carbon and hydrogen atoms.",
+          "illustration": {
+            "kind": "image",
+            "src": "/hinh/bai-10-hydrocarbon.webp",
+            "width": 1200,
+            "height": 800,
+            "alt": "Mô hình quả cầu – que của phân tử methane: một nguyên tử C nối với bốn nguyên tử H."
+          },
+          "source": {
+            "label": "IUPAC Gold Book",
+            "url": "https://goldbook.iupac.org/"
+          }
+        },
+        {
+          "id": "b10-05",
+          "lesson": 10,
+          "row": 7,
+          "vi": "Nhóm chức",
+          "en": "Functional group",
+          "ipa": "/ˈfʌŋkʃənəl ɡruːp/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Nguyên tử hoặc nhóm nguyên tử quyết định những tính chất hóa học đặc trưng của một nhóm hợp chất hữu cơ.",
+          "defEn": "An atom or group of atoms that determines the characteristic chemical properties of a family of organic compounds.",
+          "illustration": {
+            "kind": "image",
+            "src": "/hinh/bai-10-functional-group.webp",
+            "width": 1200,
+            "height": 1200,
+            "alt": "Mô hình phân tử ethanol kèm công thức H₃C–CH₂–OH, nhóm –OH tô màu đỏ."
+          },
+          "source": {
+            "label": "IUPAC – Functional group",
+            "url": "https://goldbook.iupac.org/terms/view/F02555"
+          }
+        },
+        {
+          "id": "b10-06",
+          "lesson": 10,
+          "row": 8,
+          "vi": "Dãy đồng đẳng",
+          "en": "Homologous series",
+          "ipa": "/həˈmɒləɡəs ˈsɪəriːz/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Dãy các hợp chất hữu cơ có cấu tạo và tính chất hóa học tương tự nhau, trong đó hai chất liên tiếp thường hơn kém nhau một nhóm –CH₂–.",
+          "defEn": "A series of organic compounds with similar structures and chemical properties, in which successive members differ by a –CH₂– unit.",
+          "illustration": null,
+          "source": {
+            "label": "IUPAC Gold Book",
+            "url": "https://goldbook.iupac.org/"
+          }
+        },
+        {
+          "id": "b10-07",
+          "lesson": 10,
+          "row": 9,
+          "vi": "Hợp chất no",
+          "en": "Saturated compound",
+          "ipa": "/ˈsætʃəreɪtɪd ˈkɒmpaʊnd/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Hợp chất mà khung carbon không chứa liên kết đôi hoặc liên kết ba carbon–carbon.",
+          "defEn": "A compound whose carbon framework contains no carbon–carbon double or triple bonds.",
+          "illustration": null,
+          "source": {
+            "label": "IUPAC Gold Book",
+            "url": "https://goldbook.iupac.org/"
+          }
+        },
+        {
+          "id": "b10-08",
+          "lesson": 10,
+          "row": 10,
+          "vi": "Hợp chất không no",
+          "en": "Unsaturated compound",
+          "ipa": "/ʌnˈsætʃəreɪtɪd ˈkɒmpaʊnd/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Hợp chất có ít nhất một liên kết đôi hoặc liên kết ba carbon–carbon trong khung carbon.",
+          "defEn": "A compound containing at least one carbon–carbon double or triple bond in its carbon framework.",
+          "illustration": null,
+          "source": {
+            "label": "IUPAC Gold Book",
+            "url": "https://goldbook.iupac.org/"
+          }
+        },
+        {
+          "id": "b10-09",
+          "lesson": 10,
+          "row": 11,
+          "vi": "Ankan",
+          "en": "Alkane",
+          "ipa": "/ˈælkeɪn/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Hydrocarbon mạch hở chỉ có liên kết đơn giữa các nguyên tử carbon.",
+          "defEn": "An acyclic hydrocarbon containing only carbon–carbon single bonds.",
+          "illustration": null,
+          "source": {
+            "label": "IUPAC Gold Book",
+            "url": "https://goldbook.iupac.org/"
+          }
+        },
+        {
+          "id": "b10-10",
+          "lesson": 10,
+          "row": 12,
+          "vi": "Anken",
+          "en": "Alkene",
+          "ipa": "/ˈælkiːn/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Hydrocarbon chứa liên kết đôi carbon–carbon.",
+          "defEn": "A hydrocarbon containing a carbon–carbon double bond.",
+          "illustration": null,
+          "source": {
+            "label": "IUPAC Gold Book",
+            "url": "https://goldbook.iupac.org/"
+          }
+        },
+        {
+          "id": "b10-11",
+          "lesson": 10,
+          "row": 13,
+          "vi": "Ankin",
+          "en": "Alkyne",
+          "ipa": "/ˈælkaɪn/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Hydrocarbon chứa liên kết ba carbon–carbon.",
+          "defEn": "A hydrocarbon containing a carbon–carbon triple bond.",
+          "illustration": null,
+          "source": {
+            "label": "IUPAC Gold Book",
+            "url": "https://goldbook.iupac.org/"
+          }
+        },
+        {
+          "id": "b10-12",
+          "lesson": 10,
+          "row": 14,
+          "vi": "Hợp chất thơm",
+          "en": "Aromatic compound",
+          "ipa": "/ˌærəˈmætɪk ˈkɒmpaʊnd/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Hợp chất có hệ electron liên hợp thỏa mãn các điều kiện cấu trúc và tính thơm; benzen là ví dụ điển hình.",
+          "defEn": "A compound with a conjugated electron system that satisfies the structural requirements for aromaticity; benzene is a typical example.",
+          "illustration": {
+            "kind": "image",
+            "src": "/hinh/bai-10-aromatic-compound.webp",
+            "width": 1200,
+            "height": 1200,
+            "alt": "Công thức cấu tạo vòng benzene C₆H₆ với chú thích góc liên kết 120° và electron π không định chỗ."
+          },
+          "source": {
+            "label": "IUPAC Gold Book",
+            "url": "https://goldbook.iupac.org/"
+          }
+        },
+        {
+          "id": "b10-13",
+          "lesson": 10,
+          "row": 15,
+          "vi": "Đồng phân",
+          "en": "Isomer",
+          "ipa": "/ˈaɪsəmər/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Các chất có cùng công thức phân tử nhưng khác nhau về cấu tạo hoặc cách sắp xếp không gian của các nguyên tử.",
+          "defEn": "Compounds with the same molecular formula but different atom connectivity or spatial arrangements.",
+          "illustration": null,
+          "source": {
+            "label": "IUPAC Gold Book",
+            "url": "https://goldbook.iupac.org/"
+          }
+        },
+        {
+          "id": "b10-14",
+          "lesson": 10,
+          "row": 16,
+          "vi": "Công thức phân tử",
+          "en": "Molecular formula",
+          "ipa": "/məˈlekjələr ˈfɔːrmjələ/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Công thức biểu thị loại và số lượng nguyên tử của mỗi nguyên tố trong một phân tử.",
+          "defEn": "A formula showing the types and numbers of atoms of each element in a molecule.",
+          "illustration": null,
+          "source": {
+            "label": "IUPAC Gold Book",
+            "url": "https://goldbook.iupac.org/"
+          }
+        },
+        {
+          "id": "b10-15",
+          "lesson": 10,
+          "row": 17,
+          "vi": "Công thức cấu tạo",
+          "en": "Structural formula",
+          "ipa": "/ˈstrʌktʃərəl ˈfɔːrmjələ/",
+          "pos": "Noun (danh từ)",
+          "defVi": "Công thức thể hiện cách các nguyên tử liên kết với nhau trong phân tử.",
+          "defEn": "A formula representing how atoms are connected within a molecule.",
+          "illustration": null,
+          "source": {
+            "label": "IUPAC Gold Book",
+            "url": "https://goldbook.iupac.org/"
+          }
+        }
+      ]
+    },
+    {
+      "number": 11,
+      "title": "Bài 11",
+      "senses": [
+        {
+          "id": "b11-01",
+          "lesson": 11,
+          "row": 3,
+          "vi": "Hợp chất hữu cơ",
+          "en": "Organic compound",
+          "ipa": "/ɔːˈɡænɪk ˈkɒmpaʊnd/",
+          "pos": "Noun phrase (cụm danh từ)",
+          "defVi": "Hợp chất của carbon, ngoại trừ một số hợp chất carbon được xếp vào nhóm vô cơ.",
+          "defEn": "A compound of carbon, excluding certain carbon compounds classified as inorganic.",
+          "illustration": {
+            "kind": "image",
+            "src": "/hinh/bai-11-organic-compound.webp",
+            "width": 800,
+            "height": 499,
+            "alt": "Mô hình quả cầu – que của phân tử butane với bốn nguyên tử C và mười nguyên tử H."
+          },
+          "source": {
+            "label": "taphuan.nxbgd.vn",
+            "url": "https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-hoa-hoc-11.4701111834#page=70"
+          }
+        },
+        {
+          "id": "b11-02",
+          "lesson": 11,
+          "row": 4,
+          "vi": "Công thức phân tử",
+          "en": "Molecular formula",
+          "ipa": "/məˈlekjələr ˈfɔːrmjələ/",
+          "pos": "Noun phrase",
+          "defVi": "Công thức biểu thị số nguyên tử của mỗi nguyên tố có trong một phân tử.",
+          "defEn": "A formula showing the number of atoms of each element in a molecule.",
+          "illustration": {
+            "kind": "image",
+            "src": "/hinh/bai-11-molecular-formula.webp",
+            "width": 865,
+            "height": 680,
+            "alt": "Bảng so sánh công thức phân tử C₄H₁₀ và C₂H₆O với công thức cấu tạo đầy đủ và thu gọn."
+          },
+          "source": {
+            "label": "taphuan.nxbgd.vn",
+            "url": "https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-hoa-hoc-11.4701111834#page=70"
+          }
+        },
+        {
+          "id": "b11-03",
+          "lesson": 11,
+          "row": 5,
+          "vi": "Công thức đơn giản nhất",
+          "en": "Empirical formula",
+          "ipa": "/ɪmˈpɪrɪkəl ˈfɔːrmjələ/",
+          "pos": "Noun phrase",
+          "defVi": "Công thức biểu thị tỉ lệ số nguyên tối giản giữa các nguyên tử của các nguyên tố trong hợp chất.",
+          "defEn": "A formula showing the simplest whole-number ratio of atoms of each element in a compound.",
+          "illustration": null,
+          "source": {
+            "label": "sachgiaokhoa.aistudybuddy.net",
+            "url": "https://sachgiaokhoa.aistudybuddy.net/sach-online/lop-11/hoa-hoc-11/"
+          }
+        },
+        {
+          "id": "b11-04",
+          "lesson": 11,
+          "row": 6,
+          "vi": "Phân tử khối",
+          "en": "Molecular mass",
+          "ipa": "/məˈlekjələr mæs/",
+          "pos": "Noun phrase",
+          "defVi": "Khối lượng của một phân tử, bằng tổng khối lượng các nguyên tử cấu tạo nên phân tử đó.",
+          "defEn": "The mass of a molecule, equal to the sum of the masses of its constituent atoms.",
+          "illustration": {
+            "kind": "text",
+            "text": "H₂O: khoảng 18 u"
+          },
+          "source": {
+            "label": "taphuan.nxbgd.vn",
+            "url": "https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-hoa-hoc-11.4701111834#page=70"
+          }
+        },
+        {
+          "id": "b11-05",
+          "lesson": 11,
+          "row": 7,
+          "vi": "Phương pháp phổ khối lượng",
+          "en": "Mass spectrometry",
+          "ipa": "/mæs spekˈtrɒmətri/",
+          "pos": "Noun phrase",
+          "defVi": "Phương pháp phân tích dựa trên việc xác định tỉ số khối lượng trên điện tích của các ion, giúp xác định phân tử khối và hỗ trợ xác định công thức phân tử.",
+          "defEn": "An analytical technique that measures the mass-to-charge ratios of ions to determine molecular mass and help identify molecular formulas.",
+          "illustration": {
+            "kind": "image",
+            "src": "/hinh/bai-11-mass-spectrometry.webp",
+            "width": 543,
+            "height": 368,
+            "alt": "Hình 3.5: phổ khối lượng của neon, các vạch tại m/z 20 (90,9%), 21 (0,3%) và 22 (8,8%)."
+          },
+          "source": {
+            "label": "goldbook.iupac.org",
+            "url": "https://goldbook.iupac.org/"
+          }
+        },
+        {
+          "id": "b11-06",
+          "lesson": 11,
+          "row": 8,
+          "vi": "Mảnh ion",
+          "en": "Fragment ion",
+          "ipa": "/ˈfræɡmənt ˈaɪən/",
+          "pos": "Noun phrase",
+          "defVi": "Ion được tạo thành khi một ion phân tử hoặc ion khác bị phân mảnh trong quá trình phân tích phổ khối lượng.",
+          "defEn": "An ion formed when a molecular ion or another ion breaks apart during mass spectrometric analysis.",
+          "illustration": null,
+          "source": {
+            "label": "goldbook.iupac.org",
+            "url": "https://goldbook.iupac.org/"
+          }
+        },
+        {
+          "id": "b11-07",
+          "lesson": 11,
+          "row": 9,
+          "vi": "Công thức tổng quát",
+          "en": "General formula",
+          "ipa": "/ˈdʒenərəl ˈfɔːrmjələ/",
+          "pos": "Noun phrase",
+          "defVi": "Công thức biểu diễn thành phần hoặc mối quan hệ chung giữa số nguyên tử của các nguyên tố trong một nhóm hợp chất.",
+          "defEn": "A formula representing the general composition or relationship between the numbers of atoms in a group of compounds.",
+          "illustration": null,
+          "source": {
+            "label": "taphuan.nxbgd.vn",
+            "url": "https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-hoa-hoc-11.4701111834#page=70"
+          }
+        },
+        {
+          "id": "b11-08",
+          "lesson": 11,
+          "row": 10,
+          "vi": "Tỉ số khối lượng trên điện tích",
+          "en": "Mass-to-charge ratio",
+          "ipa": "/mæs tə tʃɑːrdʒ ˈreɪʃiəʊ/",
+          "pos": "Noun phrase",
+          "defVi": "Tỉ số giữa khối lượng của ion và điện tích của ion đó, thường ký hiệu là m/z.",
+          "defEn": "The ratio of an ion's mass to its charge, commonly represented by m/z.",
+          "illustration": null,
+          "source": {
+            "label": "taphuan.nxbgd.vn",
+            "url": "https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-hoa-hoc-11.4701111834#page=70"
+          }
+        },
+        {
+          "id": "b11-09",
+          "lesson": 11,
+          "row": 11,
+          "vi": "Tỉ lệ số nguyên tử",
+          "en": "Atomic ratio",
+          "ipa": "/əˈtɒmɪk ˈreɪʃiəʊ/",
+          "pos": "Noun phrase",
+          "defVi": "Tỉ lệ giữa số nguyên tử của các nguyên tố trong một hợp chất.",
+          "defEn": "The ratio between the numbers of atoms of different elements in a compound.",
+          "illustration": null,
+          "source": {
+            "label": "taphuan.nxbgd.vn",
+            "url": "https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-hoa-hoc-11.4701111834#page=70"
+          }
+        },
+        {
+          "id": "b11-10",
+          "lesson": 11,
+          "row": 12,
+          "vi": "Nguyên tử nitrogen",
+          "en": "Nitrogen atom",
+          "ipa": "/ˈnaɪtrədʒən ˈætəm/",
+          "pos": "Noun phrase",
+          "defVi": "Một nguyên tử của nguyên tố nitrogen, có số hiệu nguyên tử bằng 7.",
+          "defEn": "An atom of nitrogen with atomic number 7.",
+          "illustration": null,
+          "source": {
+            "label": "taphuan.nxbgd.vn",
+            "url": "https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-hoa-hoc-11.4701111834#page=70"
+          }
+        },
+        {
+          "id": "b11-11",
+          "lesson": 11,
+          "row": 13,
+          "vi": "Phân tích nguyên tố",
+          "en": "Elemental analysis",
+          "ipa": "/ˌelɪˈmentəl əˈnæləsɪs/",
+          "pos": "Noun phrase",
+          "defVi": "Phương pháp xác định thành phần và hàm lượng các nguyên tố trong hợp chất.",
+          "defEn": "A method used to determine the elements present in a compound and their amounts.",
+          "illustration": null,
+          "source": {
+            "label": "taphuan.nxbgd.vn",
+            "url": "https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-hoa-hoc-11.4701111834#page=70"
+          }
+        },
+        {
+          "id": "b11-12",
+          "lesson": 11,
+          "row": 14,
+          "vi": "Phổ khối lượng",
+          "en": "Mass spectrum",
+          "ipa": "/mæs ˈspektrəm/",
+          "pos": "Noun phrase",
+          "defVi": "Biểu đồ biểu diễn tín hiệu của các ion theo tỉ số khối lượng trên điện tích.",
+          "defEn": "A plot showing ion signals as a function of their mass-to-charge ratios.",
+          "illustration": null,
+          "source": {
+            "label": "taphuan.nxbgd.vn",
+            "url": "https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-hoa-hoc-11.4701111834#page=70"
+          }
+        },
+        {
+          "id": "b11-13",
+          "lesson": 11,
+          "row": 15,
+          "vi": "Khối lượng mol",
+          "en": "Molar mass",
+          "ipa": "/ˈməʊlər mæs/",
+          "pos": "Noun phrase",
+          "defVi": "Khối lượng của một mol chất, thường được tính bằng g/mol.",
+          "defEn": "The mass of one mole of a substance, usually expressed in g/mol.",
+          "illustration": null,
+          "source": {
+            "label": "taphuan.nxbgd.vn",
+            "url": "https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-hoa-hoc-11.4701111834#page=70"
+          }
+        },
+        {
+          "id": "b11-14",
+          "lesson": 11,
+          "row": 16,
+          "vi": "Phần trăm khối lượng",
+          "en": "Mass percentage",
+          "ipa": "/mæs pərˈsentɪdʒ/",
+          "pos": "Noun phrase",
+          "defVi": "Tỉ lệ phần trăm khối lượng của một nguyên tố hoặc thành phần trong hợp chất.",
+          "defEn": "The percentage of the total mass contributed by an element or component in a compound.",
+          "illustration": null,
+          "source": {
+            "label": "taphuan.nxbgd.vn",
+            "url": "https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-hoa-hoc-11.4701111834#page=70"
+          }
+        },
+        {
+          "id": "b11-15",
+          "lesson": 11,
+          "row": 17,
+          "vi": "Ion phân tử",
+          "en": "Molecular ion",
+          "ipa": "/məˈlekjələr ˈaɪən/",
+          "pos": "Noun phrase",
+          "defVi": "Ion được hình thành khi một phân tử mất hoặc nhận electron mà không bị phân mảnh thành các ion nhỏ hơn.",
+          "defEn": "An ion formed when a molecule loses or gains electrons without breaking into smaller ions.",
+          "illustration": null,
+          "source": {
+            "label": "taphuan.nxbgd.vn",
+            "url": "https://taphuan.nxbgd.vn/tap-huan/doc-sach/sgk-hoa-hoc-11.4701111834#page=70"
+          }
+        }
+      ]
+    },
+    {
+      "number": 12,
+      "title": "Bài 12",
+      "senses": []
+    },
+    {
+      "number": 13,
+      "title": "Bài 13",
+      "senses": [
+        {
+          "id": "b13-01",
+          "lesson": 13,
+          "row": 3,
+          "vi": "Định nghĩa",
+          "en": "Definition",
+          "ipa": "ˌdefəˈniSHən",
+          "pos": "danh từ - noun",
+          "defVi": "Lời giải thích ngắn gọn về ý nghĩa của cụm từ",
+          "defEn": "The explanation of the meaning of something",
+          "illustration": null,
+          "source": null
+        },
+        {
+          "id": "b13-02",
+          "lesson": 13,
+          "row": 4,
+          "vi": "Thuyết cấu tạo hoá học",
+          "en": "theory of chemical structure",
+          "ipa": "ˈTHirē əv ˈkemək(ə)l ˈstrək(t)SHər",
+          "pos": "danh từ - noun",
+          "defVi": "Lý thuyết về cấu taọ hoá học",
+          "defEn": "The theory representing a chemical structure",
+          "illustration": null,
+          "source": null
+        },
+        {
+          "id": "b13-03",
+          "lesson": 13,
+          "row": 5,
+          "vi": "Hữu cơ",
+          "en": "organic",
+          "ipa": "ôrˈɡanik",
+          "pos": "Tinh từ - adjective",
+          "defVi": "Là các hợp chất hóa học mà phân tử có chứa cacbon",
+          "defEn": "Chemical compounds whose molecules contain carbon",
+          "illustration": null,
+          "source": null
+        },
+        {
+          "id": "b13-04",
+          "lesson": 13,
+          "row": 6,
+          "vi": "Liên kết",
+          "en": "connect",
+          "ipa": "kəˈnek(t)",
+          "pos": "Động từ - verb",
+          "defVi": "Là sự kết hợp giữa các chất với nhau",
+          "defEn": "The combination among substances",
+          "illustration": null,
+          "source": null
+        },
+        {
+          "id": "b13-05",
+          "lesson": 13,
+          "row": 7,
+          "vi": "Tan vô hạn",
+          "en": "infinitely tangent",
+          "ipa": "ˈinfənətlē ˈtanj(ə)nt",
+          "pos": "Động từ - verb",
+          "defVi": "hiện tượng hai chất lỏng có thể hòa tan lẫn nhau vào nhau ở bất kỳ tỷ lệ nào để tạo thành một dung dịch đồng nhất duy nhất, không hề bị tách lớp",
+          "defEn": "the phenomenon in which two liquids can dissolve in each other in any proportion to form a single, homogeneous solution, without any phase separation",
+          "illustration": null,
+          "source": null
+        },
+        {
+          "id": "b13-06",
+          "lesson": 13,
+          "row": 8,
+          "vi": "Công thức phân tử",
+          "en": "molecular formula",
+          "ipa": "məˈlekyələr ˈfôrmyələ",
+          "pos": "Danh từ - Noun",
+          "defVi": "là công thức biểu thị thành phần nguyên tố và số lượng nguyên tử của mỗi nguyên tố có trong một phân tử chất đó.",
+          "defEn": "a formula that indicates the elemental composition and the number of atoms of each element present in a molecule of that substance.",
+          "illustration": null,
+          "source": null
+        },
+        {
+          "id": "b13-07",
+          "lesson": 13,
+          "row": 9,
+          "vi": "Cấu tạo",
+          "en": "Structure",
+          "ipa": "ˈstrək(t)SHər",
+          "pos": "Danh từ - Noun",
+          "defVi": "chỉ thành phần và cách thức sắp xếp",
+          "defEn": "indicates the components and the way they are arranged",
+          "illustration": null,
+          "source": null
+        },
+        {
+          "id": "b13-08",
+          "lesson": 13,
+          "row": 10,
+          "vi": "Hoá trị",
+          "en": "chemotherapy",
+          "ipa": "ˌkēmōˈTHerəpē",
+          "pos": "Danh từ - Noun",
+          "defVi": "là con số biểu thị khả năng liên kết của nguyên tử thuộc một nguyên tố hóa học này với nguyên tử thuộc nguyên tố khác",
+          "defEn": "a number representing the capacity of an atom of one chemical element to bond with an atom of another chemical element",
+          "illustration": null,
+          "source": null
+        },
+        {
+          "id": "b13-09",
+          "lesson": 13,
+          "row": 11,
+          "vi": "Mạch carbon",
+          "en": "Carbon chain",
+          "ipa": "ˈkärbən CHān",
+          "pos": "Danh từ - Noun",
+          "defVi": "tập hợp các nguyên tử cacbon liên kết trực tiếp với nhau bằng liên kết cộng hóa trị trong một phân tử hợp chất hữu cơ",
+          "defEn": "a collection of carbon atoms bonded directly to one another via covalent bonds within an organic compound molecule",
+          "illustration": null,
+          "source": null
+        },
+        {
+          "id": "b13-10",
+          "lesson": 13,
+          "row": 12,
+          "vi": "Tính chất",
+          "en": "Characteristic",
+          "ipa": "ˌker(ə)ktəˈristik",
+          "pos": "Danh từ - Noun",
+          "defVi": "là đặc điểm riêng",
+          "defEn": "a distinctive feature",
+          "illustration": null,
+          "source": null
+        },
+        {
+          "id": "b13-11",
+          "lesson": 13,
+          "row": 13,
+          "vi": "Mạch hở phân nhánh",
+          "en": "branched open-chain",
+          "ipa": "bran(t)SHt ˈōp(ə)n CHān",
+          "pos": "Danh từ - Noun",
+          "defVi": "là loại mạch carbon trong hợp chất hữu cơ mà các nguyên tử carbon liên kết với nhau tạo thành chuỗi không khép kín",
+          "defEn": "a type of carbon skeleton in organic compounds in which carbon atoms are bonded together to form an open chain",
+          "illustration": null,
+          "source": null
+        },
+        {
+          "id": "b13-12",
+          "lesson": 13,
+          "row": 14,
+          "vi": "Tương tự",
+          "en": "similar",
+          "ipa": "ˈsim(ə)lər",
+          "pos": "Tính từ - adjective",
+          "defVi": "gần giống nhau về một số mặt, tính năng hoặc đặc điểm,",
+          "defEn": "similar in certain respects, features, or characteristics,",
+          "illustration": null,
+          "source": null
+        },
+        {
+          "id": "b13-13",
+          "lesson": 13,
+          "row": 15,
+          "vi": "Đồng đẳng",
+          "en": "homologous",
+          "ipa": "hōˈmäləɡəs",
+          "pos": "Tính từ - adjective",
+          "defVi": "hiện tượng các hợp chất có cấu tạo và tính chất hóa học tương tự nhau, nhưng thành phần phân tử hơn kém nhau một hay nhiều nhóm CH₂",
+          "defEn": "the phenomenon where compounds possess similar structures and chemical properties, but differ in their molecular composition by one or more CH₂ groups",
+          "illustration": null,
+          "source": null
+        }
+      ]
+    }
+  ]
+}
