@@ -1,7 +1,8 @@
 import lexicon from './shared/data/lexicon.json'
 import { buildEntries } from './shared/utils/lexicon'
+import type { LexiconData } from './shared/types/lexicon'
 
-const entryRoutes = buildEntries(lexicon).map((entry) => `/tu/${entry.slug}`)
+const entryRoutes = buildEntries(lexicon as LexiconData).map((entry) => `/tu/${entry.slug}`)
 const lessonRoutes = lexicon.lessons.map((lesson) => `/bai/${lesson.number}`)
 
 export default defineNuxtConfig({
