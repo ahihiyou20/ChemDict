@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { decodeOnEnter } from '~/lib/motion-kit'
+import { atFront, feedDepth } from '~/lib/train'
 
 const { lessons, entryOfSense } = useLexicon()
 const section = ref<HTMLElement | null>(null)
@@ -9,7 +10,8 @@ useMotionScope(section, (motion, root) => {
   const stopDecode = decodeOnEnter(motion, root.querySelector<HTMLElement>('.section-title')!)
 
   // Each strip is chromatography paper developing under the reader's scroll: the solvent front runs
-  // from the origin on the left and the spots come up as it passes. The strips themselves never hide.
+  // from the origin on the left and the spots come up as it passes. It starts when the train's fraction
+  // reaches the strip's origin at the front line (lib/train.ts). The strips themselves never hide.
   const strips = gsap.utils.toArray<HTMLElement>('.strip-body', root).map((body) => ({
     body,
     spots: [...body.querySelectorAll<HTMLElement>('.spot')],
@@ -20,11 +22,17 @@ useMotionScope(section, (motion, root) => {
     const develop = gsap
       .timeline({
         defaults: { ease: 'none' },
-        scrollTrigger: { trigger: body, start: 'top 90%', end: 'top 42%', scrub: 0.6 },
+        scrollTrigger: {
+          trigger: body,
+          start: () => atFront('top', feedDepth(body.offsetHeight) - 40),
+          end: () => `+=${Math.round(innerHeight * 0.36)}`,
+          scrub: 0.6,
+          invalidateOnRefresh: true,
+        },
       })
       .fromTo(body.querySelector('.front'), { xPercent: -100 }, { xPercent: 0, duration: 1 }, 0)
     if (spots.length)
-      develop.fromTo(spots, { x: -18, opacity: 0.18 }, { x: 0, opacity: 1, duration: 0.4, stagger: { each: 0.6 / spots.length } }, 0.05)
+      develop.fromTo(spots, { x: -18, opacity: 0.3 }, { x: 0, opacity: 1, duration: 0.4, stagger: { each: 0.6 / spots.length } }, 0.05)
   })
   return stopDecode
 })

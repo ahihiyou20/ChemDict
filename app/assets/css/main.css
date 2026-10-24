@@ -400,3 +400,9 @@ html.rx-route::view-transition-new(root) {
     animation-iteration-count: 1 !important;
   }
 }
+
+/* The ledger's titration reached its endpoint: the indicator's pink carries into the page's last rule. */
+html.rx-endpoint .site-footer {
+  border-top-color: var(--accent);
+  transition: border-top-color 0.8s var(--ease-out);
+}

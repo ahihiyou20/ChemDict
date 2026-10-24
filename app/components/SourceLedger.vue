@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { hostOf } from '#shared/utils/lexicon'
 import { countUp, decodeOnEnter } from '~/lib/motion-kit'
+import type { DropDetail } from '~/lib/train'
 
 const { lessons, senseCount } = useLexicon()
 
@@ -60,6 +61,40 @@ const rows = computed<Row[]>(() => {
     .sort((a, b) => Number(!a.url) - Number(!b.url) || b.count - a.count)
 })
 
+/**
+ * The titration the ledger runs: 0.1 M acid titrated with 0.1 M base, each source adding its share of
+ * the senses as volume, so the sources together reach the equivalence point and the total tips it over.
+ */
+const CURVE = { w: 400, h: 100, over: 1.12 }
+const pH = (v: number) => {
+  const excess = (0.1 - 0.1 * v) / (1 + v)
+  const h = (excess + Math.sqrt(excess * excess + 4e-14)) / 2
+  return Math.min(14, Math.max(0, -Math.log10(h)))
+}
+const curveX = (v: number) => (v / CURVE.over) * CURVE.w
+const curveY = (v: number) => CURVE.h - (pH(v) / 14) * CURVE.h
+const curvePath = (from: number, to: number) => {
+  let d = ''
+  for (let i = 0; i <= 240; i++) {
+    const v = from + ((to - from) * i) / 240
+    d += `${i ? 'L' : 'M'}${curveX(v).toFixed(2)} ${curveY(v).toFixed(2)}`
+  }
+  return d
+}
+// Phenolphthalein turns at pH 8.2: past that volume the line is drawn in the indicator's pink.
+const TURN = (() => {
+  let v = 1
+  while (pH(v) < 8.2) v += 0.0005
+  return v
+})()
+const curve = { before: curvePath(0, TURN), after: curvePath(TURN, CURVE.over), equivalence: curveX(1) }
+
+/** Volume of base delivered once row `index` has had its drop: the running share of the senses. */
+const volumes = computed(() => {
+  let sum = 0
+  return [...rows.value.map((row) => (sum += row.count) / senseCount), CURVE.over]
+})
+
 const section = ref<HTMLElement | null>(null)
 
 useMotionScope(section, (motion, root) => {
@@ -77,10 +112,48 @@ useMotionScope(section, (motion, root) => {
       counts.forEach((count, i) => count.delay(0.2 + i * 0.09).restart(true))
     },
   })
+
+  // When the home page's train is running, its burette titrates the ledger: each drop fills its row's
+  // bar and carries the curve on to that row's volume (lib/train.ts). Elsewhere the bars fill on sight.
+  const rowEls = [...root.querySelectorAll<HTMLElement>('tbody tr, tfoot tr')]
+  const plot = root.querySelector<HTMLElement>('.curve')
+  const frame = plot?.querySelector<HTMLElement>('.curve-frame')
+  const paper = plot?.querySelector<HTMLElement>('.curve-paper')
+  const tip = plot?.querySelector<HTMLElement>('.curve-tip')
+  const drawn = { v: 0 }
+  const draw = () => {
+    if (!plot || !frame || !paper || !tip) return
+    const width = plot.clientWidth
+    const height = plot.clientHeight
+    const x = (curveX(drawn.v) / CURVE.w) * width
+    gsap.set(frame, { x: x - width })
+    gsap.set(paper, { x: width - x })
+    gsap.set(tip, { x, y: (curveY(drawn.v) / CURVE.h) * height, opacity: drawn.v > 0 ? 1 : 0 })
+  }
+  const onTrain = () => {
+    if (root.classList.contains('titrating')) return
+    root.classList.add('titrating')
+    draw()
+  }
+  const onDrop = (event: Event) => {
+    const { index } = (event as CustomEvent<DropDetail>).detail
+    onTrain()
+    rowEls[index]?.classList.add('titrated')
+    gsap.to(drawn, { v: volumes.value[index] ?? CURVE.over, duration: 0.7, ease: 'power2.out', overwrite: true, onUpdate: draw })
+    if (index === rowEls.length - 1) root.classList.add('turned')
+  }
+  document.addEventListener('rx:train', onTrain)
+  document.addEventListener('rx:drop', onDrop)
+  const resize = new ResizeObserver(draw)
+  if (plot) resize.observe(plot)
+
   return () => {
     stopDecode()
     trigger.kill()
-    root.classList.remove('armed', 'in')
+    resize.disconnect()
+    document.removeEventListener('rx:train', onTrain)
+    document.removeEventListener('rx:drop', onDrop)
+    root.classList.remove('armed', 'in', 'titrating', 'turned')
   }
 })
 </script>
@@ -88,8 +161,22 @@ useMotionScope(section, (motion, root) => {
 <template>
   <section ref="section" class="ledger-section" aria-labelledby="source-title">
     <div class="wrap section">
-      <div class="section-head">
+      <div class="section-head ledger-head">
         <h2 id="source-title" class="section-title">Một số nguồn tham khảo</h2>
+        <div class="curve" aria-hidden="true">
+          <svg class="axes" :viewBox="`0 0 ${CURVE.w} ${CURVE.h}`" preserveAspectRatio="none">
+            <path :d="`M0 0V${CURVE.h}H${CURVE.w}`" />
+            <path class="equivalence" :d="`M${curve.equivalence} 0V${CURVE.h}`" />
+          </svg>
+          <div class="curve-frame">
+            <svg class="curve-paper" :viewBox="`0 0 ${CURVE.w} ${CURVE.h}`" preserveAspectRatio="none">
+              <path class="line" :d="curve.before" />
+              <path class="line past" :d="curve.after" />
+            </svg>
+          </div>
+          <i class="curve-tip" />
+          <span class="axis-label label">pH</span>
+        </div>
       </div>
 
       <div class="table-wrap">
@@ -192,15 +279,19 @@ tfoot td {
   transition-delay: calc(var(--r) * 90ms + var(--c, 0) * 50ms);
 }
 
-/* Bars fill to their share after their row has slid in. */
+/* Bars fill to their share after their row has slid in, or, on the home page, as its drop lands. */
 .armed .bar i {
   transform: scaleX(0);
 }
 
-.armed.in .bar i {
+.armed.in:not(.titrating) .bar i {
   transform: scaleX(var(--share));
   transition: transform 0.9s var(--ease-out);
   transition-delay: calc(var(--r) * 90ms + 260ms);
+}
+
+.armed.titrating .titrated .bar i {
+  transform: scaleX(var(--share));
 }
 
 td:nth-child(2) {
@@ -217,6 +308,101 @@ td:nth-child(4) {
 
 td:nth-child(5) {
   --c: 4;
+}
+
+/* The titration curve fills the head's free width; it waits for the train, drawn complete without it. */
+.ledger-head {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: end;
+  column-gap: clamp(var(--s8), 5vw, var(--s16));
+}
+
+.curve {
+  position: relative;
+  justify-self: end;
+  width: min(100%, 440px);
+  height: 88px;
+  margin-bottom: 0.4em;
+}
+
+.curve svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.axes path {
+  fill: none;
+  stroke: var(--hairline-strong);
+  vector-effect: non-scaling-stroke;
+}
+
+.axes .equivalence {
+  stroke-dasharray: 3 4;
+}
+
+.curve-frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* The frame and the paper counter-move, so the line is uncovered without moving. */
+.curve-frame,
+.curve-paper {
+  will-change: transform;
+}
+
+.line {
+  fill: none;
+  stroke: var(--ink-secondary);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.line.past {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.curve-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 50%;
+  background: var(--ink);
+  opacity: 0;
+  transition: background-color 0.4s var(--ease-out);
+}
+
+.turned .curve-tip {
+  background: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in oklch, var(--accent) 22%, transparent);
+}
+
+.axis-label {
+  position: absolute;
+  top: -4px;
+  left: 8px;
+  color: var(--ink-secondary);
+}
+
+@media (max-width: 860px) {
+  .ledger-head {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .curve {
+    justify-self: stretch;
+    width: 100%;
+    height: 64px;
+  }
 }
 
 /* Relative abundance, as a mass spectrum reports it: each site's share of the senses. */
@@ -241,6 +427,15 @@ td:nth-child(5) {
 }
 
 .endpoint i {
+  background: var(--accent);
+}
+
+/* At the endpoint the indicator turns: every titrated bar flushes pink with the flask. */
+.titrating .bar i {
+  transition: transform 0.7s var(--ease-out), background-color 0.9s var(--ease-out) 0.2s;
+}
+
+.turned .bar i {
   background: var(--accent);
 }
 

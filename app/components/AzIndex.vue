@@ -2,6 +2,7 @@
 import type { SortLanguage } from '#shared/types/lexicon'
 import { groupByInitial } from '#shared/utils/lexicon'
 import { decodeOnEnter, magnetic } from '~/lib/motion-kit'
+import { FRONT_LINE } from '~/lib/train'
 
 const { entries } = useLexicon()
 const lang = ref<SortLanguage>('en')
@@ -17,27 +18,32 @@ useMotionScope(section, (motion, root) => {
   const { gsap, finePointer } = motion
   const stopDecode = decodeOnEnter(motion, root.querySelector<HTMLElement>('.section-title')!)
 
-  // Each letter group crystallises: its outlined initial fills with flame from the baseline, then a
-  // front runs down its list and the terms come out of solution behind it. CSS transitions play it
+  // Each letter group crystallises: a front runs down its list and the terms come out of solution
+  // behind it, then its outlined initial fills with flame from the baseline. CSS transitions play it
   // from one class per group (one clip per list, not one animation per term, which cost frames on
-  // slow GPUs), so arming the index reads no styles; an IntersectionObserver spots the groups.
-  let observer: IntersectionObserver | undefined
-  const arm = (quick: boolean) => {
-    observer?.disconnect()
-    root.classList.add('armed')
-    root.classList.toggle('quick', quick)
+  // slow GPUs), so arming the index reads no styles; IntersectionObservers spot the groups.
+  let observers: IntersectionObserver[] = []
+  const mark = (margin: string, name: string) => {
     const seen = new IntersectionObserver(
       (records) => {
         for (const record of records) {
           if (!record.isIntersecting) continue
-          record.target.classList.add('in')
+          record.target.classList.add(name)
           seen.unobserve(record.target)
         }
       },
-      { rootMargin: '0px 0px -8% 0px' },
+      { rootMargin: `0px 0px -${margin} 0px` },
     )
     root.querySelectorAll('.letter').forEach((group) => seen.observe(group))
-    observer = seen
+    return seen
+  }
+  const arm = (quick: boolean) => {
+    observers.forEach((observer) => observer.disconnect())
+    root.classList.add('armed')
+    root.classList.toggle('quick', quick)
+    // The terms come out as soon as their group is on screen; the initial fills when the group
+    // reaches the front line the train's liquid runs at (lib/train.ts).
+    observers = [mark('8%', 'in'), mark(`${Math.round((1 - FRONT_LINE) * 100)}%`, 'lit')]
   }
   arm(false)
   rearm = () => arm(true)
@@ -46,7 +52,7 @@ useMotionScope(section, (motion, root) => {
   return () => {
     rearm = undefined
     stopDecode()
-    observer?.disconnect()
+    observers.forEach((observer) => observer.disconnect())
     root.classList.remove('armed', 'quick')
     pulls.forEach((cleanup) => cleanup())
   }
@@ -237,7 +243,7 @@ ul {
   translate: 0 6px;
 }
 
-.armed .letter.in .fill {
+.armed .letter.lit .fill {
   clip-path: inset(0% 0% 0% 0%);
   transition: clip-path 0.9s cubic-bezier(0.65, 0, 0.35, 1);
 }
@@ -251,7 +257,7 @@ ul {
     translate 0.8s var(--ease-out) 0.2s;
 }
 
-.armed.quick .letter.in .fill {
+.armed.quick .letter.lit .fill {
   transition-duration: 0.45s;
 }
 

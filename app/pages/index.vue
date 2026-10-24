@@ -45,7 +45,7 @@ useMotionScope(title, ({ gsap, SplitText, finePointer }, root) => {
 </script>
 
 <template>
-  <div>
+  <div class="home">
     <section class="hero" aria-labelledby="hero-title">
       <div class="wrap hero-inner">
         <div class="hero-copy">
@@ -63,10 +63,16 @@ useMotionScope(title, ({ gsap, SplitText, finePointer }, root) => {
     <AzIndex />
     <LessonLanes />
     <SourceLedger />
+    <ReactionTrain />
   </div>
 </template>
 
 <style scoped>
+/* The train's glass is measured against this box. */
+.home {
+  position: relative;
+}
+
 .hero {
   --hero-pad-top: clamp(32px, 5vw, 56px);
   --hero-gap: clamp(24px, 4vw, 48px);
