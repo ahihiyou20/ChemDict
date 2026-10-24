@@ -148,12 +148,6 @@ const statusText = computed(() => {
   return `${hits.value.length} mục từ khớp với “${searched.value}”.${more}`
 })
 
-const fieldText: Record<MatchField, string> = {
-  en: 'khớp tiếng Anh',
-  vi: 'khớp tiếng Việt',
-  def: 'khớp trong định nghĩa',
-}
-
 // Suggestions come from the data so they never point at a missing term.
 const lastLesson = [...lessons].reverse().find((lesson) => lesson.senses.length)
 const isomer = entries.find((entry) => entry.slug === 'isomer')
@@ -315,9 +309,6 @@ onBeforeUnmount(() => {
       <kbd v-else class="kbd" aria-hidden="true">/</kbd>
     </form>
     <div class="spectrum" aria-hidden="true">
-      <p class="axis-y label">
-        {{ isQuerying ? 'Chiều cao vạch = độ khớp tương đối (%)' : 'Mỗi vạch là một thuật ngữ · chiều cao = số bài có thuật ngữ đó' }}
-      </p>
       <div ref="plot" class="plot">
         <div class="grid-plane" />
         <div class="columns">
@@ -364,7 +355,7 @@ onBeforeUnmount(() => {
       <noscript>
         <p class="label">Tra cứu trực tiếp cần JavaScript. Mọi mục từ đều có trong <a href="#az-title">danh mục A–Z</a> bên dưới.</p>
       </noscript>
-      <p id="tra-cuu-trang-thai" class="label status" :class="{ 'visually-hidden': !statusText }" role="status">
+      <p id="tra-cuu-trang-thai" class="label status" :class="{ 'visually-hidden': !statusText || hits.length }" role="status">
         {{ statusText }}
         <a v-if="isQuerying && !hits.length" href="#az-title">Xem danh mục A–Z</a>
       </p>
@@ -375,15 +366,12 @@ onBeforeUnmount(() => {
             <span class="r-vi" lang="vi">{{ hit.entry.vi }}</span>
             <span class="r-meta">
               <span v-if="hit.entry.senses[0]!.ipa" class="r-ipa" lang="en">{{ hit.entry.senses[0]!.ipa }}</span>
-              <span class="r-tag">{{ fieldText[hit.field] }}</span>
             </span>
           </NuxtLink>
         </li>
       </ol>
       <p v-else-if="!isQuerying" class="suggest label">
-        Thử:
         <button v-for="s in suggestions" :key="s" type="button" @click="query = s">{{ s }}</button>
-        <span class="hint">Có dấu hay không dấu đều tra được.</span>
       </p>
     </div>
   </div>
@@ -505,11 +493,6 @@ html:not(.js) .kbd {
   border: 1px solid var(--hairline);
   border-top: 0;
   border-radius: 0 0 10px 10px;
-}
-
-.axis-y {
-  margin-bottom: var(--s3);
-  min-height: 1.4em;
 }
 
 .plot {
@@ -693,7 +676,6 @@ html:not(.js) .kbd {
   min-height: 72px;
 }
 
-
 .results {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
@@ -743,10 +725,6 @@ html:not(.js) .kbd {
   text-align: right;
 }
 
-.r-tag {
-  color: var(--accent);
-}
-
 .suggest {
   display: flex;
   flex-wrap: wrap;
@@ -770,10 +748,6 @@ html:not(.js) .kbd {
 .suggest button:hover {
   border-color: var(--accent);
   color: var(--accent);
-}
-
-.hint {
-  flex-basis: 100%;
 }
 
 @media (max-width: 640px) {

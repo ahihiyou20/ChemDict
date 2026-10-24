@@ -27,7 +27,7 @@ useSeoMeta({
         <span>{{ lesson.title }}</span>
       </p>
       <h1 class="lesson-title">{{ lesson.title }}</h1>
-      <p class="lede">{{ lesson.senses.length }} thuật ngữ, theo thứ tự trong bài.</p>
+      <p class="lede">{{ lesson.senses.length }} thuật ngữ</p>
     </header>
 
     <div class="wrap">
@@ -49,13 +49,15 @@ useSeoMeta({
               <NuxtLink :to="`/tu/${entryOfSense(sense.id).slug}`">{{ sense.vi }}</NuxtLink>
             </td>
             <td class="en" lang="en">{{ sense.en }}</td>
-            <td class="mono ipa" lang="en">{{ sense.ipa }}</td>
+            <td class="mono ipa" lang="en">
+              <span class="ipa-cell">{{ sense.ipa }}<SpeakButton v-if="sense.en" :text="sense.en" :id="sense.id" /></span>
+            </td>
             <td class="pos">{{ sense.pos }}</td>
           </tr>
         </tbody>
       </table>
       <p v-else class="empty">
-        {{ lesson.title }} hiện chưa có thuật ngữ nào. Trang này sẽ có nội dung khi được bổ sung.
+        Chưa có thuật ngữ.
       </p>
     </div>
 
@@ -222,5 +224,11 @@ td {
     grid-row: 1 / span 4;
     width: auto;
   }
+}
+
+.ipa-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
 }
 </style>

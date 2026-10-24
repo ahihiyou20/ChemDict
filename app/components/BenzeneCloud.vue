@@ -182,8 +182,7 @@ onBeforeUnmount(() => {
       <canvas :key="canvasKey" ref="canvas" />
     </div>
     <figcaption class="label">
-      Đám mây electron π của benzene, C<sub>6</sub>H<sub>6</sub> (mô phỏng) ·
-      <NuxtLink to="/tu/aromatic-compound">Aromatic compound</NuxtLink>
+      C<sub>6</sub>H<sub>6</sub> · <NuxtLink to="/tu/aromatic-compound">Aromatic compound</NuxtLink>
     </figcaption>
   </figure>
 </template>

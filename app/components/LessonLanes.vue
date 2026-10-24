@@ -34,7 +34,6 @@ onBeforeUnmount(() => revert?.())
     <div class="wrap section">
       <div class="section-head">
         <h2 id="lanes-title" class="section-title">Theo từng bài học</h2>
-        <p class="section-lede">Mỗi cột là một bài học, giữ đúng thứ tự các thuật ngữ trong bài.</p>
       </div>
 
       <ol ref="plate" class="plate">
@@ -44,7 +43,6 @@ onBeforeUnmount(() => revert?.())
             <span class="label">{{ lesson.senses.length }} thuật ngữ</span>
           </NuxtLink>
           <div class="lane-body">
-            <span class="front label" aria-hidden="true">tuyến dung môi</span>
             <ul v-if="lesson.senses.length" class="spots">
               <li v-for="sense in lesson.senses" :key="sense.id">
                 <NuxtLink :to="`/tu/${entryOfSense(sense.id).slug}`" class="spot">
@@ -54,8 +52,6 @@ onBeforeUnmount(() => revert?.())
                 </NuxtLink>
               </li>
             </ul>
-            <p v-else class="lane-empty">{{ lesson.title }} chưa có thuật ngữ nào.</p>
-            <span class="origin label" aria-hidden="true">vạch xuất phát</span>
           </div>
         </li>
       </ol>
@@ -112,22 +108,6 @@ onBeforeUnmount(() => revert?.())
   box-shadow: inset 0 1px 0 var(--highlight);
 }
 
-.front,
-.origin {
-  display: block;
-  font-size: 0.6875rem;
-}
-
-.front {
-  padding-bottom: var(--s2);
-  border-bottom: 1px dashed var(--hairline-strong);
-}
-
-.origin {
-  padding-top: var(--s2);
-  border-top: 1px solid var(--ink-secondary);
-}
-
 .spots {
   margin: 0;
   padding: var(--s2) 0;
@@ -172,13 +152,6 @@ onBeforeUnmount(() => revert?.())
 
 .spot:hover .spot-vi {
   color: var(--accent);
-}
-
-.lane-empty {
-  align-self: center;
-  padding: var(--s8) 0;
-  color: var(--ink-secondary);
-  font-style: italic;
 }
 
 @media (max-width: 1080px) {

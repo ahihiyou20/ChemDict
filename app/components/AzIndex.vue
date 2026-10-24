@@ -12,12 +12,8 @@ const other = computed<SortLanguage>(() => (lang.value === 'en' ? 'vi' : 'en'))
   <section class="az" aria-labelledby="az-title">
     <div class="wrap section">
       <div class="section-head az-head">
-        <h2 id="az-title" class="section-title">Mọi mục từ, xếp theo vần</h2>
-        <p class="section-lede">
-          {{ entries.length }} mục từ. Thuật ngữ xuất hiện ở nhiều bài được gộp thành một mục với nhiều nghĩa.
-        </p>
+        <h2 id="az-title" class="section-title">Mọi mục từ</h2>
         <div class="sorter" role="group" aria-label="Xếp danh mục theo">
-          <span class="label">Xếp theo</span>
           <button type="button" :aria-pressed="lang === 'en'" @click="lang = 'en'">Tiếng Anh</button>
           <button type="button" :aria-pressed="lang === 'vi'" @click="lang = 'vi'">Tiếng Việt</button>
         </div>

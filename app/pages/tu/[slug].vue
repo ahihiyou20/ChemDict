@@ -52,18 +52,9 @@ onBeforeUnmount(() => revert?.())
     <header class="wrap entry-head">
       <p class="label crumbs">
         <NuxtLink to="/">Từ điển</NuxtLink>
-        <span aria-hidden="true">/</span>
-        <span>Mục {{ position + 1 }} trên {{ sortedEn.length }} (A–Z)</span>
       </p>
       <h1 ref="headword" class="headword" lang="en">{{ entry.en }}</h1>
       <p class="headword-vi" lang="vi">{{ viTerms.join(' · ') }}</p>
-      <p class="label presence">
-        Có trong
-        <template v-for="(n, i) in entry.lessons" :key="n">
-          <NuxtLink :to="`/bai/${n}`">{{ lessonTitle(n) }}</NuxtLink><template v-if="i < entry.lessons.length - 1">, </template>
-        </template>
-        <template v-if="entry.senses.length > 1"> · {{ entry.senses.length }} nghĩa</template>
-      </p>
     </header>
 
     <ol class="wrap senses">
@@ -71,7 +62,10 @@ onBeforeUnmount(() => revert?.())
         <p class="sense-number" aria-hidden="true">{{ i + 1 }}</p>
         <div class="sense-body">
           <p class="sense-meta">
-            <span v-if="sense.ipa" class="ipa" lang="en"><span class="visually-hidden">Phiên âm: </span>{{ sense.ipa }}</span>
+            <span v-if="sense.ipa || sense.en" class="say">
+              <span v-if="sense.ipa" class="ipa" lang="en"><span class="visually-hidden">Phiên âm: </span>{{ sense.ipa }}</span>
+              <SpeakButton v-if="sense.en" :text="sense.en" :id="sense.id" />
+            </span>
             <span v-if="sense.pos" class="pos">{{ sense.pos }}</span>
             <NuxtLink :to="`/bai/${sense.lesson}`" class="lesson-tag">{{ lessonTitle(sense.lesson) }}</NuxtLink>
           </p>
@@ -79,14 +73,14 @@ onBeforeUnmount(() => revert?.())
 
           <div class="defs">
             <div class="def" lang="vi">
-              <p class="def-lang label">Tiếng Việt</p>
+              <p class="def-lang label" aria-label="Tiếng Việt">VI</p>
               <p v-if="sense.defVi" class="def-text"><ChemText :text="sense.defVi" /></p>
-              <p v-else class="def-text muted">Bảng chưa có định nghĩa tiếng Việt.</p>
+              <p v-else class="def-text muted">Chưa có định nghĩa tiếng Việt.</p>
             </div>
             <div class="def" lang="en">
-              <p class="def-lang label" lang="vi">Tiếng Anh</p>
+              <p class="def-lang label" lang="vi" aria-label="Tiếng Anh">EN</p>
               <p v-if="sense.defEn" class="def-text"><ChemText :text="sense.defEn" /></p>
-              <p v-else class="def-text muted" lang="vi">Bảng chưa có định nghĩa tiếng Anh.</p>
+              <p v-else class="def-text muted" lang="vi">Chưa có định nghĩa tiếng Anh.</p>
             </div>
           </div>
 
@@ -99,7 +93,6 @@ onBeforeUnmount(() => revert?.())
               :loading="i === 0 ? 'eager' : 'lazy'"
               decoding="async"
             >
-            <figcaption class="label">Hình minh họa, {{ lessonTitle(sense.lesson) }}</figcaption>
           </figure>
           <div v-else-if="sense.illustration?.kind === 'text'" class="example">
             <p class="label">Minh họa</p>
@@ -168,10 +161,6 @@ onBeforeUnmount(() => revert?.())
   font-variation-settings: 'opsz' 48;
 }
 
-.presence a {
-  color: var(--ink);
-}
-
 .senses {
   margin: 0 auto;
   list-style: none;
@@ -208,8 +197,14 @@ onBeforeUnmount(() => revert?.())
 .sense-meta {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   gap: var(--s2) var(--s4);
+}
+
+.say {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s2);
 }
 
 .ipa {
@@ -302,11 +297,6 @@ onBeforeUnmount(() => revert?.())
 .figure img {
   width: 100%;
   border-radius: 2px;
-}
-
-.figure figcaption {
-  margin-top: var(--s2);
-  color: var(--plate-caption);
 }
 
 .example {

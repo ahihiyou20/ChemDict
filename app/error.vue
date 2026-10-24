@@ -11,7 +11,6 @@ useSeoMeta({ title: props.error.statusCode === 404 ? 'Không tìm thấy' : 'Đ�
     <main class="wrap error-page">
       <p class="label">Lỗi {{ error.statusCode }}</p>
       <h1>{{ error.statusCode === 404 ? 'Không có trang này trong từ điển' : 'Đã có lỗi khi mở trang' }}</h1>
-      <p class="lede">{{ error.statusMessage || 'Hãy quay lại trang tra cứu và thử lại.' }}</p>
       <button type="button" class="back" @click="clearError({ redirect: '/' })">Về trang tra cứu</button>
     </main>
     <SiteFooter />
@@ -29,10 +28,6 @@ useSeoMeta({ title: props.error.statusCode === 404 ? 'Không tìm thấy' : 'Đ�
 h1 {
   font-size: clamp(2.25rem, 5vw, 4rem);
   max-width: 18ch;
-}
-
-.lede {
-  color: var(--ink-secondary);
 }
 
 .back {

@@ -1,8 +1,5 @@
 <script setup lang="ts">
-const { lessons, entries, senseCount } = useLexicon()
-
-const filled = lessons.filter((lesson) => lesson.senses.length).map((lesson) => lesson.number)
-const lessonList = filled.length > 1 ? `${filled.slice(0, -1).join(', ')} và ${filled.at(-1)}` : String(filled[0] ?? '')
+const { entries } = useLexicon()
 
 useSeoMeta({
   ogTitle: 'ChemDict · Từ điển thuật ngữ Hóa học Anh – Việt',
@@ -17,10 +14,6 @@ useSeoMeta({
         <div class="hero-copy">
           <div class="hero-text">
             <h1 id="hero-title" class="hero-title">Từ điển thuật ngữ Hóa học Anh – Việt</h1>
-            <p class="hero-lede">
-              {{ entries.length }} mục từ ({{ senseCount }} dòng) từ Bài {{ lessonList }}. Gõ tiếng Anh hoặc tiếng Việt để xem
-              định nghĩa song ngữ, phiên âm và nguồn tham khảo của từng thuật ngữ.
-            </p>
           </div>
           <BenzeneCloud class="hero-cloud" />
         </div>
@@ -66,12 +59,6 @@ useSeoMeta({
   letter-spacing: -0.025em;
   line-height: 1.02;
   font-variation-settings: 'opsz' 72;
-}
-
-.hero-lede {
-  max-width: 46ch;
-  color: var(--ink-secondary);
-  font-size: 1.125rem;
 }
 
 @media (max-width: 860px) {
