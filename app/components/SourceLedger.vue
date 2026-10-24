@@ -40,7 +40,7 @@ const rows = computed<Row[]>(() => {
       // Senses without a citation are credited to the open web, as Vinh asked.
       const host = sense.source?.url ? hostOf(sense.source.url) : null
       const key = host ?? 'Internet'
-      const site = bySite.get(key) ?? { labels: new Map(), urls: new Set(), host, count: 0, lessons: [] }
+      const site: Site = bySite.get(key) ?? { labels: new Map(), urls: new Set(), host, count: 0, lessons: [] }
       const label = sense.source?.label ?? 'Internet'
       site.labels.set(label, (site.labels.get(label) ?? 0) + 1)
       if (sense.source?.url) site.urls.add(sense.source.url)
