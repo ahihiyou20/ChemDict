@@ -33,7 +33,11 @@ Cả hai nơi đều chỉ phục vụ thư mục `.output/public`, nên không 
 2. Giữ nguyên các thiết lập. `vercel.json` đã khai báo lệnh build `npm run build`, thư mục xuất `.output/public`, cache cho `/_nuxt/*` và các header bảo mật.
 3. Bấm **Deploy**.
 
-### Cloudflare Pages
+### Cloudflare Pages (đang dùng: https://chemdict.pages.dev)
+
+Mỗi lần push lên `main` hoặc `claude/project-thread-8o54e3`, workflow `.github/workflows/deploy.yml` tự build và deploy lên project Pages `chemdict`. Repo cần hai secret trong **Settings → Secrets and variables → Actions**: `CLOUDFLARE_API_TOKEN` (token có quyền **Cloudflare Pages: Edit**) và `CLOUDFLARE_ACCOUNT_ID`. Có thể chạy lại tay ở tab **Actions → Deploy to Cloudflare Pages → Run workflow**.
+
+Cách khác, nếu tạo project mới bằng Git của Cloudflare:
 
 1. Vào **Workers & Pages → Create → Pages → Connect to Git** rồi chọn repo `ChemDict`.
 2. Framework preset: **None**. Build command: `npm run build`. Build output directory: `.output/public`.
