@@ -44,7 +44,8 @@ const speaking = computed(() => speakingId.value === props.id)
 .speak::after {
   content: '';
   position: absolute;
-  inset: -6px;
+  /* Measured from inside the 1px border: 30 + 2 × 7 = 44px of reach. */
+  inset: -7px;
 }
 
 .speak:hover,

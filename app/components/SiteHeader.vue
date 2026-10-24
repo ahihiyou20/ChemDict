@@ -37,16 +37,20 @@ useMotionScope(header, ({ gsap, finePointer }, root) => {
   const brand = root.querySelector<HTMLElement>('.brand')!
   brand.addEventListener('pointerenter', ring)
 
-  // The lesson tiles turn over once, like a departure board settling.
+  // The lesson numbers turn over once inside their tiles, like a departure board settling.
+  // The tiles themselves stay square to the screen, so a tap during the flip still lands.
   const cells = gsap.utils.toArray<HTMLElement>('.cell', root)
-  gsap.fromTo(cells, { rotationX: 0 }, {
-    rotationX: 360,
-    duration: 1.1,
-    ease: 'power3.inOut',
-    stagger: 0.08,
-    delay: 0.25,
-    onComplete: () => gsap.set(cells, { rotationX: 0 }),
-  })
+  const flaps = cells.map((cell) => [...cell.querySelectorAll<HTMLElement>('.cell-count, .cell-number')])
+  gsap.set(flaps.flat(), { transformPerspective: 160 })
+  flaps.forEach((flap, i) =>
+    gsap.fromTo(flap, { rotationX: 0 }, {
+      rotationX: 360,
+      duration: 1.1,
+      ease: 'power3.inOut',
+      delay: 0.25 + i * 0.08,
+      onComplete: () => gsap.set(flap, { rotationX: 0 }),
+    }),
+  )
 
   const cleanups = finePointer
     ? cells.flatMap((cell) => [magnetic(gsap, cell, 0.22), tilt(gsap, cell, 16)])

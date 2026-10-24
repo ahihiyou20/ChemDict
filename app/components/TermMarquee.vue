@@ -92,6 +92,7 @@ useMotionScope(band, ({ gsap, ScrollTrigger }, root) => {
   display: inline-flex;
   align-items: center;
   gap: 0.32em;
+  min-height: 44px;
   padding-right: 0.42em;
   font-size: clamp(2rem, 5vw, 4.25rem);
   line-height: 1.1;
