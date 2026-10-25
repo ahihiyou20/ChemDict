@@ -533,7 +533,7 @@ svg {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  :global(html.js) .lab [data-mv] {
+  html.js .lab [data-mv] {
     transform: var(--pre, none);
     opacity: var(--pre-o, 1);
   }
