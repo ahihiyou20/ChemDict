@@ -1,11 +1,24 @@
 <script setup lang="ts">
 import type { DiagramName } from '#shared/types/lexicon'
+import {
+  CHROMATOGRAPHY,
+  CRYSTALLIZATION,
+  DISTILLATION,
+  EVAPORATION,
+  EXTRACTION,
+  FILTRATION,
+  SEPARATION,
+  SOLUTION,
+  stageOf,
+  transformOf,
+} from '~/lib/lab-motion'
 
 /**
  * The apparatus behind a separation term, drawn as a plate and left running (COMMIT-SHEET §10). The
- * part a term names is drawn in the indicator's pink and labelled with the term itself. Everything moves
- * by transform and opacity in CSS, only while the plate is on screen; the resting frame, which reduced
- * motion and readers without script get, is the finished state of the process.
+ * part a term names is drawn in the indicator's pink and labelled with the term itself. The motion is a
+ * function of time (lib/lab-motion), applied by transform and opacity on the page's one ticker, only
+ * while the plate is on screen. The resting frame, which reduced motion and readers without script get,
+ * is the finished state of the process; with script, the first frame is painted from the server.
  */
 const props = defineProps<{ name: DiagramName; en: string; vi: string; pos: string | null }>()
 
@@ -51,38 +64,58 @@ const LEADERS: Record<string, { x: number; y: number; lx: number; ly: number; en
 const leader = computed(() => (part.value ? LEADERS[part.value] ?? null : null))
 const on = (name: string) => ({ on: part.value === name })
 
+const stage = computed(() => stageOf(props.name))
+const anchors = computed(() => new Map(stage.value.parts.map((p) => [p.key, p])))
+const first = computed(() => stage.value.frame(0))
+/** The first frame, for the server to paint: CSS applies it while motion is allowed and until script takes over. */
+const pre = (key: string) => {
+  const p = first.value.get(key)
+  const a = anchors.value.get(key)
+  return p && a ? { '--pre': transformOf(p, a.ax, a.ay), '--pre-o': p.o } : undefined
+}
+
 const plate = ref<HTMLElement | null>(null)
 let observer: IntersectionObserver | undefined
-onMounted(() => {
+let stop: (() => void) | undefined
+onMounted(async () => {
+  const motion = await loadMotion()
   const el = plate.value
-  if (!el) return
-  observer = new IntersectionObserver(([record]) => el.classList.toggle('playing', record!.isIntersecting))
+  if (!el || motion.reduced) return
+  const { gsap } = motion
+  const parts = [...el.querySelectorAll<SVGElement>('[data-mv]')].flatMap((node) => {
+    const a = anchors.value.get(node.dataset.mv!)
+    return a ? [{ node, a }] : []
+  })
+  const render = (t: number) => {
+    const frame = stage.value.frame(t)
+    for (const { node, a } of parts) {
+      const p = frame.get(a.key)
+      if (!p) continue
+      node.style.transform = transformOf(p, a.ax, a.ay)
+      node.style.opacity = String(Math.round(p.o * 1000) / 1000)
+    }
+  }
+  let start = 0
+  const tick = (time: number) => render(time - start)
+  // Off screen the clock stops and goes back to the first frame, so the process plays again from its start.
+  observer = new IntersectionObserver(([record]) => {
+    if (record!.isIntersecting) {
+      start = gsap.ticker.time
+      gsap.ticker.add(tick)
+    } else {
+      gsap.ticker.remove(tick)
+      render(0)
+    }
+  })
   observer.observe(el)
+  render(0)
+  stop = () => gsap.ticker.remove(tick)
 })
-onBeforeUnmount(() => observer?.disconnect())
+onBeforeUnmount(() => {
+  observer?.disconnect()
+  stop?.()
+})
 
-// Particle sets, so the template stays readable.
-const sortedA = [0, 1, 2, 3, 4, 5].map((i) => ({ x: 150 + (i % 3) * 22, y: 196 + Math.floor(i / 3) * 24, mx: (i * 37) % 90, my: ((i * 23) % 40) - 20 }))
-const sortedB = [0, 1, 2, 3, 4, 5].map((i) => ({ x: 270 + (i % 3) * 22, y: 196 + Math.floor(i / 3) * 24, mx: -((i * 41) % 100), my: ((i * 29) % 40) - 20 }))
-const dissolved = [0, 1, 2, 3, 4, 5, 6, 7, 8].map((i) => ({ x: 196 + ((i * 37) % 88), y: 150 + ((i * 53) % 100), d: i * 0.45 }))
-// Column bands at rest where they have run to, the fastest lowest and widest.
-const bands = [10, 11, 12, 13].map((n, i) => {
-  const h = 10 * (1.9 - i * 0.25)
-  return { n, h, y: 204 - i * 30 - h, travel: 104 - i * 30, tight: (10 / h).toFixed(2) }
-})
-const solute = [0, 1, 2, 3, 4, 5, 6, 7].map((i) => ({ x: 214 + (i % 4) * 16, y: 108 + Math.floor(i / 4) * 18, rise: 46 + (i % 3) * 8, d: i * 0.35 }))
-const residue = [0, 1, 2, 3, 4, 5, 6].map((i) => ({ x: i < 4 ? 231 + i * 6 : 234 + (i - 4) * 6, y: i < 4 ? 135 : 129, d: i * 0.3 }))
-const crystals = [
-  { x: 206, y: 262, s: 1, d: 0 },
-  { x: 232, y: 266, s: 0.7, d: 1.2 },
-  { x: 260, y: 261, s: 1.15, d: 0.6 },
-  { x: 286, y: 265, s: 0.8, d: 1.8 },
-]
-/** The underside of the watch glass in the evaporation plate, a quadratic from (178,100) through 114 at its middle. */
-const watchY = (x: number) => {
-  const t = (x - 178) / 124
-  return 100 + 2 * t * (1 - t) * 28
-}
 const hexagon = (cx: number, cy: number, r: number) =>
   Array.from({ length: 6 }, (_, k) => {
     const a = (Math.PI / 3) * k + Math.PI / 6
@@ -102,49 +135,52 @@ const hexagon = (cx: number, cy: number, r: number) =>
 
       <!-- Distillation: heat, flask, still head, Liebig condenser, receiver. -->
       <g v-if="name === 'distillation'">
-        <path class="flame-fire" d="M110 272c-11-10-10-24 0-36c10 12 11 26 0 36z" />
+        <path class="flame-fire" data-mv="flame" :style="pre('flame')" d="M110 272c-11-10-10-24 0-36c10 12 11 26 0 36z" />
         <rect class="glass-fill" x="100" y="272" width="20" height="12" rx="2" />
         <clipPath id="dist-flask"><circle cx="110" cy="186" r="43" /></clipPath>
         <g clip-path="url(#dist-flask)">
           <rect class="liquid" x="60" y="198" width="100" height="40" />
-          <circle v-for="(b, i) in [92, 106, 120, 130]" :key="i" class="a-boil" :cx="b" cy="226" r="2.6" :style="{ '--d': `${i * 0.4}s` }" />
+          <circle v-for="b in DISTILLATION.bubbles" :key="b.key" class="bubble" :data-mv="b.key" :style="pre(b.key)" :cx="b.x" :cy="b.y" r="2.6" />
         </g>
         <path class="tube" d="M110 143V98M110 108L160 124M320 176L334 198M184 132L180 112M296 168L300 190" />
         <path class="bore" d="M110 143V98M110 108L160 124M320 176L334 198M184 132L180 112M296 168L300 190" />
         <path class="jacket" d="M178 130L302 170" />
         <path class="jacket-bore" d="M178 130L302 170" />
-        <path v-for="k in 4" :key="k" class="a-coolant" :d="`M${300 - k * 26} ${169.5 - k * 8.4}l-10 -3.2`" :style="{ '--d': `${k * 0.5}s` }" />
+        <path v-for="c in DISTILLATION.streaks" :key="c.key" class="coolant" :data-mv="c.key" :style="pre(c.key)" :d="`M${c.x} ${c.y}l-10 -3.2`" />
         <path class="tube inner" d="M150 121L320 176" />
         <path class="bore inner" d="M150 121L320 176" />
         <path class="glass" d="M104.5 142.4A44 44 0 1 0 115.5 142.4" />
         <rect class="glass-fill" x="100" y="90" width="20" height="8" rx="2" />
         <path class="thermo" d="M110 52V112" />
         <circle class="thermo-bulb" cx="110" cy="114" r="3" />
-        <circle v-for="k in 3" :key="`v${k}`" class="a-vapour" cx="110" cy="176" r="2.2" :style="{ '--d': `${k * 0.8}s` }" />
-        <circle v-for="k in 2" :key="`r${k}`" class="a-drip-dist" cx="320" cy="176" r="2.6" :style="{ '--d': `${k * 1.2}s` }" />
+        <circle v-for="v in DISTILLATION.vapour" :key="v.key" class="vapour" :data-mv="v.key" :style="pre(v.key)" :cx="v.x" :cy="v.y" r="2.2" />
+        <circle v-for="d in DISTILLATION.drops" :key="d.key" class="drop" :data-mv="d.key" :style="pre(d.key)" :cx="d.x" :cy="d.y" r="2.6" />
         <g :class="on('receiver')" class="part">
           <clipPath id="dist-receiver"><path d="M326 214L302 282H366L342 214Z" /></clipPath>
           <rect class="liquid part-fill" x="296" y="262" width="80" height="22" clip-path="url(#dist-receiver)" />
           <path class="glass part-line" d="M326 194V214L302 282H366L342 214V194" />
         </g>
+        <ellipse v-for="k in 2" :key="k" class="ripple" :data-mv="`r${k - 1}`" :style="pre(`r${k - 1}`)" cx="334" cy="262" rx="5" ry="1.4" />
       </g>
 
       <!-- Evaporation and condensation: a dish over a flame, a cold watch glass above it. -->
       <g v-else-if="name === 'evaporation'">
         <path class="glass" d="M176 284L184 216M304 284L296 216M172 216H308" />
         <path class="gauze" d="M176 213H304" />
-        <path class="flame-fire" d="M240 266c-11-10-10-24 0-36c10 12 11 26 0 36z" />
+        <path class="flame-fire" data-mv="flame" :style="pre('flame')" d="M240 266c-11-10-10-24 0-36c10 12 11 26 0 36z" />
         <rect class="glass-fill" x="230" y="266" width="20" height="18" rx="2" />
-        <clipPath id="evap-dish"><path d="M176 180Q240 244 304 180Z" /></clipPath>
-        <rect class="liquid" x="170" y="196" width="140" height="30" clip-path="url(#evap-dish)" />
-        <path class="glass" d="M172 178Q240 248 308 178" />
-        <g :class="on('vapour')" class="part">
-          <path v-for="(x, i) in [212, 240, 268]" :key="i" class="wisp a-wisp part-line" :d="`M${x} 188c-8-10 8-18 0-28s8-18 0-28`" :style="{ '--d': `${i * 0.9}s` }" />
-        </g>
         <g :class="on('cold')" class="part">
+          <circle v-for="d in EVAPORATION.drops" :key="d.key" class="drop part-fill" :data-mv="d.key" :style="pre(d.key)" :cx="d.x" :cy="d.y" r="3" />
+          <circle class="drop part-fill" data-mv="g-mid" :style="pre('g-mid')" :cx="EVAPORATION.centre.x" :cy="EVAPORATION.centre.y" r="3" />
           <path class="glass part-line" d="M178 100Q240 128 302 100" />
           <rect v-for="(x, i) in [214, 236, 258]" :key="i" class="ice" :x="x" :y="92 - (i % 2) * 4" width="16" height="14" rx="2" />
-          <circle v-for="(x, i) in [206, 226, 248, 270]" :key="`d${i}`" class="a-condense part-fill" :cx="x" :cy="watchY(x) + 3.5" r="3" :style="{ '--d': `${i * 0.7}s` }" />
+        </g>
+        <clipPath id="evap-dish"><path d="M176 180Q240 244 304 180Z" /></clipPath>
+        <rect class="liquid" x="170" y="196" width="140" height="30" clip-path="url(#evap-dish)" />
+        <ellipse class="ripple" data-mv="ripple" :style="pre('ripple')" cx="240" cy="196" rx="5" ry="1.4" />
+        <path class="glass" d="M172 178Q240 248 308 178" />
+        <g :class="on('vapour')" class="part">
+          <path v-for="w in EVAPORATION.wisps" :key="w.key" class="wisp part-line" :data-mv="w.key" :style="pre(w.key)" :d="`M${w.x} ${w.y}c-8-10 8-18 0-28s8-18 0-28`" />
         </g>
       </g>
 
@@ -158,15 +194,16 @@ const hexagon = (cx: number, cy: number, r: number) =>
           <rect class="layer-upper part-fill" :class="on('extract')" x="180" y="80" width="120" height="62" />
           <path class="interface" d="M180 142H300" />
         </g>
-        <circle v-for="(p, i) in solute" :key="i" class="particle a-extract" :cx="p.x" :cy="p.y" r="3.2" :style="{ '--rise': `${p.rise}px`, '--d': `${p.d}s` }" />
+        <circle v-for="s in EXTRACTION.solute" :key="s.key" class="particle" :data-mv="s.key" :style="pre(s.key)" :cx="s.x" :cy="s.y" r="3.2" />
         <g :class="on('funnel')" class="part">
           <path class="glass part-line" d="M232 62C180 90 190 170 236 196V244M248 62C300 90 290 170 244 196V244M232 62V44M248 62V44" />
           <rect class="glass-fill part-line" x="229" y="30" width="22" height="14" rx="3" />
           <rect class="glass-fill part-line" x="224" y="207" width="32" height="8" rx="3" />
         </g>
-        <path class="glass" d="M214 250V280Q214 284 218 284H262Q266 284 266 280V250" />
+        <circle class="drop" data-mv="drip" :style="pre('drip')" cx="240" cy="246" r="2.4" />
         <rect class="layer-lower" x="216" y="266" width="48" height="16" />
-        <circle class="a-drip" cx="240" cy="246" r="2.4" style="--fall: 22px" />
+        <ellipse class="ripple" data-mv="ripple" :style="pre('ripple')" cx="240" cy="266" rx="5" ry="1.4" />
+        <path class="glass" d="M214 250V280Q214 284 218 284H262Q266 284 266 280V250" />
       </g>
 
       <!-- A solution: solute crystals dissolving into the solvent. -->
@@ -175,8 +212,8 @@ const hexagon = (cx: number, cy: number, r: number) =>
         <rect class="liquid part-fill" :class="[on('solvent'), 'part']" x="180" y="130" width="120" height="150" clip-path="url(#sol-beaker)" />
         <path class="surface" d="M182 130H298" />
         <g :class="on('solute')" class="part">
-          <rect v-for="(x, i) in [204, 222, 244, 262]" :key="i" class="crystal a-dissolve part-fill" :x="x" :y="258 - (i % 2) * 6" width="12" height="12" rx="1.5" :style="{ '--d': `${i * 0.5}s` }" />
-          <circle v-for="(p, i) in dissolved" :key="`p${i}`" class="particle a-disperse part-fill" :cx="p.x" :cy="p.y" r="2.4" :style="{ '--d': `${p.d}s`, '--from': `${262 - p.y}px` }" />
+          <circle v-for="d in SOLUTION.dissolved" :key="d.key" class="particle part-fill" :data-mv="d.key" :style="pre(d.key)" :cx="d.x" :cy="d.y" r="2.4" />
+          <rect v-for="c in SOLUTION.crystals" :key="c.key" class="crystal part-fill" :data-mv="c.key" :style="pre(c.key)" :x="c.x" :y="c.y" width="12" height="12" rx="1.5" />
         </g>
         <path class="rod" d="M264 58L218 250" />
         <path class="glass" d="M176 80L182 84V268Q182 276 190 276H290Q298 276 298 268V84L304 80" />
@@ -189,8 +226,8 @@ const hexagon = (cx: number, cy: number, r: number) =>
         <path class="surface" d="M182 122H298" />
         <path class="rod" d="M160 72H320" />
         <path class="thread" d="M240 72V176" />
-        <polygon class="crystal a-grow" :points="hexagon(240, 186, 13)" style="--d: 0.3s" />
-        <polygon v-for="(c, i) in crystals" :key="i" class="crystal a-grow" :points="hexagon(c.x, c.y, 9 * c.s)" :style="{ '--d': `${c.d}s` }" />
+        <circle v-for="f in CRYSTALLIZATION.feed" :key="f.key" class="particle" data-lesson="12" :data-mv="f.key" :style="pre(f.key)" :cx="f.x" :cy="f.y" r="1.8" />
+        <polygon v-for="c in CRYSTALLIZATION.crystals" :key="c.key" class="crystal" :data-mv="c.key" :style="pre(c.key)" :points="hexagon(c.cx, c.cy, c.r)" />
         <path class="glass" d="M176 80L182 84V268Q182 276 190 276H290Q298 276 298 268V84L304 80" />
       </g>
 
@@ -203,40 +240,47 @@ const hexagon = (cx: number, cy: number, r: number) =>
           <path class="fold" d="M240 88V146" />
         </g>
         <clipPath id="filt-paper"><path d="M196 88H284L240 146Z" /></clipPath>
-        <rect class="liquid a-drain" x="190" y="104" width="100" height="50" clip-path="url(#filt-paper)" />
-        <circle v-for="(p, i) in residue" :key="i" class="residue a-settle" :cx="p.x" :cy="p.y" r="3" :style="{ '--d': `${p.d}s` }" />
+        <g clip-path="url(#filt-paper)">
+          <rect class="liquid" data-mv="cake" :style="pre('cake')" x="190" y="104" width="100" height="50" />
+        </g>
+        <circle v-for="q in FILTRATION.residue" :key="q.key" class="residue" :data-mv="q.key" :style="pre(q.key)" :cx="q.x" :cy="q.y" r="3" />
         <path class="glass" d="M186 84L234 150V210M294 84L246 150V210" />
+        <circle v-for="k in 2" :key="k" class="drop" :data-mv="`d${k - 1}`" :style="pre(`d${k - 1}`)" cx="240" cy="214" r="2.4" />
         <clipPath id="filt-flask"><path d="M230 226L198 282H282L250 226Z" /></clipPath>
-        <rect class="liquid" x="196" y="262" width="90" height="22" clip-path="url(#filt-flask)" />
+        <g clip-path="url(#filt-flask)">
+          <rect class="liquid" data-mv="filtrate" :style="pre('filtrate')" x="196" y="262" width="90" height="30" />
+        </g>
+        <ellipse v-for="k in 2" :key="k" class="ripple" :data-mv="`r${k - 1}`" :style="pre(`r${k - 1}`)" cx="240" cy="262" rx="5" ry="1.4" />
         <path class="glass" d="M230 206V226L198 282H282L250 226V206" />
-        <circle v-for="k in 2" :key="k" class="a-drip" cx="240" cy="214" r="2.4" :style="{ '--d': `${k * 0.9}s`, '--fall': '46px' }" />
       </g>
 
       <!-- Column chromatography: the mobile phase runs through the packed stationary phase, bands separate. -->
       <g v-else-if="name === 'chromatography'">
         <path class="glass" d="M150 28V284M122 284H200M150 120H222" />
-        <rect class="liquid part-fill" :class="[on('mobile'), 'part']" x="228" y="44" width="24" height="42" />
+        <rect class="liquid part-fill" :class="[on('mobile'), 'part']" data-mv="mobile" :style="pre('mobile')" x="228" y="44" width="24" height="42" />
         <g :class="on('stationary')" class="part">
           <rect class="packing part-fill" x="228" y="86" width="24" height="132" :fill="`url(#silica-${name})`" />
         </g>
         <clipPath id="chrom-column"><rect x="228" y="86" width="24" height="132" /></clipPath>
         <g clip-path="url(#chrom-column)">
-          <rect v-for="(b, i) in bands" :key="b.n" class="band a-elute" :data-lesson="b.n" x="228" :y="b.y" width="24" :height="b.h" :style="{ '--travel': `${b.travel}px`, '--tight': b.tight }" />
+          <rect v-for="b in CHROMATOGRAPHY.bands" :key="b.key" class="band" :data-lesson="b.n" :data-mv="b.key" :style="pre(b.key)" x="228" :y="b.y" width="24" :height="b.h" />
         </g>
         <path class="glass" d="M226 30V222L238 230V246M254 30V222L242 230V246" />
         <rect class="glass-fill" x="226" y="232" width="28" height="7" rx="3" />
+        <circle class="drop" data-mv="drip" :style="pre('drip')" cx="240" cy="250" r="2.4" />
+        <clipPath id="chrom-tube"><path d="M232 252V276Q232 284 240 284Q248 284 248 276V252Z" /></clipPath>
+        <rect class="liquid" x="230" y="277" width="20" height="8" clip-path="url(#chrom-tube)" />
         <path class="glass" v-for="(x, i) in [212, 240, 268]" :key="i" :d="`M${x - 8} 252V276Q${x - 8} 284 ${x} 284Q${x + 8} 284 ${x + 8} 276V252`" />
         <rect class="band" data-lesson="10" x="205" y="270" width="14" height="10" />
-        <circle class="a-drip" cx="240" cy="248" r="2.4" style="--fall: 26px" />
       </g>
 
       <!-- Separation: a mixture of two kinds of particle sorting itself into two. -->
       <g v-else>
         <clipPath id="sep-trough"><path d="M132 150V262Q132 270 140 270H340Q348 270 348 262V150Z" /></clipPath>
         <rect class="liquid" x="130" y="168" width="220" height="110" clip-path="url(#sep-trough)" />
-        <path class="divider a-divide" d="M240 176V264" />
-        <circle v-for="(p, i) in sortedA" :key="`a${i}`" class="particle a-sort" data-lesson="10" :cx="p.x" :cy="p.y" r="6" :style="{ '--mx': `${p.mx}px`, '--my': `${p.my}px` }" />
-        <rect v-for="(p, i) in sortedB" :key="`b${i}`" class="particle a-sort" data-lesson="12" :x="p.x - 5.5" :y="p.y - 5.5" width="11" height="11" rx="1.5" :style="{ '--mx': `${p.mx}px`, '--my': `${p.my}px` }" />
+        <path class="divider" data-mv="divider" :style="pre('divider')" d="M240 176V264" />
+        <circle v-for="p in SEPARATION.a" :key="p.key" class="particle" data-lesson="10" :data-mv="p.key" :style="pre(p.key)" :cx="p.x" :cy="p.y" r="6" />
+        <rect v-for="p in SEPARATION.b" :key="p.key" class="particle" data-lesson="12" :data-mv="p.key" :style="pre(p.key)" :x="p.x - 5.5" :y="p.y - 5.5" width="11" height="11" rx="1.5" />
         <path class="glass" d="M126 146L132 150V262Q132 270 140 270H340Q348 270 348 262V150L354 146" />
       </g>
 
@@ -421,27 +465,29 @@ svg {
 
 .flame-fire {
   fill: var(--flame-10);
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
 }
 
-.a-boil,
-.a-vapour,
-.a-drip-dist,
-.a-drip,
-.a-condense {
+.bubble,
+.drop {
   fill: var(--wet);
   stroke: var(--flame-mark);
   stroke-width: 0.8;
 }
 
-.a-vapour {
+.vapour {
   fill: color-mix(in oklch, var(--glass) 30%, transparent);
-  stroke: none;
+}
+
+/* A drop going into liquid leaves a ring on its surface. */
+.ripple {
+  fill: none;
+  stroke: var(--flame-mark);
+  stroke-width: 0.8;
+  vector-effect: non-scaling-stroke;
   opacity: 0;
 }
 
-.a-coolant {
+.coolant {
   stroke: var(--flame-11-mark);
   stroke-width: 1.6;
   stroke-linecap: round;
@@ -479,314 +525,17 @@ svg {
   font-size: 13px;
 }
 
-/* Motion: the processes run while the plate is on screen. The resting frame is the finished one. */
+/* Motion: poses are written as transforms about each part's anchor, in the plate's own units. Until
+   script takes over, the server's first frame stands in, so the motion starts from where it is drawn. */
+[data-mv] {
+  transform-box: view-box;
+  transform-origin: 0 0;
+}
+
 @media (prefers-reduced-motion: no-preference) {
-  .lab:not(.playing) * {
-    animation-play-state: paused !important;
-  }
-
-  .flame-fire {
-    animation: flicker 0.9s ease-in-out infinite alternate;
-  }
-
-  .a-boil {
-    opacity: 0;
-    animation: boil 1.6s ease-in var(--d, 0s) infinite;
-  }
-
-  .a-vapour {
-    animation: vapour 2.4s linear var(--d, 0s) infinite;
-  }
-
-  .a-coolant {
-    animation: coolant 2s linear var(--d, 0s) infinite;
-  }
-
-  .a-drip-dist {
-    opacity: 0;
-    animation: drip-dist 2.4s ease-in var(--d, 0s) infinite;
-  }
-
-  .a-drip {
-    opacity: 0;
-    animation: drip 1.8s ease-in var(--d, 0s) infinite;
-  }
-
-  .a-wisp {
-    animation: wisp 2.7s ease-out var(--d, 0s) infinite;
-  }
-
-  .a-condense {
-    transform-box: fill-box;
-    transform-origin: 50% 0;
-    animation: condense 2.8s ease-in var(--d, 0s) infinite;
-  }
-
-  .a-extract {
-    animation: extract 5s cubic-bezier(0.65, 0, 0.35, 1) var(--d, 0s) infinite;
-  }
-
-  .a-dissolve {
-    transform-box: fill-box;
-    transform-origin: 50% 100%;
-    animation: dissolve 6s ease-in-out var(--d, 0s) infinite;
-  }
-
-  .a-disperse {
-    animation: disperse 6s ease-out var(--d, 0s) infinite;
-  }
-
-  .a-grow {
-    transform-box: fill-box;
-    transform-origin: center;
-    animation: grow 7s cubic-bezier(0.2, 0.7, 0.3, 1) var(--d, 0s) infinite;
-  }
-
-  .a-settle {
-    animation: settle 4s ease-in var(--d, 0s) infinite;
-  }
-
-  .a-drain {
-    animation: drain 4s linear infinite;
-  }
-
-  .a-elute {
-    transform-box: fill-box;
-    transform-origin: 50% 0;
-    animation: elute 8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-
-  .a-sort {
-    animation: sort 6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
-  }
-
-  .a-divide {
-    animation: divide 6s ease-out infinite;
-  }
-}
-
-@keyframes flicker {
-  to {
-    transform: scale(0.92, 1.12);
-  }
-}
-
-@keyframes boil {
-  0% {
-    opacity: 0;
-    transform: translateY(0);
-  }
-  20% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-28px);
-  }
-}
-
-@keyframes vapour {
-  0% {
-    opacity: 0;
-    transform: translate(0, 0);
-  }
-  10% {
-    opacity: 1;
-  }
-  55% {
-    transform: translate(0, -68px);
-  }
-  90% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translate(46px, -54px);
-  }
-}
-
-@keyframes coolant {
-  from {
-    transform: translate(0, 0);
-    opacity: 0;
-  }
-  20%,
-  80% {
-    opacity: 1;
-  }
-  to {
-    transform: translate(-26px, -8.4px);
-    opacity: 0;
-  }
-}
-
-@keyframes drip-dist {
-  0% {
-    opacity: 0;
-    transform: translate(0, 0);
-  }
-  15% {
-    opacity: 1;
-  }
-  55% {
-    transform: translate(14px, 22px);
-  }
-  100% {
-    opacity: 1;
-    transform: translate(14px, 86px);
-  }
-}
-
-@keyframes drip {
-  0% {
-    opacity: 0;
-    transform: translateY(0) scale(0.4);
-  }
-  30% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(var(--fall, 30px));
-  }
-}
-
-@keyframes wisp {
-  0% {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  30% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-34px);
-  }
-}
-
-@keyframes condense {
-  0% {
-    transform: scale(0.2);
-  }
-  60% {
-    transform: scale(1);
-  }
-  75% {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(60px) scale(0.8);
-    opacity: 0;
-  }
-}
-
-@keyframes extract {
-  0%,
-  10% {
-    transform: translateY(var(--rise));
-  }
-  55%,
-  100% {
-    transform: none;
-  }
-}
-
-@keyframes dissolve {
-  0%,
-  8% {
-    transform: none;
-    opacity: 1;
-  }
-  70%,
-  100% {
-    transform: scale(0.35);
-    opacity: 0.5;
-  }
-}
-
-@keyframes disperse {
-  0% {
-    opacity: 0;
-    transform: translateY(var(--from));
-  }
-  60%,
-  100% {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes grow {
-  0% {
-    transform: scale(0.15);
-  }
-  75%,
-  100% {
-    transform: none;
-  }
-}
-
-@keyframes settle {
-  0% {
-    opacity: 0;
-    transform: translateY(-34px);
-  }
-  20% {
-    opacity: 1;
-  }
-  60%,
-  100% {
-    transform: none;
-  }
-}
-
-@keyframes drain {
-  0% {
-    transform: none;
-  }
-  100% {
-    transform: translateY(18px);
-  }
-}
-
-@keyframes elute {
-  0% {
-    transform: translateY(calc(var(--travel) * -1)) scaleY(var(--tight));
-  }
-  85%,
-  100% {
-    transform: none;
-  }
-}
-
-@keyframes sort {
-  0%,
-  12% {
-    transform: translate(var(--mx), var(--my));
-  }
-  55%,
-  92% {
-    transform: none;
-  }
-  100% {
-    transform: translate(var(--mx), var(--my));
-  }
-}
-
-@keyframes divide {
-  0%,
-  40% {
-    opacity: 0;
-  }
-  60%,
-  90% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
+  :global(html.js) .lab [data-mv] {
+    transform: var(--pre, none);
+    opacity: var(--pre-o, 1);
   }
 }
 </style>

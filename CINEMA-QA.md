@@ -91,6 +91,7 @@ Found and fixed while building it:
 - **Rows near the foot never reached the front line,** so the endpoint never came. Windows past the last reachable scroll are squeezed into the scroll that is left, in order.
 - **A landing drop re-rendered the whole glass,** and the endpoint was a class on `<html>` that restyled the whole document. The flask and the endpoint are now written to the DOM, and the endpoint touches the footer alone. The train's per-frame writes use quick setters (no tween per frame) and write visibility only when it changes.
 - **The apparatus tints turned blue.** Mixing a flame with the plate in oklch swings the hue through the plate's faint blue; the plates mix in oklab.
+- **Particles clipped through the funnel and popped in at random.** The CSS keyframes lifted solute straight through the separatory funnel's curved walls, slid residue through the paper, moved the filter liquid's clip along with it, and faded drops and bubbles in from opacity 0 wherever they stood. The plates now run on `lab-motion.ts` (each part's pose a function of time, clamped to the vessel's wall at its height), reviewed as 0.1–0.5 s frame strips and a 30 fps render from Lemo-Opuscar's `still.mjs` and `video.mjs`.
 
 ## Core Web Vitals (production build, motion allowed)
 
